@@ -323,7 +323,8 @@ public enum PartType
 		this.oreName = oreDict;
 
 		// The part is enabled if all features + integrations it needs are enabled
-		this.enabled = features.stream().allMatch( AEConfig.instance()::isFeatureEnabled ) && integrations.stream().allMatch( IntegrationRegistry.INSTANCE::isEnabled );
+		this.enabled = features.stream().allMatch((x) -> AEConfig.instance().isFeatureEnabled(x) || x == AEFeature.CHANNELS) && integrations.stream()
+				.allMatch( IntegrationRegistry.INSTANCE::isEnabled );
 
 		if( this.enabled )
 		{

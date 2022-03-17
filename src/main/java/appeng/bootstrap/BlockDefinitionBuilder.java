@@ -179,7 +179,7 @@ class BlockDefinitionBuilder implements IBlockBuilder
 	@Override
 	public <T extends IBlockDefinition> T build()
 	{
-		if( !AEConfig.instance().areFeaturesEnabled( this.features ) )
+		if( !AEConfig.instance().areFeaturesEnabled( this.features ) && !this.features.contains(AEFeature.CHANNELS))
 		{
 			return (T) new TileDefinition( this.registryName, null, null );
 		}
