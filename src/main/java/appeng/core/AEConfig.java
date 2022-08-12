@@ -117,6 +117,10 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 	private double wirelessBoosterExp = 1.5;
 	// Autocrafting
 	private boolean enableCraftingSubstitutes = false;
+	// Controller sizes
+	private int maxControllerSizeX = 7;
+	private int maxControllerSizeY = 7;
+	private int maxControllerSizeZ = 7;
 
 	private AEConfig( final File configFile )
 	{
@@ -180,6 +184,10 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
 		this.addCustomCategoryComment( "autocrafting", "Enable patterns with substitutions on to have their substitutes to be auto craftable.\nThis changes the crafting tree, and can show missing ingredients for the substitute, instead of the patterned item" );
 		this.enableCraftingSubstitutes = this.get( "autocrafting", "EnableAutocraftinSubstitutes", this.enableCraftingSubstitutes ).getBoolean( this.enableCraftingSubstitutes );
+
+		this.maxControllerSizeX = this.get( "controller", "maxControllerSizeX", this.maxControllerSizeX ).getInt(this.maxControllerSizeX);
+		this.maxControllerSizeY = this.get( "controller", "maxControllerSizeY", this.maxControllerSizeY ).getInt(this.maxControllerSizeY);
+		this.maxControllerSizeZ = this.get( "controller", "maxControllerSizeZ", this.maxControllerSizeZ ).getInt(this.maxControllerSizeZ);
 
 		this.clientSync();
 
@@ -763,4 +771,10 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 	{
 		return this.enableCraftingSubstitutes;
 	}
+
+	public int getMaxControllerSizeX() { return this.maxControllerSizeX; }
+
+	public int getMaxControllerSizeY() { return this.maxControllerSizeY; }
+
+	public int getMaxControllerSizeZ() { return this.maxControllerSizeZ; }
 }
