@@ -184,10 +184,11 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
 		this.addCustomCategoryComment( "autocrafting", "Enable patterns with substitutions on to have their substitutes to be auto craftable.\nThis changes the crafting tree, and can show missing ingredients for the substitute, instead of the patterned item" );
 		this.enableCraftingSubstitutes = this.get( "autocrafting", "EnableAutocraftinSubstitutes", this.enableCraftingSubstitutes ).getBoolean( this.enableCraftingSubstitutes );
-		
-		this.maxControllerSizeX = Math.min(Math.max(this.get( "controller", "maxControllerSizeX", this.maxControllerSizeX ).getInt(this.maxControllerSizeX), 1), 255);
-		this.maxControllerSizeY = Math.min(Math.max(this.get( "controller", "maxControllerSizeY", this.maxControllerSizeY ).getInt(this.maxControllerSizeY), 1), 255);
-		this.maxControllerSizeZ = Math.min(Math.max(this.get( "controller", "maxControllerSizeZ", this.maxControllerSizeZ ).getInt(this.maxControllerSizeZ), 1), 255);
+
+		this.addCustomCategoryComment( "ControllerSize", "Set the max size of a controller in any of the 3 axis.\nEach is between [1, 64)" );
+		this.maxControllerSizeX = Math.min(Math.max(this.get( "ControllerSize", "maxControllerSizeX", this.maxControllerSizeX ).getInt(this.maxControllerSizeX), 1), 63);
+		this.maxControllerSizeY = Math.min(Math.max(this.get( "ControllerSize", "maxControllerSizeY", this.maxControllerSizeY ).getInt(this.maxControllerSizeY), 1), 63);
+		this.maxControllerSizeZ = Math.min(Math.max(this.get( "ControllerSize", "maxControllerSizeZ", this.maxControllerSizeZ ).getInt(this.maxControllerSizeZ), 1), 63);
 
 		this.clientSync();
 
