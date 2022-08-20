@@ -317,15 +317,21 @@ public class GuiCraftingStatus extends GuiCraftingCPU
 				tooltip.append( hoveredCpu.getCoprocessors() );
 				tooltip.append( '\n' );
 			}
+			if (this.cpuScrollbar != null)
+			{
+				this.cpuScrollbar.draw( this );
+			}
 			if (tooltip.length() > 0)
 			{
 				this.drawTooltip( mouseX - offsetX, mouseY - offsetY, tooltip.toString() );
 			}
 		}
-
-		if (this.cpuScrollbar != null)
+		else
 		{
-			this.cpuScrollbar.draw( this );
+			if (this.cpuScrollbar != null)
+			{
+				this.cpuScrollbar.draw( this );
+			}
 		}
 	}
 
