@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import appeng.container.implementations.*;
 import appeng.helpers.ICustomNameObject;
 import appeng.parts.misc.PartOreDicStorageBus;
-import appeng.parts.reporting.PartExpandedProcessingPatternTerminal;
+import appeng.parts.reporting.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -75,9 +75,6 @@ import appeng.bootstrap.contents.QuartzKnifeObj;
 import appeng.parts.automation.PartFormationPlane;
 import appeng.parts.automation.PartLevelEmitter;
 import appeng.parts.misc.PartStorageBus;
-import appeng.parts.reporting.PartCraftingTerminal;
-import appeng.parts.reporting.PartInterfaceTerminal;
-import appeng.parts.reporting.PartPatternTerminal;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.tile.crafting.TileMolecularAssembler;
 import appeng.tile.grindstone.TileGrinder;
@@ -182,6 +179,8 @@ public enum GuiBridge implements IGuiHandler
 	GUI_INTERFACE_TERMINAL( ContainerInterfaceTerminal.class, PartInterfaceTerminal.class, GuiHostType.WORLD, SecurityPermissions.BUILD ),
 
 	GUI_CRAFTING_STATUS( ContainerCraftingStatus.class, ITerminalHost.class, GuiHostType.ITEM_OR_WORLD, SecurityPermissions.CRAFT ),
+  
+  GUI_INTERFACE_CONFIGURATION_TERMINAL( ContainerInterfaceConfigurationTerminal.class, PartInterfaceConfigurationTerminal.class, GuiHostType.WORLD, SecurityPermissions.BUILD ),
 
 	GUI_RENAMER(ContainerRenamer.class, ICustomNameObject.class, GuiHostType.WORLD, SecurityPermissions.BUILD);
 
@@ -346,7 +345,7 @@ public enum GuiBridge implements IGuiHandler
 			if( target == null )
 			{
 				throw new IllegalStateException( "Cannot find " + this.containerClass.getName() + "( " + this.typeName( inventory ) + ", " + this
-						.typeName( tE ) + " )" );
+						                                                                                                                             .typeName( tE ) + " )" );
 			}
 
 			return target.newInstance( inventory, tE );
@@ -444,7 +443,7 @@ public enum GuiBridge implements IGuiHandler
 			if( target == null )
 			{
 				throw new IllegalStateException( "Cannot find " + this.containerClass.getName() + "( " + this.typeName( inventory ) + ", " + this
-						.typeName( tE ) + " )" );
+						                                                                                                                             .typeName( tE ) + " )" );
 			}
 
 			return target.newInstance( inventory, tE );

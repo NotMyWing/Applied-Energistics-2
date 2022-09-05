@@ -174,6 +174,7 @@ public enum GuiText
 	Missing,
 
 	InterfaceTerminal,
+	InterfaceConfigurationTerminal,
 	NoCraftingCPUs,
 	Clean,
 	InvalidPattern,

@@ -23,13 +23,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import appeng.container.slot.*;
@@ -215,6 +210,10 @@ public abstract class AEBaseGui extends GuiContainer implements IMTModGuiContain
 			bookmarkedJEIghostItem( mouseX, mouseY );
 		}
 		GlStateManager.disableDepth();
+	}
+
+	public List<Rectangle> getJEIExclusionArea() {
+		return Collections.emptyList();
 	}
 
 	@Optional.Method( modid = "jei" )
@@ -474,7 +473,15 @@ public abstract class AEBaseGui extends GuiContainer implements IMTModGuiContain
 				{
 					if( slot.getStack().isEmpty() )
 					{
-						InventoryAction action = InventoryAction.SPLIT_OR_PLACE_SINGLE;
+						InventoryAction action;
+						if( slot.getSlotStackLimit() == 1 )
+						{
+							action = InventoryAction.SPLIT_OR_PLACE_SINGLE;
+						}
+						else
+						{
+							action = InventoryAction.PICKUP_OR_SET_DOWN;
+						}
 						final PacketInventoryAction p = new PacketInventoryAction( action, slot.getSlotIndex(), ( (SlotDisconnected) slot ).getSlot().getId() );
 						NetworkHandler.instance().sendToServer( p );
 					}
@@ -640,14 +647,13 @@ public abstract class AEBaseGui extends GuiContainer implements IMTModGuiContain
 			switch ( clickType )
 			{
 				case PICKUP: // pickup / set-down.
-					if( slot.getStack().isEmpty() && !player.inventory.getItemStack().isEmpty() )
+					if( mouseButton == 1 )
 					{
 						action = InventoryAction.SPLIT_OR_PLACE_SINGLE;
 					}
-					if( !slot.getStack().isEmpty() && player.inventory.getItemStack().getCount() <= 1 )
+					else
 					{
 						action = InventoryAction.PICKUP_OR_SET_DOWN;
-						this.haltDragging = true;
 					}
 					break;
 				case QUICK_MOVE:
@@ -861,7 +867,7 @@ public abstract class AEBaseGui extends GuiContainer implements IMTModGuiContain
 		}
 	}
 
-	private void mouseWheelEvent( final int x, final int y, final int wheel )
+	protected void mouseWheelEvent( final int x, final int y, final int wheel )
 	{
 		final Slot slot = this.getSlot( x, y );
 		if( slot instanceof SlotME )

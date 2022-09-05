@@ -19,13 +19,13 @@
 package appeng.client.gui.implementations;
 
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import appeng.client.me.SlotME;
-import appeng.container.slot.SlotRestrictedInput;
-import appeng.core.features.ColoredItemDefinition;
+import net.minecraftforge.fml.common.Loader;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -106,6 +106,8 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
 	private int currentMouseY = 0;
 	private boolean delayedUpdate;
 
+	protected int jeiOffset = Loader.isModLoaded( "jei" ) ? 24 : 0;
+
 	public GuiMEMonitorable( final InventoryPlayer inventoryPlayer, final ITerminalHost te )
 	{
 		this( inventoryPlayer, te, new ContainerMEMonitorable( inventoryPlayer, te ) );
@@ -178,7 +180,7 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
 				}
 			}
 		}
-		
+
 		if( !this.delayedUpdate )
 		{
 			this.repo.updateView();
@@ -253,9 +255,9 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
 
 		this.maxRows = this.getMaxRows();
 		this.perRow = AEConfig.instance()
-				.getConfigManager()
-				.getSetting(
-						Settings.TERMINAL_STYLE ) != TerminalStyle.FULL ? 9 : 9 + ( ( this.width - this.standardSize ) / 18 );
+				              .getConfigManager()
+				              .getSetting(
+						              Settings.TERMINAL_STYLE ) != TerminalStyle.FULL ? 9 : 9 + ( ( this.width - this.standardSize ) / 18 );
 
 		final int magicNumber = 114 + 1;
 		final int extraSpace = this.height - magicNumber - this.reservedSpace;
@@ -299,13 +301,15 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
 		final int unusedSpace = this.height - this.ySize;
 		this.guiTop = (int) Math.floor( unusedSpace / ( unusedSpace < 0 ? 3.8f : 2.0f ) );
 
-		int offset = this.guiTop + 8;
+		int offset = this.guiTop + 8 + jeiOffset;
 
-		if( this.customSortOrder )
 		{
-			this.buttonList
-					.add( this.SortByBox = new GuiImgButton( this.guiLeft - 18, offset, Settings.SORT_BY, this.configSrc.getSetting( Settings.SORT_BY ) ) );
-			offset += 20;
+			if( this.customSortOrder )
+			{
+				this.buttonList
+						.add( this.SortByBox = new GuiImgButton( this.guiLeft - 18, offset, Settings.SORT_BY, this.configSrc.getSetting( Settings.SORT_BY ) ) );
+				offset += 20;
+			}
 		}
 
 		if( this.viewCell || this instanceof GuiWirelessTerm )
@@ -316,22 +320,22 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
 		}
 
 		this.buttonList.add( this.SortDirBox = new GuiImgButton( this.guiLeft - 18, offset, Settings.SORT_DIRECTION, this.configSrc
-				.getSetting( Settings.SORT_DIRECTION ) ) );
+				                                                                                                             .getSetting( Settings.SORT_DIRECTION ) ) );
 		offset += 20;
 
 		this.buttonList.add(
 				this.searchBoxSettings = new GuiImgButton( this.guiLeft - 18, offset, Settings.SEARCH_MODE, AEConfig.instance()
-						.getConfigManager()
-						.getSetting(
-								Settings.SEARCH_MODE ) ) );
+						                                                                                            .getConfigManager()
+						                                                                                            .getSetting(
+								                                                                                            Settings.SEARCH_MODE ) ) );
 
 		offset += 20;
 
 		if( !( this instanceof GuiMEPortableCell ) || this instanceof GuiWirelessTerm )
 		{
 			this.buttonList.add( this.terminalStyleBox = new GuiImgButton( this.guiLeft - 18, offset, Settings.TERMINAL_STYLE, AEConfig.instance()
-					.getConfigManager()
-					.getSetting( Settings.TERMINAL_STYLE ) ) );
+					                                                                                                                   .getConfigManager()
+					                                                                                                                   .getSetting( Settings.TERMINAL_STYLE ) ) );
 		}
 
 		this.searchField = new MEGuiTextField( this.fontRenderer, this.guiLeft + Math.max( 80, this.offsetX ), this.guiTop + 4, 90, 12 );
@@ -344,7 +348,7 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
 		if( this.viewCell || this instanceof GuiWirelessTerm )
 		{
 			this.buttonList.add( this.craftingStatusBtn = new GuiTabButton( this.guiLeft + 170, this.guiTop - 4, 2 + 11 * 16, GuiText.CraftingStatus
-					.getLocal(), this.itemRender ) );
+					                                                                                                                  .getLocal(), this.itemRender ) );
 			this.craftingStatusBtn.setHideEdge( 13 );
 		}
 
@@ -400,6 +404,26 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
 	}
 
 	@Override
+	public List<Rectangle> getJEIExclusionArea()
+	{
+		List<Rectangle> exclusionArea = new ArrayList<>();
+
+		int yOffset = guiTop + 8 + jeiOffset;
+
+		int visibleButtons = (int) this.buttonList.stream().filter( v -> v.enabled && v.x < guiLeft ).count();
+		Rectangle sortDir = new Rectangle( guiLeft - 18, yOffset, 20, visibleButtons * 20 + visibleButtons - 2 );
+		exclusionArea.add( sortDir );
+
+		if( this.viewCell )
+		{
+			Rectangle viewMode = new Rectangle( guiLeft + 205, yOffset - 4, 24, 19 * monitorableContainer.getViewCells().length );
+			exclusionArea.add( viewMode );
+		}
+
+		return exclusionArea;
+	}
+
+	@Override
 	public void drawFG( final int offsetX, final int offsetY, final int mouseX, final int mouseY )
 	{
 		this.fontRenderer.drawString( this.getGuiDisplayName( this.myName.getLocal() ), 8, 6, 4210752 );
@@ -443,7 +467,7 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
 
 		if( this.viewCell || ( this instanceof GuiSecurityStation ) )
 		{
-			this.drawTexturedModalRect( offsetX + x_width, offsetY, x_width, 0, 46, 128 );
+			this.drawTexturedModalRect( offsetX + x_width, offsetY + jeiOffset, x_width, 0, 46, 128 );
 		}
 
 		for( int x = 0; x < this.rows; x++ )
