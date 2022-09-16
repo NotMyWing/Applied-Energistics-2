@@ -16,7 +16,6 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
-
 public class PartP2PGTCEPower extends PartP2PTunnel<PartP2PGTCEPower> {
     private static final P2PModels MODELS = new P2PModels("part/p2p/p2p_tunnel_gteu");
     private static final IEnergyContainer NULL_ENERGY_STORAGE = new NullEnergyStorage();
@@ -129,7 +128,7 @@ public class PartP2PGTCEPower extends PartP2PTunnel<PartP2PGTCEPower> {
 
                     amperesUsed += output.acceptEnergyFromNetwork(target.getSide().getFacing().getOpposite(), voltage, amperage - amperesUsed);
 
-                    if (amperage >= amperesUsed) {
+                    if (amperesUsed == amperage) {
                         outputs.clear();
                         break;
                     }
