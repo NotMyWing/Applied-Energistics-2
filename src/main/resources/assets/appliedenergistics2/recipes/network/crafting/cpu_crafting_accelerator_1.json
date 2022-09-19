@@ -1,0 +1,34 @@
+{
+    "conditions": [
+        {
+            "type": "forge:and",
+            "values": [
+                {
+                    "type": "minecraft:item_exists",
+                    "item": "appliedenergistics2:crafting_accelerator_1"
+                },
+                {
+                    "type": "minecraft:item_exists",
+                    "item": "appliedenergistics2:crafting_unit"
+                },
+                {
+                    "type": "appliedenergistics2:material_exists",
+                    "material": "material.engineering_processor"
+                }
+            ]
+        }
+    ],
+    "result": {
+        "item": "appliedenergistics2:crafting_accelerator_1"
+    },
+    "type": "forge:ore_shapeless",
+    "ingredients": [
+        {
+            "type": "appliedenergistics2:part",
+            "part": "material.engineering_processor"
+        },
+        {
+            "item": "appliedenergistics2:crafting_unit"
+        }
+    ]
+}

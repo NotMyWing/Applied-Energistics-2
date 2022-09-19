@@ -37,7 +37,10 @@ import java.util.Map;
  * - Dense
  */
 public enum CableCoreType {
-    GLASS("parts/cable/core/glass"), COVERED("parts/cable/core/covered"), DENSE("parts/cable/core/dense_smart");
+    GLASS( "parts/cable/core/glass" ),
+    COVERED( "parts/cable/core/covered" ),
+    DENSE( "parts/cable/core/dense_smart" ),
+    ULTRA_DENSE("parts/cable/core/ultra_dense_smart");
 
     private static final Map<AECableType, CableCoreType> cableMapping = generateCableMapping();
 
@@ -53,6 +56,8 @@ public enum CableCoreType {
         result.put(AECableType.SMART, CableCoreType.COVERED);
         result.put(AECableType.DENSE_COVERED, CableCoreType.DENSE);
         result.put(AECableType.DENSE_SMART, CableCoreType.DENSE);
+        result.put(AECableType.ULTRA_DENSE_COVERED, CableCoreType.ULTRA_DENSE);
+        result.put(AECableType.ULTRA_DENSE_SMART, CableCoreType.ULTRA_DENSE);
 
         return ImmutableMap.copyOf(result);
     }

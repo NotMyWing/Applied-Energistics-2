@@ -1,0 +1,27 @@
+{
+    "conditions": [
+        {
+            "type": "forge:and",
+            "values": [
+                {
+                    "type": "minecraft:item_exists",
+                    "item": "appliedenergistics2:crafting_accelerator_16"
+                },
+                {
+                    "type": "minecraft:item_exists",
+                    "item": "appliedenergistics2:crafting_accelerator_64"
+                }
+            ]
+        }
+    ],
+    "result": {
+        "item": "appliedenergistics2:crafting_accelerator_16",
+        "count": 4
+    },
+    "type": "forge:ore_shapeless",
+    "ingredients": [
+        {
+            "item": "appliedenergistics2:crafting_accelerator_64"
+        }
+    ]
+}

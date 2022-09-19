@@ -1,0 +1,6 @@
+{
+    "parent": "appliedenergistics2:item/part/cable_ultra_dense_covered_base",
+    "textures": {
+        "base": "appliedenergistics2:parts/cable/ultra_dense_covered/red"
+    }
+}

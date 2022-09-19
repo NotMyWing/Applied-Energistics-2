@@ -45,7 +45,10 @@ class CraftingCubeModel implements IModel {
     private final static ResourceLocation RING_SIDE_VER = texture("ring_side_ver");
     private final static ResourceLocation UNIT_BASE = texture("unit_base");
     private final static ResourceLocation LIGHT_BASE = texture("light_base");
-    private final static ResourceLocation ACCELERATOR_LIGHT = texture("accelerator_light");
+    private final static ResourceLocation ACCELERATOR_1_LIGHT = texture( "accelerator_1_light" );
+    private final static ResourceLocation ACCELERATOR_4_LIGHT = texture( "accelerator_4_light" );
+    private final static ResourceLocation ACCELERATOR_16_LIGHT = texture( "accelerator_16_light" );
+    private final static ResourceLocation ACCELERATOR_64_LIGHT = texture( "accelerator_64_light" );
     private final static ResourceLocation STORAGE_1K_LIGHT = texture("storage_1k_light");
     private final static ResourceLocation STORAGE_4K_LIGHT = texture("storage_4k_light");
     private final static ResourceLocation STORAGE_16K_LIGHT = texture("storage_16k_light");
@@ -68,7 +71,8 @@ class CraftingCubeModel implements IModel {
 
     @Override
     public Collection<ResourceLocation> getTextures() {
-        return ImmutableList.of(RING_CORNER, RING_SIDE_HOR, RING_SIDE_VER, UNIT_BASE, LIGHT_BASE, ACCELERATOR_LIGHT, STORAGE_1K_LIGHT, STORAGE_4K_LIGHT,
+        return ImmutableList.of(RING_CORNER, RING_SIDE_HOR, RING_SIDE_VER, UNIT_BASE, LIGHT_BASE, ACCELERATOR_1_LIGHT, ACCELERATOR_4_LIGHT, ACCELERATOR_16_LIGHT, ACCELERATOR_64_LIGHT,
+                STORAGE_1K_LIGHT, STORAGE_4K_LIGHT, STORAGE_1K_LIGHT, STORAGE_4K_LIGHT,
                 STORAGE_16K_LIGHT, STORAGE_64K_LIGHT, MONITOR_BASE, MONITOR_LIGHT_DARK, MONITOR_LIGHT_MEDIUM, MONITOR_LIGHT_BRIGHT);
     }
 
@@ -82,7 +86,10 @@ class CraftingCubeModel implements IModel {
         switch (this.type) {
             case UNIT:
                 return new UnitBakedModel(format, ringCorner, ringSideHor, ringSideVer, bakedTextureGetter.apply(UNIT_BASE));
-            case ACCELERATOR:
+            case ACCELERATOR_1:
+            case ACCELERATOR_4:
+            case ACCELERATOR_16:
+            case ACCELERATOR_64:
             case STORAGE_1K:
             case STORAGE_4K:
             case STORAGE_16K:
@@ -100,8 +107,14 @@ class CraftingCubeModel implements IModel {
 
     private static TextureAtlasSprite getLightTexture(Function<ResourceLocation, TextureAtlasSprite> textureGetter, BlockCraftingUnit.CraftingUnitType type) {
         switch (type) {
-            case ACCELERATOR:
-                return textureGetter.apply(ACCELERATOR_LIGHT);
+            case ACCELERATOR_1:
+                return textureGetter.apply( ACCELERATOR_1_LIGHT );
+            case ACCELERATOR_4:
+                return textureGetter.apply( ACCELERATOR_4_LIGHT );
+            case ACCELERATOR_16:
+                return textureGetter.apply( ACCELERATOR_16_LIGHT );
+            case ACCELERATOR_64:
+                return textureGetter.apply( ACCELERATOR_64_LIGHT );
             case STORAGE_1K:
                 return textureGetter.apply(STORAGE_1K_LIGHT);
             case STORAGE_4K:

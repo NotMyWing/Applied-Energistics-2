@@ -1,0 +1,27 @@
+{
+    "conditions": [
+        {
+            "type": "forge:and",
+            "values": [
+                {
+                    "type": "minecraft:item_exists",
+                    "item": "appliedenergistics2:crafting_storage_256k"
+                },
+                {
+                    "type": "minecraft:item_exists",
+                    "item": "appliedenergistics2:crafting_storage_1m"
+                }
+            ]
+        }
+    ],
+    "result": {
+        "item": "appliedenergistics2:crafting_storage_256k",
+        "count": 4
+    },
+    "type": "forge:ore_shapeless",
+    "ingredients": [
+        {
+            "item": "appliedenergistics2:crafting_storage_1m"
+        }
+    ]
+}

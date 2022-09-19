@@ -171,7 +171,13 @@ public interface IBlocks
 	// rv1
 	ITileDefinition craftingUnit();
 
-	ITileDefinition craftingAccelerator();
+	ITileDefinition craftingAccelerator1();
+
+	ITileDefinition craftingAccelerator4();
+
+	ITileDefinition craftingAccelerator16();
+
+	ITileDefinition craftingAccelerator64();
 
 	ITileDefinition craftingStorage1k();
 

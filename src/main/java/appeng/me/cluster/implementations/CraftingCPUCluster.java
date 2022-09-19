@@ -49,6 +49,7 @@ import appeng.tile.crafting.TileCraftingMonitorTile;
 import appeng.tile.crafting.TileCraftingTile;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import appeng.tile.crafting.TileCraftingStorageTile;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.inventory.InventoryCrafting;
@@ -186,7 +187,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
         } else if (te.isStatus()) {
             this.status.add((TileCraftingMonitorTile) te);
         } else if (te.isAccelerator()) {
-            this.accelerator++;
+            this.accelerator += te.getAcceleration();
         }
     }
 

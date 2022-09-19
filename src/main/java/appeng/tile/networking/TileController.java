@@ -51,12 +51,12 @@ public class TileController extends AENetworkPowerTile {
         this.setInternalMaxPower(8000);
         this.setInternalPublicPowerStorage(true);
         this.getProxy().setIdlePowerUsage(3);
-        this.getProxy().setFlags(GridFlags.CANNOT_CARRY, GridFlags.DENSE_CAPACITY);
+        this.getProxy().setFlags(GridFlags.CANNOT_CARRY, GridFlags.ULTRA_DENSE_CAPACITY);
     }
 
     @Override
     public AECableType getCableConnectionType(final AEPartLocation dir) {
-        return AECableType.DENSE_SMART;
+        return AECableType.ULTRA_DENSE_SMART;
     }
 
     @Override

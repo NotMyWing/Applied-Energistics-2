@@ -25,6 +25,8 @@ import appeng.core.features.AEFeature;
 import appeng.integration.modules.theoneprobe.TheOneProbeText;
 import appeng.parts.networking.PartCableSmart;
 import appeng.parts.networking.PartDenseCableSmart;
+import appeng.parts.networking.PartUltraDenseCable;
+import appeng.parts.networking.PartUltraDenseCableSmart;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
@@ -41,14 +43,14 @@ public class ChannelInfoProvider implements IPartProbInfoProvider {
         if (!AEConfig.instance().isFeatureEnabled(AEFeature.CHANNELS)) {
             return;
         }
-        if (part instanceof PartDenseCableSmart || part instanceof PartCableSmart) {
+        if(part instanceof PartUltraDenseCableSmart || part instanceof PartDenseCableSmart || part instanceof PartCableSmart ) {
             final int usedChannels;
-            final int maxChannels = (part instanceof PartDenseCableSmart) ? 32 : 8;
+            final int maxChannels = (part instanceof PartUltraDenseCableSmart) ? 128 : ( part instanceof PartDenseCableSmart ) ? 32 : 8;
 
             if (part.getGridNode().isActive()) {
                 final NBTTagCompound tmp = new NBTTagCompound();
                 part.writeToNBT(tmp);
-                usedChannels = tmp.getByte("usedChannels");
+                usedChannels = tmp.getShort("usedChannels");
             } else {
                 usedChannels = 0;
             }

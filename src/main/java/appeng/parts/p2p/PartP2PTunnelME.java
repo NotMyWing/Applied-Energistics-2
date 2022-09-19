@@ -65,7 +65,7 @@ public class PartP2PTunnelME extends PartP2PTunnel<PartP2PTunnelME> implements I
     public PartP2PTunnelME(final ItemStack is) {
         super(is);
         this.getProxy().setFlags(GridFlags.REQUIRE_CHANNEL, GridFlags.COMPRESSED_CHANNEL);
-        this.outerProxy.setFlags(GridFlags.DENSE_CAPACITY, GridFlags.CANNOT_CARRY_COMPRESSED);
+        this.outerProxy.setFlags(GridFlags.ULTRA_DENSE_CAPACITY, GridFlags.CANNOT_CARRY_COMPRESSED);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class PartP2PTunnelME extends PartP2PTunnel<PartP2PTunnelME> implements I
 
     @Override
     public AECableType getCableConnectionType(final AEPartLocation dir) {
-        return AECableType.DENSE_SMART;
+        return AECableType.ULTRA_DENSE_SMART;
     }
 
     @Override

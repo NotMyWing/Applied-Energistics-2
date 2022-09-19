@@ -95,6 +95,22 @@ public class AEItemResolver implements ISubItemResolver {
                 return this.cableItem(parts.cableDenseSmart(), itemName.substring(itemName.indexOf('.') + 1));
             }
 
+            if (itemName.equals("cable_ultra_dense_covered")) {
+                return new ResolverResultSet("cable_ultra_dense_covered", parts.cableDenseCovered().allStacks(1));
+            }
+
+            if (itemName.startsWith("cable_ultra_dense_covered.")) {
+                return this.cableItem(parts.cableUltraDenseCovered(), itemName.substring(itemName.indexOf('.') + 1));
+            }
+
+            if (itemName.equals("cable_ultra_dense_smart")) {
+                return new ResolverResultSet("cable_ultra_dense_smart", parts.cableDenseSmart().allStacks(1));
+            }
+
+            if (itemName.startsWith("cable_ultra_dense_smart.")) {
+                return this.cableItem(parts.cableUltraDenseSmart(), itemName.substring(itemName.indexOf('.') + 1));
+            }
+
             if (itemName.startsWith("crystal_seed.")) {
                 if (itemName.equalsIgnoreCase("crystal_seed.certus")) {
                     return ItemCrystalSeed.getResolver(ItemCrystalSeed.CERTUS);

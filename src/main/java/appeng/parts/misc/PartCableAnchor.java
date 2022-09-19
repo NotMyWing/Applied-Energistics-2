@@ -198,7 +198,7 @@ public class PartCableAnchor implements IPart {
 
     @Override
     public boolean canBePlacedOn(final BusSupport what) {
-        return what == BusSupport.CABLE || what == BusSupport.DENSE_CABLE;
+        return what == BusSupport.CABLE || what == BusSupport.DENSE_CABLE || what == BusSupport.ULTRA_DENSE_CABLE;
     }
 
     @Override

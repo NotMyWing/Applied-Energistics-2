@@ -66,5 +66,10 @@ public enum GridFlags
 	 * Indicates which path might be preferred, this only matters if two routes of equal length exist, ad only changes
 	 * the order they are processed in.
 	 */
-	PREFERRED
+	PREFERRED,
+
+	/**
+	 * Used for 128 channel cables
+	 */
+	ULTRA_DENSE_CAPACITY
 }

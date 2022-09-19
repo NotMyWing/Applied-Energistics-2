@@ -28,7 +28,8 @@ public enum AECableSize
 {
 	NONE,
 	NORMAL,
-	DENSE;
+	DENSE,
+	ULTRA_DENSE;
 
 	public static AECableSize min( AECableSize a, AECableSize b )
 	{

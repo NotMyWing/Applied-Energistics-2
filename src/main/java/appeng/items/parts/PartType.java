@@ -113,6 +113,32 @@ public enum PartType {
         }
     },
 
+    CABLE_ULTRA_DENSE_COVERED(600, "cable_ultra_dense_covered", EnumSet.of(AEFeature.ULTRA_DENSE_CABLES), EnumSet.noneOf(IntegrationType.class), PartUltraDenseCableCovered.class) {
+        @Override
+        public boolean isCable() {
+            return true;
+        }
+
+        @Override
+        @SideOnly(Side.CLIENT)
+        protected List<ModelResourceLocation> createItemModels(String baseName) {
+            return Arrays.stream(AEColor.values()).map(color -> modelFromBaseName(baseName + "_" + color.name().toLowerCase())).collect(Collectors.toList());
+        }
+    },
+
+    CABLE_ULTRA_DENSE_SMART(620, "cable_ultra_dense_smart", EnumSet.of(AEFeature.ULTRA_DENSE_CABLES), EnumSet.noneOf(IntegrationType.class), PartUltraDenseCableSmart.class) {
+        @Override
+        public boolean isCable() {
+            return true;
+        }
+
+        @Override
+        @SideOnly(Side.CLIENT)
+        protected List<ModelResourceLocation> createItemModels(String baseName) {
+            return Arrays.stream(AEColor.values()).map(color -> modelFromBaseName(baseName + "_" + color.name().toLowerCase())).collect(Collectors.toList());
+        }
+    },
+
     TOGGLE_BUS(80, "toggle_bus", EnumSet.of(AEFeature.TOGGLE_BUS), EnumSet.noneOf(IntegrationType.class), PartToggleBus.class),
 
     INVERTED_TOGGLE_BUS(100, "inverted_toggle_bus", EnumSet.of(AEFeature.TOGGLE_BUS), EnumSet.noneOf(IntegrationType.class), PartInvertedToggleBus.class),

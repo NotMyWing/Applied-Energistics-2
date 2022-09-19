@@ -48,7 +48,7 @@ import java.util.*;
 
 public class GridNode implements IGridNode, IPathItem {
     private static final MENetworkChannelsChanged EVENT = new MENetworkChannelsChanged();
-    private static final int[] CHANNEL_COUNT = {0, 8, 32};
+    private static final int[] CHANNEL_COUNT = {0, 8, 32, 128};
 
     private final List<IGridConnection> connections = new ArrayList<>();
     private final IGridBlock gridProxy;
@@ -165,11 +165,20 @@ public class GridNode implements IGridNode, IPathItem {
         }
     }
 
+    private int getCompressedDataIndex(EnumSet<GridFlags> set){
+        if(set.contains(GridFlags.CANNOT_CARRY))
+            return 0;
+        else if(set.contains(GridFlags.ULTRA_DENSE_CAPACITY))
+            return 3;
+        else if(set.contains(GridFlags.DENSE_CAPACITY))
+            return 2;
+        else
+            return 1;
+    }
+
     @Override
     public void updateState() {
-        final EnumSet<GridFlags> set = this.gridProxy.getFlags();
-
-        this.compressedData = set.contains(GridFlags.CANNOT_CARRY) ? 0 : (set.contains(GridFlags.DENSE_CAPACITY) ? 2 : 1);
+        this.compressedData = getCompressedDataIndex(this.gridProxy.getFlags());
 
         this.compressedData |= (this.gridProxy.getGridColor().ordinal() << 3);
 
@@ -521,7 +530,7 @@ public class GridNode implements IGridNode, IPathItem {
     }
 
     private int getMaxChannels() {
-        return CHANNEL_COUNT[this.compressedData & 0x03];
+        return CHANNEL_COUNT[this.compressedData & 0x3];
     }
 
     @Override

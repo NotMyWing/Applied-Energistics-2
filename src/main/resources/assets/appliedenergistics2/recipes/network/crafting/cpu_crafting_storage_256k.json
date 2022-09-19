@@ -1,0 +1,39 @@
+{
+    "conditions": [
+        {
+            "type": "forge:and",
+            "values": [
+                {
+                    "type": "minecraft:item_exists",
+                    "item": "appliedenergistics2:crafting_storage_64k"
+                },
+                {
+                    "type": "appliedenergistics2:material_exists",
+                    "material": "material.logic_processor"
+                },
+                {
+                    "type": "minecraft:item_exists",
+                    "item": "appliedenergistics2:crafting_storage_256k"
+                }
+            ]
+        }
+    ],
+    "result": {
+        "item": "appliedenergistics2:crafting_storage_256k"
+    },
+    "type": "forge:ore_shaped",
+    "pattern": [
+        " a ",
+        "aba",
+        " a "
+    ],
+    "key": {
+        "a": {
+            "item": "appliedenergistics2:crafting_storage_64k"
+        },
+        "b": {
+            "type": "appliedenergistics2:part",
+            "part": "material.logic_processor"
+        }
+    }
+}
