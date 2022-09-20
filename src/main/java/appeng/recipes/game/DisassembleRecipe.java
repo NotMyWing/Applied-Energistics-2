@@ -59,6 +59,10 @@ public final class DisassembleRecipe extends net.minecraftforge.registries.IForg
         this.cellMappings.put(items.cell4k(), mats.cell4kPart());
         this.cellMappings.put(items.cell16k(), mats.cell16kPart());
         this.cellMappings.put(items.cell64k(), mats.cell64kPart());
+        this.cellMappings.put(items.cell256k(), mats.cell256kPart());
+        this.cellMappings.put(items.cell1m(), mats.cell1mPart());
+        this.cellMappings.put(items.cell4m(), mats.cell4mPart());
+        this.cellMappings.put(items.cell16m(), mats.cell16mPart());
 
         this.nonCellMappings.put(items.encodedPattern(), mats.blankPattern());
         this.nonCellMappings.put(blocks.craftingAccelerator1(), mats.engProcessor());
@@ -66,6 +70,10 @@ public final class DisassembleRecipe extends net.minecraftforge.registries.IForg
         this.nonCellMappings.put(blocks.craftingStorage4k(), mats.cell4kPart());
         this.nonCellMappings.put(blocks.craftingStorage16k(), mats.cell16kPart());
         this.nonCellMappings.put(blocks.craftingStorage64k(), mats.cell64kPart());
+        this.nonCellMappings.put(blocks.craftingStorage256k(), mats.cell256kPart());
+        this.nonCellMappings.put(blocks.craftingStorage1m(), mats.cell1mPart());
+        this.nonCellMappings.put(blocks.craftingStorage4m(), mats.cell4mPart());
+        this.nonCellMappings.put(blocks.craftingStorage16m(), mats.cell16mPart());
     }
 
     @Override

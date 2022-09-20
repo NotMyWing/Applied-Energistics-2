@@ -5,11 +5,11 @@
             "values": [
                 {
                     "type": "minecraft:item_exists",
-                    "item": "appliedenergistics2:crafting_storage_256k"
+                    "item": "appliedenergistics2:storage_cell_256k"
                 },
                 {
                     "type": "minecraft:item_exists",
-                    "item": "appliedenergistics2:crafting_unit"
+                    "item": "appliedenergistics2:quartz_glass"
                 },
                 {
                     "type": "appliedenergistics2:material_exists",
@@ -19,16 +19,29 @@
         }
     ],
     "result": {
-        "item": "appliedenergistics2:crafting_storage_256k"
+        "item": "appliedenergistics2:storage_cell_256k"
     },
-    "type": "forge:ore_shapeless",
-    "ingredients": [
-        {
-            "item": "appliedenergistics2:crafting_unit"
+    "type": "forge:ore_shaped",
+    "pattern": [
+        "aba",
+        "bcb",
+        "ddd"
+    ],
+    "key": {
+        "a": {
+            "item": "appliedenergistics2:quartz_glass"
         },
-        {
+        "d": {
+            "type": "forge:ore_dict",
+            "ore": "ingotIron"
+        },
+        "b": {
+            "type": "forge:ore_dict",
+            "ore": "dustRedstone"
+        },
+        "c": {
             "type": "appliedenergistics2:part",
             "part": "material.cell256k_part"
         }
-    ]
+    }
 }

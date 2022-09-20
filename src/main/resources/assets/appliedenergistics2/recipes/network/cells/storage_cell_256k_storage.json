@@ -5,11 +5,11 @@
             "values": [
                 {
                     "type": "minecraft:item_exists",
-                    "item": "appliedenergistics2:crafting_storage_256k"
+                    "item": "appliedenergistics2:storage_cell_256k"
                 },
                 {
-                    "type": "minecraft:item_exists",
-                    "item": "appliedenergistics2:crafting_unit"
+                    "type": "appliedenergistics2:material_exists",
+                    "material": "material.empty_storage_cell"
                 },
                 {
                     "type": "appliedenergistics2:material_exists",
@@ -19,12 +19,13 @@
         }
     ],
     "result": {
-        "item": "appliedenergistics2:crafting_storage_256k"
+        "item": "appliedenergistics2:storage_cell_256k"
     },
     "type": "forge:ore_shapeless",
     "ingredients": [
         {
-            "item": "appliedenergistics2:crafting_unit"
+            "type": "appliedenergistics2:part",
+            "part": "material.empty_storage_cell"
         },
         {
             "type": "appliedenergistics2:part",
