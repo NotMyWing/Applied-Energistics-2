@@ -120,6 +120,10 @@ class CondenserCategory implements IRecipeCategory<CondenserOutputWrapper> {
         materials.cell4kPart().maybeStack(1).ifPresent(itemStack -> this.addViableComponent(condenserOutput, viableComponents, itemStack));
         materials.cell16kPart().maybeStack(1).ifPresent(itemStack -> this.addViableComponent(condenserOutput, viableComponents, itemStack));
         materials.cell64kPart().maybeStack(1).ifPresent(itemStack -> this.addViableComponent(condenserOutput, viableComponents, itemStack));
+        materials.cell256kPart().maybeStack(1).ifPresent(itemStack -> this.addViableComponent(condenserOutput, viableComponents, itemStack));
+        materials.cell1mPart().maybeStack(1).ifPresent(itemStack -> this.addViableComponent(condenserOutput, viableComponents, itemStack));
+        materials.cell4mPart().maybeStack(1).ifPresent(itemStack -> this.addViableComponent(condenserOutput, viableComponents, itemStack));
+        materials.cell16mPart().maybeStack(1).ifPresent(itemStack -> this.addViableComponent(condenserOutput, viableComponents, itemStack));
         return viableComponents;
     }
 

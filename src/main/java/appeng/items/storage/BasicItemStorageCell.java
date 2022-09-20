@@ -53,6 +53,22 @@ public final class BasicItemStorageCell extends AbstractStorageCell<IAEItemStack
                 this.idleDrain = 2.0;
                 this.perType = 512;
                 break;
+            case CELL256K_PART:
+                this.idleDrain = 2.5;
+                this.perType = 2048;
+                break;
+            case CELL1M_PART:
+                this.idleDrain = 3.0;
+                this.perType = 8192;
+                break;
+            case CELL4M_PART:
+                this.idleDrain = 3.5;
+                this.perType = 32768;
+                break;
+            case CELL16M_PART:
+                this.idleDrain = 4.0;
+                this.perType = 131072;
+                break;
             default:
                 this.idleDrain = 0.0;
                 this.perType = 8;

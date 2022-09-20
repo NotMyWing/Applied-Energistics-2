@@ -81,6 +81,14 @@ public interface IMaterials
 
 	IItemDefinition cell64kPart();
 
+	IItemDefinition cell256kPart();
+
+	IItemDefinition cell1mPart();
+
+	IItemDefinition cell4mPart();
+
+	IItemDefinition cell16mPart();
+
 	IItemDefinition emptyStorageCell();
 
 	IItemDefinition cardRedstone();
