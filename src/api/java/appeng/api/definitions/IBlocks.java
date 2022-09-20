@@ -187,6 +187,14 @@ public interface IBlocks
 
 	ITileDefinition craftingStorage64k();
 
+	ITileDefinition craftingStorage256k();
+
+	ITileDefinition craftingStorage1m();
+
+	ITileDefinition craftingStorage4m();
+
+	ITileDefinition craftingStorage16m();
+
 	ITileDefinition craftingMonitor();
 
 	ITileDefinition molecularAssembler();

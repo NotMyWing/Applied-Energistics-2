@@ -61,6 +61,7 @@ public final class DisassembleRecipe extends net.minecraftforge.registries.IForg
         this.cellMappings.put(items.cell64k(), mats.cell64kPart());
 
         this.nonCellMappings.put(items.encodedPattern(), mats.blankPattern());
+        this.nonCellMappings.put(blocks.craftingAccelerator1(), mats.engProcessor());
         this.nonCellMappings.put(blocks.craftingStorage1k(), mats.cell1kPart());
         this.nonCellMappings.put(blocks.craftingStorage4k(), mats.cell4kPart());
         this.nonCellMappings.put(blocks.craftingStorage16k(), mats.cell16kPart());

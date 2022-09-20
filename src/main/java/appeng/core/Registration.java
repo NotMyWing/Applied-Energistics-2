@@ -367,6 +367,18 @@ final class Registration {
         Upgrades.FUZZY.registerItem(items.cell64k(), 1);
         Upgrades.INVERTER.registerItem(items.cell64k(), 1);
 
+        Upgrades.FUZZY.registerItem(items.cell256k(), 1);
+        Upgrades.INVERTER.registerItem(items.cell256k(), 1);
+
+        Upgrades.FUZZY.registerItem(items.cell1m(), 1);
+        Upgrades.INVERTER.registerItem(items.cell1m(), 1);
+
+        Upgrades.FUZZY.registerItem(items.cell4m(), 1);
+        Upgrades.INVERTER.registerItem(items.cell4m(), 1);
+
+        Upgrades.FUZZY.registerItem(items.cell16m(), 1);
+        Upgrades.INVERTER.registerItem(items.cell16m(), 1);
+
         Upgrades.FUZZY.registerItem(items.portableCell(), 1);
         Upgrades.INVERTER.registerItem(items.portableCell(), 1);
 

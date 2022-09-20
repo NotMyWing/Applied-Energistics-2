@@ -92,6 +92,10 @@ public final class ApiItems implements IItems {
     private final IItemDefinition cell4k;
     private final IItemDefinition cell16k;
     private final IItemDefinition cell64k;
+    private final IItemDefinition cell256k;
+    private final IItemDefinition cell1m;
+    private final IItemDefinition cell4m;
+    private final IItemDefinition cell16m;
 
     private final IItemDefinition fluidCell1k;
     private final IItemDefinition fluidCell4k;
@@ -210,6 +214,10 @@ public final class ApiItems implements IItems {
         this.cell4k = storageCells.item("storage_cell_4k", () -> new BasicItemStorageCell(MaterialType.CELL4K_PART, 4)).build();
         this.cell16k = storageCells.item("storage_cell_16k", () -> new BasicItemStorageCell(MaterialType.CELL16K_PART, 16)).build();
         this.cell64k = storageCells.item("storage_cell_64k", () -> new BasicItemStorageCell(MaterialType.CELL64K_PART, 64)).build();
+        this.cell256k = storageCells.item("storage_cell_256k", () -> new BasicItemStorageCell(MaterialType.CELL256K_PART, 256)).build();
+        this.cell1m = storageCells.item("storage_cell_1m", () -> new BasicItemStorageCell(MaterialType.CELL1M_PART, 1024)).build();
+        this.cell4m = storageCells.item("storage_cell_4m", () -> new BasicItemStorageCell(MaterialType.CELL4M_PART, 4096)).build();
+        this.cell16m = storageCells.item("storage_cell_16m", () -> new BasicItemStorageCell(MaterialType.CELL16M_PART, 16384)).build();
 
         this.fluidCell1k = storageCells.item("fluid_storage_cell_1k", () -> new BasicFluidStorageCell(MaterialType.FLUID_CELL1K_PART, 1)).build();
         this.fluidCell4k = storageCells.item("fluid_storage_cell_4k", () -> new BasicFluidStorageCell(MaterialType.FLUID_CELL4K_PART, 4)).build();
@@ -401,6 +409,26 @@ public final class ApiItems implements IItems {
     @Override
     public IItemDefinition cell64k() {
         return this.cell64k;
+    }
+
+    @Override
+    public IItemDefinition cell256k() {
+        return this.cell256k;
+    }
+
+    @Override
+    public IItemDefinition cell1m() {
+        return this.cell1m;
+    }
+
+    @Override
+    public IItemDefinition cell4m() {
+        return this.cell4m;
+    }
+
+    @Override
+    public IItemDefinition cell16m() {
+        return this.cell16m;
     }
 
     @Override
