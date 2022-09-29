@@ -123,7 +123,8 @@ public enum MaterialType {
     CELL256K_PART(59, "material_cell256k_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
     CELL1M_PART(60, "material_cell1m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
     CELL4M_PART(61, "material_cell4m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
-    CELL16M_PART(62, "material_cell16m_part", EnumSet.of(AEFeature.STORAGE_CELLS));
+    CELL16M_PART(62, "material_cell16m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
+    FLUID_CELL256K_PART(63, "material_fluid_cell256k_part", EnumSet.of(AEFeature.STORAGE_CELLS));
 
 
     private final Set<AEFeature> features;

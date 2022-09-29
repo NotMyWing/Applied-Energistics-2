@@ -1,7 +1,7 @@
 [
     {
         "modid": "appliedenergistics2",
-        "name": "AE2 Unofficial Extended Life",
+        "name": "AE2 Extended Life Addon Port",
         "description": "A Mod about Matter, Energy and using them to conquer the world..",
         "version": "${version}",
         "mcversion": "${mcversion}",

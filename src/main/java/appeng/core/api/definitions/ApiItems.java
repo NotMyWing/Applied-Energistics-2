@@ -101,6 +101,7 @@ public final class ApiItems implements IItems {
     private final IItemDefinition fluidCell4k;
     private final IItemDefinition fluidCell16k;
     private final IItemDefinition fluidCell64k;
+    private final IItemDefinition fluidCell256k;
 
     private final IItemDefinition spatialCell2;
     private final IItemDefinition spatialCell16;
@@ -223,6 +224,7 @@ public final class ApiItems implements IItems {
         this.fluidCell4k = storageCells.item("fluid_storage_cell_4k", () -> new BasicFluidStorageCell(MaterialType.FLUID_CELL4K_PART, 4)).build();
         this.fluidCell16k = storageCells.item("fluid_storage_cell_16k", () -> new BasicFluidStorageCell(MaterialType.FLUID_CELL16K_PART, 16)).build();
         this.fluidCell64k = storageCells.item("fluid_storage_cell_64k", () -> new BasicFluidStorageCell(MaterialType.FLUID_CELL64K_PART, 64)).build();
+        this.fluidCell256k = storageCells.item("fluid_storage_cell_256k", () -> new BasicFluidStorageCell(MaterialType.FLUID_CELL256K_PART, 256)).build();
 
         FeatureFactory spatialCells = registry.features(AEFeature.SPATIAL_IO);
         this.spatialCell2 = spatialCells.item("spatial_storage_cell_2_cubed", () -> new ItemSpatialStorageCell(2)).build();
@@ -449,6 +451,11 @@ public final class ApiItems implements IItems {
     @Override
     public IItemDefinition fluidCell64k() {
         return this.fluidCell64k;
+    }
+
+    @Override
+    public IItemDefinition fluidCell256k() {
+        return this.fluidCell256k;
     }
 
     @Override
