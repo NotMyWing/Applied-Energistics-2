@@ -1,47 +1,29 @@
 {
-    "ae2_uvl_marker": true,
-    "textures": {
-        "front": "appliedenergistics2:blocks/drive_cell_states",
-        "top_front": "appliedenergistics2:blocks/drive_cell_states_emissive"
-    },
-    "elements": [
-        {
-            "name": "Cell Backdrop",
-            "shade": false,
-            "from": [
-                9.0,
-                13.0,
-                1.0
-            ],
-            "to": [
-                14.0,
-                15.0,
-                2.0
-            ],
-            "faces": {
-                "up": {"uv": [0, 3, 5, 4], "texture": "#front"},
-                "north": {"uv": [0, 3, 5, 5], "texture": "#front"},
-                "down": {"uv": [5, 5, 0, 4], "texture": "#front"}
-            }
-        },
-        {
-            "name": "Cell Light",
-            "shade": false,
-            "from": [
-                9.0,
-                13.0,
-                1.0
-            ],
-            "to": [
-                14.0,
-                15.0,
-                2.0
-            ],
-            "faces": {
-                "north": {"uv": [0, 2, 5, 4], "texture": "#top_front"},
-                "down": {"uv": [5, 4, 0, 3], "texture": "#top_front"}
-            }
-            
-        }
-    ]
+	"textures": {
+		"front": "appliedenergistics2:blocks/drive_cell_states",
+		"top_front": "appliedenergistics2:blocks/drive_cell_states_emissive"
+	},
+	"elements": [
+		{
+			"name": "Cell Backdrop",
+			"from": [9, 13, 1],
+			"to": [14, 15, 2],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 8, 5, 10], "texture": "#front"},
+				"up": {"uv": [0, 8, 5, 9], "texture": "#front"},
+				"down": {"uv": [5, 10, 0, 9], "texture": "#front"}
+			}
+		},
+		{
+			"name": "Cell Light",
+			"from": [9, 13, 1],
+			"to": [14, 15, 2],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 2, 5, 4], "texture": "#top_front"},
+				"down": {"uv": [5, 4, 0, 3], "texture": "#top_front"}
+			}
+		}
+	]
 }
