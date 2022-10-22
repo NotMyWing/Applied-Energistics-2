@@ -553,7 +553,7 @@ item.appliedenergistics2.multi_part.toggle_bus.name=МЭ Шина переклю
 item.appliedenergistics2.multi_part.crafting_monitor.name=МЭ Монитор крафта
 item.appliedenergistics2.multi_part.interface_terminal.name=МЭ Терминал интерфейсов
 item.appliedenergistics2.multi_part.interface_configuration_terminal.name=МЭ Терминал конфигурации интерфейсов
-item.appliedenergistics2.multi_part.fluid_interface_configuration_terminal.name=МЭ Жидкостной терминал конфигурации интерфейсов
+item.appliedenergistics2.multi_part.fluid_interface_configuration_terminal.name=МЭ Терминал жидкостной конфигурации интерфейсов
 item.appliedenergistics2.multi_part.fluid_terminal.name=МЭ Жидкостный терминал
 item.appliedenergistics2.multi_part.invalid_type.name=Отключенный предмет
 
