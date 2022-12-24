@@ -40,6 +40,8 @@ import appeng.util.inv.AdaptorItemHandler;
 import appeng.util.inv.WrapperCursorItemHandler;
 import appeng.util.inv.WrapperInvItemHandler;
 import appeng.util.item.AEItemStack;
+import com.blamejared.recipestages.RecipeStages;
+import com.blamejared.recipestages.recipes.RecipeStage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
@@ -49,6 +51,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.ArrayList;
@@ -150,11 +153,24 @@ public class SlotCraftingTerm extends AppEngCraftingSlot {
             final IRecipe recipe = containerTerminal.getCurrentRecipe();
 
             if (recipe != null && recipe.matches(ic, world)) {
-                return containerTerminal.getCurrentRecipe();
+                return handleRecipe(ic, containerTerminal.getCurrentRecipe());
             }
         }
 
-        return CraftingManager.findMatchingRecipe(ic, world);
+        return handleRecipe(ic, CraftingManager.findMatchingRecipe(ic, world));
+    }
+
+    // Returns null in case this recipe is not yet unlocked
+    private IRecipe handleRecipe(InventoryCrafting ic, IRecipe recipe) {
+        if (Loader.isModLoaded("recipestages")) {
+            if (recipe instanceof RecipeStage) {
+                final RecipeStage staged = (RecipeStage) recipe;
+                if (!staged.isGoodForCrafting(ic))
+                    return null;
+            }
+        }
+
+        return recipe;
     }
 
     // TODO: This is really hacky and NEEDS to be solved with a full container/gui refactoring.

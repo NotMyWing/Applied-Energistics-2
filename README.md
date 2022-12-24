@@ -10,10 +10,10 @@ A Mod about Matter, Energy and using them to conquer the world.
 ## RecipeStages
 You need to add the following into a CraftTweaker script:
 ```
-mods.recipestages.Recipes.setPackageStage("appeng", ["stages_here"]);
+mods.recipestages.Recipes.setPackageStage("appeng", allStages);
 ```
 
-The second argument is an array of stage names. If one isn't listed, you won't be able to craft recipes from that stage even if the player has it.
+The second argument allows you to customize which stages exactly you want to be craftable with AE2. Idk why would you like to restrict any, but you can.
 
 ## License
 * Applied Energistics 2 API
