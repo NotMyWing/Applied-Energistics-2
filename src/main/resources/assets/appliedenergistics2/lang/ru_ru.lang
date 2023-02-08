@@ -668,3 +668,7 @@ stat.ae2.TurnedCranks=Сломано рукояток
 //Keys
 key.appliedenergistics2.category=Applied Energistics 2
 key.toggle_focus.desc=Переключить фокус окна поиска
+key.open_wireless_terminal.desc=Открыть беспроводной терминал
+key.open_wireless_crafting_terminal.desc=Открыть беспроводной терминал изготовления
+key.open_wireless_pattern_terminal.desc=Открыть беспроводной терминал шаблонов
+key.open_wireless_fluid_terminal.desc=Открыть беспроводной жидкостный терминал
