@@ -55,7 +55,7 @@ tile.appliedenergistics2.crafting_storage_16k.name=16k クラフティングス�
 tile.appliedenergistics2.crafting_storage_64k.name=64k クラフティングストレージ
 tile.appliedenergistics2.crafting_accelerator.name=クラフティング並列処理ユニット
 tile.appliedenergistics2.crafting_unit.name=クラフティングユニット
-tile.appliedenergistics2.molecular_assembler.name=分子組立室
+tile.appliedenergistics2.molecular_assembler.name=分子組立機
 
 // Stairs
 tile.appliedenergistics2.fluix_stairs.name=フルーシュの階段
@@ -194,7 +194,7 @@ gui.appliedenergistics2.CellId=セルID
 gui.appliedenergistics2.SkyChest=スカイストーンチェスト
 gui.appliedenergistics2.PatternTerminal=パターンターミナル
 gui.appliedenergistics2.CraftingPattern=クラフティングパターン
-gui.appliedenergistics2.MolecularAssembler=分子組立室
+gui.appliedenergistics2.MolecularAssembler=分子組立機
 gui.appliedenergistics2.ProcessingPattern=プロセッシングパターン
 gui.appliedenergistics2.Crafts=クラフト
 gui.appliedenergistics2.And=と
@@ -375,7 +375,7 @@ gui.tooltips.appliedenergistics2.DecreaseByOneDesc=スロットのアイテム�
 gui.tooltips.appliedenergistics2.MaxCount=スロットのアイテム数を最大化
 gui.tooltips.appliedenergistics2.MaxCountDesc=材料アイテムの比率を保ったままスロットのアイテム数を最大化する。
 gui.tooltips.appliedenergistics2.FreeMolecularSlotShortcut=スロットが空いているインターフェースを表示する。
-gui.tooltips.appliedenergistics2.FreeMolecularSlotShortcutDesc=スロットが空いているインターフェースを切り替えて分子組立室を検索するショートカット。
+gui.tooltips.appliedenergistics2.FreeMolecularSlotShortcutDesc=スロットが空いているインターフェースを切り替えて分子組立機を検索するショートカット。
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces=スロットが一杯になっているインターフェースの表示切り替え
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc=全てのインターフェースを表示。
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc=空きがあるインターフェースのみを表示。
