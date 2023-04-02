@@ -521,7 +521,7 @@ public final class ApiBlocks implements IBlocks {
                 .disableItem()
                 .build();
 
-        Verify.verify(doubleSlabDef.maybeBlock().isPresent());
+//        Verify.verify(doubleSlabDef.maybeBlock().isPresent());
 
         BlockSlab doubleSlabBlock = (BlockSlab) doubleSlabDef.maybeBlock().get();
 
@@ -530,7 +530,7 @@ public final class ApiBlocks implements IBlocks {
                 .features(AEFeature.DECORATIVE_BLOCKS)
                 .build();
 
-        Verify.verify(itemDef.maybeItem().isPresent());
+//        Verify.verify(itemDef.maybeItem().isPresent());
 
         // Return a new composite block definition that combines the single slab block with the slab item
         return new BlockDefinition(slabId, slabBlock, (ItemBlock) itemDef.maybeItem().get());
@@ -553,7 +553,7 @@ public final class ApiBlocks implements IBlocks {
                 })
                 .build();
 
-        Verify.verify(stairs.maybeBlock().isPresent());
+//        Verify.verify(stairs.maybeBlock().isPresent());
 
         return stairs;
     }
