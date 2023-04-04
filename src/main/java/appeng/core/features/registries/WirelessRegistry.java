@@ -31,6 +31,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.ArrayList;
@@ -98,8 +99,7 @@ public final class WirelessRegistry implements IWirelessTermRegistry {
         }
 
         if (handler.hasPower(player, 0.5, item)) {
-//            Platform.openGUI(player, null, null, (GuiBridge) handler.getGuiHandler(item));
-              Platform.openGUI(player,null,null,GuiBridge.GUI_WIRELESS_TERM);
+            Platform.openGUI(player, null, null,(GuiBridge) handler.getGuiHandler(item));
         } else {
             player.sendMessage(PlayerMessages.DeviceNotPowered.get());
         }
