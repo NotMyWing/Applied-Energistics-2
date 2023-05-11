@@ -83,6 +83,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private int craftingCalculationTimePerTick = 5;
     private PowerUnits selectedPowerUnit = PowerUnits.AE;
     private boolean showCraftableTooltip = true;
+    private boolean allowMissingItemsToPreventTransfer = true;
     // Spatial IO/Dimension
     private int storageProviderID = -1;
     private int storageDimensionID = -1;
@@ -250,6 +251,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
         this.useLargeFonts = this.get("Client", "useTerminalUseLargeFont", false).getBoolean(false);
         this.useColoredCraftingStatus = this.get("Client", "useColoredCraftingStatus", true).getBoolean(true);
         this.showCraftableTooltip = this.get("Client", "showCraftableTooltip", true, "Whether to add \"Craftable\" to item tooltips when they can be crafted automatically.").getBoolean(true);
+        this.allowMissingItemsToPreventTransfer = this.get("Client", "allowMissingItemsToPreventTransfer", true, "Whether to allow JEI's Transfer recipe functionality to be prevented due to missing items. False will attempt to insert all valid available items.").getBoolean(true);
 
         // load buttons..
         for (int btnNum = 0; btnNum < 4; btnNum++) {
@@ -505,6 +507,10 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
     public boolean isShowCraftableTooltip() {
         return this.showCraftableTooltip;
+    }
+
+    public boolean isAllowMissingItemsToPreventTransfer() {
+        return this.allowMissingItemsToPreventTransfer;
     }
 
     public boolean isDisableColoredCableRecipesInJEI() {

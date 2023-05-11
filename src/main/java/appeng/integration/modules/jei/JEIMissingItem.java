@@ -11,6 +11,7 @@ import appeng.client.gui.implementations.GuiWirelessCraftingTerminal;
 import appeng.container.implementations.ContainerCraftingTerm;
 import appeng.container.implementations.ContainerMEMonitorable;
 import appeng.container.implementations.ContainerWirelessCraftingTerminal;
+import appeng.core.AEConfig;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
@@ -53,6 +54,8 @@ public class JEIMissingItem implements IRecipeTransferError {
             boolean found;
             this.errored = false;
             recipeLayout.getItemStacks().addTooltipCallback(new CraftableCallBack(container, available));
+
+            if (!AEConfig.instance().isAllowMissingItemsToPreventTransfer()) return;
 
             IItemList<IAEItemStack> used = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createList();
             for (IGuiIngredient<?> i : recipeLayout.getItemStacks().getGuiIngredients().values()) {
@@ -112,7 +115,7 @@ public class JEIMissingItem implements IRecipeTransferError {
     @Override
     public void showError(Minecraft minecraft, int mouseX, int mouseY, @Nonnull IRecipeLayout recipeLayout, int recipeX, int recipeY) {
         Container c = minecraft.player.openContainer;
-        if (c instanceof ContainerMEMonitorable) {
+        if (c instanceof ContainerMEMonitorable && AEConfig.instance().isAllowMissingItemsToPreventTransfer()) {
             ContainerMEMonitorable container = (ContainerMEMonitorable) c;
             IItemList<IAEItemStack> ir = ((ContainerMEMonitorable) c).items;
             boolean found;
