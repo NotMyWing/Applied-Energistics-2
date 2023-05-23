@@ -34,24 +34,21 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.QuadGatheringTransformer;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-import net.minecraftforge.client.resource.IResourceType;
-import net.minecraftforge.client.resource.ISelectiveResourceReloadListener;
-import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 
-public class AutoRotatingModel implements IBakedModel, ISelectiveResourceReloadListener {
+public class AutoRotatingModel implements IBakedModel, IResourceManagerReloadListener {
 
     private final IBakedModel parent;
     private final LoadingCache<AutoRotatingCacheKey, List<BakedQuad>> quadCache;
@@ -158,10 +155,8 @@ public class AutoRotatingModel implements IBakedModel, ISelectiveResourceReloadL
     }
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
-        if (resourcePredicate.test(VanillaResourceType.MODELS)) {
-            this.quadCache.invalidateAll();
-        }
+    public void onResourceManagerReload(IResourceManager resourceManager) {
+        this.quadCache.invalidateAll();
     }
 
     public static class VertexRotator extends QuadGatheringTransformer {
