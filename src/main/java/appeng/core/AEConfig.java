@@ -83,6 +83,8 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private int craftingCalculationTimePerTick = 5;
     private PowerUnits selectedPowerUnit = PowerUnits.AE;
     private boolean showCraftableTooltip = true;
+    private int normalChannelCapacity = 8;
+    private int denseChannelCapacity = 32;
     // Spatial IO/Dimension
     private int storageProviderID = -1;
     private int storageDimensionID = -1;
@@ -121,6 +123,9 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private int maxControllerSizeX = 7;
     private int maxControllerSizeY = 7;
     private int maxControllerSizeZ = 7;
+
+    private int normalChannelCapacity = 8;
+    private int denseChannelCapacity = 32;
 
     private AEConfig(final File configFile) {
         super(configFile);
@@ -188,6 +193,9 @@ public final class AEConfig extends Configuration implements IConfigurableObject
         this.maxControllerSizeX = Math.min(Math.max(this.get("ControllerSize", "maxControllerSizeX", this.maxControllerSizeX).getInt(this.maxControllerSizeX), 1), 63);
         this.maxControllerSizeY = Math.min(Math.max(this.get("ControllerSize", "maxControllerSizeY", this.maxControllerSizeY).getInt(this.maxControllerSizeY), 1), 63);
         this.maxControllerSizeZ = Math.min(Math.max(this.get("ControllerSize", "maxControllerSizeZ", this.maxControllerSizeZ).getInt(this.maxControllerSizeZ), 1), 63);
+
+        this.normalChannelCapacity = this.get("misc", "normal channel capacity", this.normalChannelCapacity.getInt(this.normalChannelCapacity));
+        this.denseChannelCapacity = this.get("misc", "dense channel capacity", this.denseChannelCapacity.getInt(this.denseChannelCapacity));
 
         this.clientSync();
 
@@ -675,5 +683,13 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
     public int getMaxControllerSizeZ() {
         return this.maxControllerSizeZ;
+    }
+
+    public int getNormalChannelCapacity() {
+        return this.normalChannelCapacity;
+    }
+
+    public int getDenseChannelCapacity() {
+        return this.denseChannelCapacity;
     }
 }
