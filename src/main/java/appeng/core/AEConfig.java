@@ -83,8 +83,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private int craftingCalculationTimePerTick = 5;
     private PowerUnits selectedPowerUnit = PowerUnits.AE;
     private boolean showCraftableTooltip = true;
-    private int normalChannelCapacity = 8;
-    private int denseChannelCapacity = 32;
+
     // Spatial IO/Dimension
     private int storageProviderID = -1;
     private int storageDimensionID = -1;
