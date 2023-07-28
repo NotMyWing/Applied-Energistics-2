@@ -34,6 +34,7 @@ import appeng.client.render.cablebus.CableBusRenderState;
 import appeng.client.render.cablebus.CableCoreType;
 import appeng.client.render.cablebus.FacadeRenderState;
 import appeng.core.AELog;
+import appeng.core.AEConfig;
 import appeng.facade.FacadeContainer;
 import appeng.helpers.AEMultiTile;
 import appeng.me.GridConnection;
@@ -1022,7 +1023,7 @@ public class CableBusContainer extends CableBusStorage implements AEMultiTile, I
                 }
 
                 int length = (int) part.getCableConnectionLength(null);
-                if (length > 0 && length <= 8) {
+                if (length > 0 && length <= AEConfig.instance().getNormalChannelCapacity()) {
                     renderState.getAttachmentConnections().put(facing, length);
                 }
             }

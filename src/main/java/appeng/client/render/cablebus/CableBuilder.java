@@ -22,6 +22,7 @@ package appeng.client.render.cablebus;
 import appeng.api.util.AECableType;
 import appeng.api.util.AEColor;
 import appeng.core.AppEng;
+import appeng.core.AEConfig;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -327,8 +328,8 @@ class CableBuilder {
         TextureAtlasSprite texture = this.connectionTextures.get(AECableType.SMART).get(cableColor);
         cubeBuilder.setTexture(texture);
 
-        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
-        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);
+        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
+        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
 
         // For to-machine connections, use a thicker end-cap for the connection
         if (connectionType != AECableType.GLASS && !cableBusAdjacent) {
@@ -374,8 +375,8 @@ class CableBuilder {
 
         addStraightCoveredCableSizedCube(facing, cubeBuilder);
 
-        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
-        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);
+        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
+        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
 
         // Render the channel indicators brightly lit at night
         cubeBuilder.setRenderFullBright(true);
@@ -403,8 +404,8 @@ class CableBuilder {
 
         addCoveredCableSizedCube(facing, distanceFromEdge, cubeBuilder);
 
-        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
-        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);
+        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
+        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
 
         // Render the channel indicators brightly lit at night
         cubeBuilder.setRenderFullBright(true);
@@ -464,7 +465,7 @@ class CableBuilder {
         addDenseCableSizedCube(facing, cubeBuilder);
 
         // Dense cables show used channels in groups of 4, rounded up
-        channels = (channels + 3) / 4;
+        channels = (int) ((channels + 3) / 4) / (AEConfig.instance().getDenseChannelCapacity() / 32);
 
         TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
         TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);
@@ -508,7 +509,7 @@ class CableBuilder {
         addStraightDenseCableSizedCube(facing, cubeBuilder);
 
         // Dense cables show used channels in groups of 4, rounded up
-        channels = (channels + 3) / 4;
+        channels = (int) ((channels + 3) / 4) / (AEConfig.instance().getDenseChannelCapacity() / 32);
 
         TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
         TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);

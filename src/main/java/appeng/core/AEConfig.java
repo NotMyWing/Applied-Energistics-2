@@ -143,6 +143,8 @@ public final class AEConfig extends Configuration implements IConfigurableObject
         CondenserOutput.SINGULARITY.requiredPower = this.get("Condenser", "Singularity", 256000).getInt(256000);
 
         this.removeCrashingItemsOnLoad = this.get("general", "removeCrashingItemsOnLoad", false, "Will auto-remove items that crash when being loaded from storage. This will destroy those items instead of crashing the game!").getBoolean();
+        this.normalChannelCapacity = this.get("general", "normalChannelCapacity", this.normalChannelCapacity).getInt(this.normalChannelCapacity);
+        this.denseChannelCapacity = this.get("general", "denseChannelCapacity", this.denseChannelCapacity).getInt(this.denseChannelCapacity);
 
         this.setCategoryComment("BlockingMode", "Map of items to not block when blockingmode is enabled.\n[modid]\nmodid:item:metadata(optional,default:0)\nSupports more than one modid, so you can block different things between, for example, gregtech or enderio");
         this.nonBlockingItems = this.get("BlockingMode", "nonBlockingItems", nonBlockingItems, "NonBlockingItems").getStringList();
@@ -193,8 +195,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
         this.maxControllerSizeY = Math.min(Math.max(this.get("ControllerSize", "maxControllerSizeY", this.maxControllerSizeY).getInt(this.maxControllerSizeY), 1), 63);
         this.maxControllerSizeZ = Math.min(Math.max(this.get("ControllerSize", "maxControllerSizeZ", this.maxControllerSizeZ).getInt(this.maxControllerSizeZ), 1), 63);
 
-        this.normalChannelCapacity = this.get("misc", "normal channel capacity", this.normalChannelCapacity.getInt(this.normalChannelCapacity));
-        this.denseChannelCapacity = this.get("misc", "dense channel capacity", this.denseChannelCapacity.getInt(this.denseChannelCapacity));
+
 
         this.clientSync();
 

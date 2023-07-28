@@ -83,7 +83,7 @@ public class PathGridCache implements IPathingGrid {
             if (this.controllerState == ControllerState.NO_CONTROLLER) {
                 final int requiredChannels = this.calculateRequiredChannels();
                 int used = requiredChannels;
-                if (AEConfig.instance().isFeatureEnabled(AEFeature.CHANNELS) && requiredChannels > 8) {
+                if (AEConfig.instance().isFeatureEnabled(AEFeature.CHANNELS) && requiredChannels > AEConfig.instance().getNormalChannelCapacity()) {
                     used = 0;
                 }
 

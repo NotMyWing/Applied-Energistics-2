@@ -81,7 +81,7 @@ public final class ChannelWailaDataProvider extends BasePartWailaDataProvider {
             final byte usedChannels = this.getUsedChannels(part, tag, this.cache);
 
             if (usedChannels >= 0) {
-                final byte maxChannels = (byte) ((part instanceof PartDenseCableSmart) ? 32 : 8);
+                final byte maxChannels = (byte) ((part instanceof PartDenseCableSmart) ? AEConfig.instance().getDenseChannelCapacity() : AEConfig.instance().getNormalChannelCapacity());
 
                 final String formattedToolTip = String.format(WailaText.Channels.getLocal(), usedChannels, maxChannels);
                 currentToolTip.add(formattedToolTip);
