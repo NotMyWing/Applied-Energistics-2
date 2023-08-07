@@ -434,7 +434,16 @@ public class AEBaseTile extends TileEntity implements IOrientable, ICommonTile, 
     }
 
     public void saveChanges() {
-        if (this.world != null) {
+        if (this.world == null) {
+            return;
+        }
+
+        // Clientside is marked immediately as dirty as there is no queue processing
+        // Serverside is only queued once per tick to avoid costly operations
+        // TODO: Evaluate if this is still necessary
+        if (this.world.isRemote) {
+            this.markDirty();
+        } else {
             this.world.markChunkDirty(this.pos, this);
             if (!this.markDirtyQueued) {
                 TickHandler.INSTANCE.addCallable(null, this::markDirtyAtEndOfTick);
