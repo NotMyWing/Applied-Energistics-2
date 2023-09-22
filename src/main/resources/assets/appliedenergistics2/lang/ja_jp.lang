@@ -479,9 +479,9 @@ item.appliedenergistics2.material.card_fuzzy.name=ファジーカード
 item.appliedenergistics2.material.card_inverter.name=反転カード
 item.appliedenergistics2.material.card_redstone.name=レッドストーンカード
 item.appliedenergistics2.material.card_speed.name=加速カード
-item.appliedenergistics2.material.cell2_spatial_part.name=§62³§r 空間コンポーネント
-item.appliedenergistics2.material.cell16_spatial_part.name=§916³§r 空間コンポーネント
-item.appliedenergistics2.material.cell128_spatial_part.name=§d128³§r 空間コンポーネント
+item.appliedenergistics2.material.cell2_spatial_part.name=§62³§r ME空間コンポーネント
+item.appliedenergistics2.material.cell16_spatial_part.name=§916³§r ME空間コンポーネント
+item.appliedenergistics2.material.cell128_spatial_part.name=§d128³§r ME空間コンポーネント
 item.appliedenergistics2.material.cell1k_part.name=§61k§r MEストレージコンポーネント
 item.appliedenergistics2.material.cell4k_part.name=§e4k§r MEストレージコンポーネント
 item.appliedenergistics2.material.cell16k_part.name=§a16k§r MEストレージコンポーネント
@@ -570,9 +570,9 @@ item.appliedenergistics2.multi_part.fluid_interface_configuration_terminal.name=
 item.appliedenergistics2.multi_part.fluid_terminal.name=ME液体ターミナル
 item.appliedenergistics2.multi_part.invalid_type.name=無効アイテム
 
-item.appliedenergistics2.spatial_storage_cell_128_cubed.name=§d128³§r 空間ストレージセル
-item.appliedenergistics2.spatial_storage_cell_16_cubed.name=§916³§r 空間ストレージセル
-item.appliedenergistics2.spatial_storage_cell_2_cubed.name=§62³§r 空間ストレージセル
+item.appliedenergistics2.spatial_storage_cell_128_cubed.name=§d128³§r ME空間ストレージセル
+item.appliedenergistics2.spatial_storage_cell_16_cubed.name=§916³§r ME空間ストレージセル
+item.appliedenergistics2.spatial_storage_cell_2_cubed.name=§62³§r ME空間ストレージセル
 
 item.appliedenergistics2.certus_quartz_axe.name=ケルタスクォーツの斧
 item.appliedenergistics2.certus_quartz_cutting_knife.name=ケルタスクォーツのナイフ
