@@ -118,7 +118,7 @@ public class TileCondenser extends AEBaseInvTile implements IConfigManagerHost, 
         while (requiredPower <= this.getStoredPower() && !output.isEmpty() && requiredPower > 0) {
             if (this.canAddOutput(output)) {
                 this.setStoredPower(this.getStoredPower() - requiredPower);
-                this.addOutput(output);
+                this.addOutput(output.copy());
             } else {
                 break;
             }
@@ -176,7 +176,7 @@ public class TileCondenser extends AEBaseInvTile implements IConfigManagerHost, 
                 while (requiredPower <= this.getStoredPower() && !output.isEmpty() && requiredPower > 0) {
                     if (this.canAddOutput(output)) {
                         this.setStoredPower(this.getStoredPower() - requiredPower);
-                        this.addOutput(output);
+                        this.addOutput(output.copy());
                     } else {
                         break;
                     }
