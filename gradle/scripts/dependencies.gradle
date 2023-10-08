@@ -44,11 +44,6 @@ repositories {
     }
 
     maven {
-        name = "IC2 repo"
-        url = "http://maven.ic2.player.to"
-    }
-
-    maven {
         name = "CoFH Maven"
         url = "http://maven.covers1624.net"
     }
@@ -102,7 +97,8 @@ dependencies {
     compileOnly "curse.maven:item-stages-280316:2696769"
     compileOnly "curse.maven:game-stages-268655:2951844"
     compileOnly "net.darkhax.tesla:Tesla-1.12.2:${tesla_version}"
-    compileOnly "net.industrial-craft:industrialcraft-2:${ic2_version}:api"
+    //compileOnly "net.industrial-craft:industrialcraft-2:${ic2_version}:api"
+    implementation rfg.deobf("curse.maven:industrial-craft-242638:2547175")
     compileOnly "mcjty.theoneprobe:TheOneProbe-1.12:${top_version}:api"
     compileOnly "curse.maven:CoFHCore-69162:2920433"
     compileOnly "CraftTweaker2:CraftTweaker2-API:${crafttweaker_version}"
@@ -110,7 +106,7 @@ dependencies {
     compileOnly "curse.maven:inventory-bogo-sorter-632327:4399738"
     compileOnly "team.chisel.ctm:CTM:${ctm_version}"
     compileOnly "de.ellpeck.actuallyadditions:ActuallyAdditions:1.12.2-r152.16:api"
-    implementation rfg.deobf("net.sengir.forestry:forestry_${minecraft_version}:$forestry_version")
+    implementation rfg.deobf("curse.maven:forestry-59751:2684780")
 
     // at runtime, use the full JEI jar
     runtimeOnly "mezz.jei:jei_${minecraft_version}:${jei_version}"
