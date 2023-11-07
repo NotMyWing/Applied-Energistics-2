@@ -39,6 +39,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +71,7 @@ public class ItemCrystalSeed extends AEBaseItem implements IGrowableCrystal {
                 {
                     crystalSeedStack.setItemDamage(certus2);
                     crystalSeedStack = newStyle(crystalSeedStack);
-                    String itemName = crystalSeedStack.getItem().getRegistryName().getResourcePath();
+                    String itemName = crystalSeedStack.getItem().getRegistryName().getPath();
                     return new ResolverResult(itemName, crystalSeedStack.getItemDamage(), crystalSeedStack.getTagCompound());
                 })
                 .orElse(null);
@@ -154,22 +155,23 @@ public class ItemCrystalSeed extends AEBaseItem implements IGrowableCrystal {
     }
 
     @Override
-    public String getUnlocalizedName(final ItemStack is) {
+    @Nonnull
+    public String getTranslationKey(final ItemStack is) {
         final int damage = getProgress(is);
 
         if (damage < CERTUS + SINGLE_OFFSET) {
-            return this.getUnlocalizedName() + ".certus";
+            return this.getTranslationKey() + ".certus";
         }
 
         if (damage < NETHER + SINGLE_OFFSET) {
-            return this.getUnlocalizedName() + ".nether";
+            return this.getTranslationKey() + ".nether";
         }
 
         if (damage < FLUIX + SINGLE_OFFSET) {
-            return this.getUnlocalizedName() + ".fluix";
+            return this.getTranslationKey() + ".fluix";
         }
 
-        return this.getUnlocalizedName();
+        return this.getTranslationKey();
     }
 
     @Override

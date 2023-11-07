@@ -118,8 +118,8 @@ public class ItemComparisonHelper {
             return true;
         }
 
-        final boolean isLeftEmpty = left == null || left.hasNoTags();
-        final boolean isRightEmpty = right == null || right.hasNoTags();
+        final boolean isLeftEmpty = left == null || left.isEmpty();
+        final boolean isRightEmpty = right == null || right.isEmpty();
 
         if (isLeftEmpty && isRightEmpty) {
             return true;

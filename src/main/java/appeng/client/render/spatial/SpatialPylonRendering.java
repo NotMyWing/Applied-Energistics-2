@@ -41,7 +41,7 @@ public class SpatialPylonRendering extends BlockRenderingCustomizer {
     @Override
     @SideOnly(Side.CLIENT)
     public void customize(IBlockRendering rendering, IItemRendering itemRendering) {
-        rendering.builtInModel(MODEL_ID.getResourcePath(), new SpatialPylonModel());
+        rendering.builtInModel(MODEL_ID.getPath(), new SpatialPylonModel());
         rendering.stateMapper(this::mapState);
     }
 

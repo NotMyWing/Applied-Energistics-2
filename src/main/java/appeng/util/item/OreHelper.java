@@ -186,7 +186,7 @@ public class OreHelper {
 
         @Override
         public String toString() {
-            return "ItemRef [ref=" + this.ref.getUnlocalizedName() + ", damage=" + this.damage + ", hash=" + this.hash + ']';
+            return "ItemRef [ref=" + this.ref.getTranslationKey() + ", damage=" + this.damage + ", hash=" + this.hash + ']';
         }
     }
 }

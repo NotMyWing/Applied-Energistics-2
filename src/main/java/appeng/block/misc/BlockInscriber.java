@@ -68,7 +68,7 @@ public class BlockInscriber extends AEBaseTileBlock {
     }
 
     @Override
-    public String getUnlocalizedName(final ItemStack is) {
-        return super.getUnlocalizedName(is);
+    public String getTranslationKey(final ItemStack is) {
+        return super.getTranslationKey(is);
     }
 }

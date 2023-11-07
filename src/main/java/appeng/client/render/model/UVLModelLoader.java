@@ -137,14 +137,14 @@ public enum UVLModelLoader implements ICustomModelLoader {
 
     @Override
     public boolean accepts(ResourceLocation modelLocation) {
-        String modelPath = modelLocation.getResourcePath();
-        if (modelLocation.getResourcePath().startsWith("models/")) {
+        String modelPath = modelLocation.getPath();
+        if (modelLocation.getPath().startsWith("models/")) {
             modelPath = modelPath.substring("models/".length());
         }
 
         try (InputStreamReader io = new InputStreamReader(Minecraft.getMinecraft()
                 .getResourceManager()
-                .getResource(new ResourceLocation(modelLocation.getResourceDomain(), "models/" + modelPath + ".json"))
+                .getResource(new ResourceLocation(modelLocation.getNamespace(), "models/" + modelPath + ".json"))
                 .getInputStream())) {
             return gson.fromJson(io, UVLMarker.class).ae2_uvl_marker;
         } catch (Exception e) {
@@ -174,11 +174,11 @@ public enum UVLModelLoader implements ICustomModelLoader {
         private final IModel parent;
 
         public UVLModelWrapper(ResourceLocation modelLocation) {
-            String modelPath = modelLocation.getResourcePath();
-            if (modelLocation.getResourcePath().startsWith("models/")) {
+            String modelPath = modelLocation.getPath();
+            if (modelLocation.getPath().startsWith("models/")) {
                 modelPath = modelPath.substring("models/".length());
             }
-            ResourceLocation armatureLocation = new ResourceLocation(modelLocation.getResourceDomain(), "armatures/" + modelPath + ".json");
+            ResourceLocation armatureLocation = new ResourceLocation(modelLocation.getNamespace(), "armatures/" + modelPath + ".json");
             ModelBlockAnimation animation = ModelBlockAnimation.loadVanillaAnimation(UVLModelLoader.this.resourceManager, armatureLocation);
             ModelBlock model;
             {
@@ -187,12 +187,12 @@ public enum UVLModelLoader implements ICustomModelLoader {
                 ModelBlock lvt_5_1_ = null;
 
                 try {
-                    String s = modelLocation.getResourcePath();
+                    String s = modelLocation.getPath();
 
                     iresource = Minecraft.getMinecraft()
                             .getResourceManager()
                             .getResource(
-                                    new ResourceLocation(modelLocation.getResourceDomain(), "models/" + modelPath + ".json"));
+                                    new ResourceLocation(modelLocation.getNamespace(), "models/" + modelPath + ".json"));
                     reader = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
 
                     lvt_5_1_ = JsonUtils.gsonDeserialize(this.UVLSERIALIZER, reader, ModelBlock.class, false);

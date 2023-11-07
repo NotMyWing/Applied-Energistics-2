@@ -43,16 +43,16 @@ public class BuiltInModelLoader implements ICustomModelLoader {
 
     @Override
     public boolean accepts(ResourceLocation modelLocation) {
-        if (!modelLocation.getResourceDomain().equals(AppEng.MOD_ID)) {
+        if (!modelLocation.getNamespace().equals(AppEng.MOD_ID)) {
             return false;
         }
 
-        return this.builtInModels.containsKey(modelLocation.getResourcePath());
+        return this.builtInModels.containsKey(modelLocation.getPath());
     }
 
     @Override
     public IModel loadModel(ResourceLocation modelLocation) throws Exception {
-        return this.builtInModels.get(modelLocation.getResourcePath());
+        return this.builtInModels.get(modelLocation.getPath());
     }
 
     @Override

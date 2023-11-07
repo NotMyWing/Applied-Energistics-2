@@ -288,7 +288,7 @@ public abstract class AEBaseTileBlock extends AEBaseBlock implements ITileEntity
                     return false;
                 }
 
-                final String name = this.getUnlocalizedName();
+                final String name = this.getTranslationKey();
 
                 if (player.isSneaking()) {
                     final NBTTagCompound data = tileEntity.downloadSettings(SettingsFrom.MEMORY_CARD);
@@ -300,7 +300,7 @@ public abstract class AEBaseTileBlock extends AEBaseBlock implements ITileEntity
                     final String savedName = memoryCard.getSettingsName(heldItem);
                     final NBTTagCompound data = memoryCard.getData(heldItem);
 
-                    if (this.getUnlocalizedName().equals(savedName)) {
+                    if (this.getTranslationKey().equals(savedName)) {
                         tileEntity.uploadSettings(SettingsFrom.MEMORY_CARD, data, player);
                         memoryCard.notifyUser(player, MemoryCardMessages.SETTINGS_LOADED);
                     } else {

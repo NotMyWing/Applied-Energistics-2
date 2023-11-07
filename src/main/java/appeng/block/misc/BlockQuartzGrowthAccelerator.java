@@ -87,9 +87,9 @@ public class BlockQuartzGrowthAccelerator extends AEBaseTileBlock implements IOr
             double ry = 0.5 + pos.getY();
             double rz = 0.5 + pos.getZ();
 
-            rx += up.getFrontOffsetX() * d0;
-            ry += up.getFrontOffsetY() * d0;
-            rz += up.getFrontOffsetZ() * d0;
+            rx += up.getXOffset() * d0;
+            ry += up.getYOffset() * d0;
+            rz += up.getZOffset() * d0;
 
             final int x = pos.getX();
             final int y = pos.getY();
@@ -103,25 +103,25 @@ public class BlockQuartzGrowthAccelerator extends AEBaseTileBlock implements IOr
                 case 0:
                     dx = 0.6;
                     dz = d1;
-                    pt = new BlockPos(x + west.getFrontOffsetX(), y + west.getFrontOffsetY(), z + west.getFrontOffsetZ());
+                    pt = new BlockPos(x + west.getXOffset(), y + west.getYOffset(), z + west.getZOffset());
 
                     break;
                 case 1:
                     dx = d1;
                     dz += 0.6;
-                    pt = new BlockPos(x + forward.getFrontOffsetX(), y + forward.getFrontOffsetY(), z + forward.getFrontOffsetZ());
+                    pt = new BlockPos(x + forward.getXOffset(), y + forward.getYOffset(), z + forward.getZOffset());
 
                     break;
                 case 2:
                     dx = d1;
                     dz = -0.6;
-                    pt = new BlockPos(x - forward.getFrontOffsetX(), y - forward.getFrontOffsetY(), z - forward.getFrontOffsetZ());
+                    pt = new BlockPos(x - forward.getXOffset(), y - forward.getYOffset(), z - forward.getZOffset());
 
                     break;
                 case 3:
                     dx = -0.6;
                     dz = d1;
-                    pt = new BlockPos(x - west.getFrontOffsetX(), y - west.getFrontOffsetY(), z - west.getFrontOffsetZ());
+                    pt = new BlockPos(x - west.getXOffset(), y - west.getYOffset(), z - west.getZOffset());
 
                     break;
             }
@@ -130,13 +130,13 @@ public class BlockQuartzGrowthAccelerator extends AEBaseTileBlock implements IOr
                 return;
             }
 
-            rx += dx * west.getFrontOffsetX();
-            ry += dx * west.getFrontOffsetY();
-            rz += dx * west.getFrontOffsetZ();
+            rx += dx * west.getXOffset();
+            ry += dx * west.getYOffset();
+            rz += dx * west.getZOffset();
 
-            rx += dz * forward.getFrontOffsetX();
-            ry += dz * forward.getFrontOffsetY();
-            rz += dz * forward.getFrontOffsetZ();
+            rx += dz * forward.getXOffset();
+            ry += dz * forward.getYOffset();
+            rz += dz * forward.getZOffset();
 
             final LightningFX fx = new LightningFX(w, rx, ry, rz, 0.0D, 0.0D, 0.0D);
             Minecraft.getMinecraft().effectRenderer.addEffect(fx);

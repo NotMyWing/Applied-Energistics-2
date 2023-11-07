@@ -40,12 +40,12 @@ public final class CreativeTab extends CreativeTabs {
     }
 
     @Override
-    public ItemStack getTabIconItem() {
-        return this.getIconItemStack();
+    public ItemStack getIcon() {
+        return this.createIcon();
     }
 
     @Override
-    public ItemStack getIconItemStack() {
+    public ItemStack createIcon() {
         final IDefinitions definitions = AEApi.instance().definitions();
         final IBlocks blocks = definitions.blocks();
         final IItems items = definitions.items();

@@ -47,7 +47,7 @@ public class TesrRenderHelper {
      * at the center of a block.
      */
     public static void moveToFace(EnumFacing face) {
-        GlStateManager.translate(face.getFrontOffsetX() * 0.50, face.getFrontOffsetY() * 0.50, face.getFrontOffsetZ() * 0.50);
+        GlStateManager.translate(face.getXOffset() * 0.50, face.getYOffset() * 0.50, face.getZOffset() * 0.50);
     }
 
     /**

@@ -121,15 +121,15 @@ public class BlockCharger extends AEBaseTileBlock implements ICustomCollision {
             final EnumFacing forward = tile.getForward();
             final AEAxisAlignedBB bb = new AEAxisAlignedBB(twoPixels, twoPixels, twoPixels, 1.0 - twoPixels, 1.0 - twoPixels, 1.0 - twoPixels);
 
-            if (up.getFrontOffsetX() != 0) {
+            if (up.getXOffset() != 0) {
                 bb.minX = 0;
                 bb.maxX = 1;
             }
-            if (up.getFrontOffsetY() != 0) {
+            if (up.getYOffset() != 0) {
                 bb.minY = 0;
                 bb.maxY = 1;
             }
-            if (up.getFrontOffsetZ() != 0) {
+            if (up.getZOffset() != 0) {
                 bb.minZ = 0;
                 bb.maxZ = 1;
             }

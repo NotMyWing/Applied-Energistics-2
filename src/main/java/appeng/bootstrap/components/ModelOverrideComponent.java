@@ -61,7 +61,7 @@ public class ModelOverrideComponent implements IPreInitComponent {
         IModel missingModel = ModelLoaderRegistry.getMissingModel();
 
         for (ModelResourceLocation location : keys) {
-            if (!location.getResourceDomain().equals(AppEng.MOD_ID)) {
+            if (!location.getNamespace().equals(AppEng.MOD_ID)) {
                 continue;
             }
 
@@ -72,7 +72,7 @@ public class ModelOverrideComponent implements IPreInitComponent {
                 continue;
             }
 
-            BiFunction<ModelResourceLocation, IBakedModel, IBakedModel> customizer = this.customizer.get(location.getResourcePath());
+            BiFunction<ModelResourceLocation, IBakedModel, IBakedModel> customizer = this.customizer.get(location.getPath());
             if (customizer != null) {
                 IBakedModel newModel = customizer.apply(location, orgModel);
 

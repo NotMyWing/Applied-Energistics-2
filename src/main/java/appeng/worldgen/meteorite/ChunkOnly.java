@@ -36,7 +36,7 @@ public class ChunkOnly extends StandardWorld {
 
     public ChunkOnly(final World w, final int cx, final int cz) {
         super(w);
-        this.target = w.getChunkFromChunkCoords(cx, cz);
+        this.target = w.getChunk(cx, cz);
         this.cx = cx;
         this.cz = cz;
     }

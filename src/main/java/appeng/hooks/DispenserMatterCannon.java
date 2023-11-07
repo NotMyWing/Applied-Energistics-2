@@ -42,7 +42,7 @@ public final class DispenserMatterCannon extends BehaviorDefaultDispenseItem {
             final EnumFacing enumfacing = dispenser.getBlockState().getValue(BlockDispenser.FACING);
             AEPartLocation dir = AEPartLocation.INTERNAL;
             for (final AEPartLocation d : AEPartLocation.SIDE_LOCATIONS) {
-                if (enumfacing.getFrontOffsetX() == d.xOffset && enumfacing.getFrontOffsetY() == d.yOffset && enumfacing.getFrontOffsetZ() == d.zOffset) {
+                if (enumfacing.getXOffset() == d.xOffset && enumfacing.getYOffset() == d.yOffset && enumfacing.getZOffset() == d.zOffset) {
                     dir = d;
                 }
             }

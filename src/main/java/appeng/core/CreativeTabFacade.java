@@ -42,12 +42,12 @@ public final class CreativeTabFacade extends CreativeTabs {
     }
 
     @Override
-    public ItemStack getTabIconItem() {
-        return this.getIconItemStack();
+    public ItemStack getIcon() {
+        return this.createIcon();
     }
 
     @Override
-    public ItemStack getIconItemStack() {
+    public ItemStack createIcon() {
         final Optional<Item> maybeFacade = AEApi.instance().definitions().items().facade().maybeItem();
         if (maybeFacade.isPresent()) {
             return ((ItemFacade) maybeFacade.get()).getCreativeTabIcon();

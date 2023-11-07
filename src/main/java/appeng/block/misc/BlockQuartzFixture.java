@@ -44,6 +44,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -107,9 +108,9 @@ public class BlockQuartzFixture extends AEBaseBlock implements IOrientableBlock,
     @Override
     public Iterable<AxisAlignedBB> getSelectedBoundingBoxesFromPool(final World w, final BlockPos pos, final Entity e, final boolean isVisual) {
         final EnumFacing up = this.getOrientable(w, pos).getUp();
-        final double xOff = -0.3 * up.getFrontOffsetX();
-        final double yOff = -0.3 * up.getFrontOffsetY();
-        final double zOff = -0.3 * up.getFrontOffsetZ();
+        final double xOff = -0.3 * up.getXOffset();
+        final double yOff = -0.3 * up.getYOffset();
+        final double zOff = -0.3 * up.getZOffset();
         return Collections.singletonList(new AxisAlignedBB(xOff + 0.3, yOff + 0.3, zOff + 0.3, xOff + 0.7, yOff + 0.7, zOff + 0.7));
     }
 
@@ -134,9 +135,9 @@ public class BlockQuartzFixture extends AEBaseBlock implements IOrientableBlock,
         }
 
         final EnumFacing up = this.getOrientable(w, pos).getUp();
-        final double xOff = -0.3 * up.getFrontOffsetX();
-        final double yOff = -0.3 * up.getFrontOffsetY();
-        final double zOff = -0.3 * up.getFrontOffsetZ();
+        final double xOff = -0.3 * up.getXOffset();
+        final double yOff = -0.3 * up.getYOffset();
+        final double zOff = -0.3 * up.getZOffset();
         for (int bolts = 0; bolts < 3; bolts++) {
             if (AppEng.proxy.shouldAddParticles(r)) {
                 final LightningFX fx = new LightningFX(w, xOff + 0.5 + pos.getX(), yOff + 0.5 + pos.getY(), zOff + 0.5 + pos.getZ(), 0.0D, 0.0D, 0.0D);
@@ -192,7 +193,7 @@ public class BlockQuartzFixture extends AEBaseBlock implements IOrientableBlock,
 
     @Override
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 

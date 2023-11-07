@@ -59,7 +59,7 @@ public class InvalidPatternHelper {
             NBTTagCompound in = inTag.getCompoundTagAt(i);
 
             // skip empty slots in the crafting grid
-            if (in.hasNoTags()) {
+            if (in.isEmpty()) {
                 continue;
             }
 

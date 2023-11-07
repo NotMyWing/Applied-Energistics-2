@@ -12,7 +12,7 @@ public abstract class BlockingInventoryAdaptor implements Iterable<ItemSlot> {
             // Attempt getting an IItemHandler for the given side via caps
             IItemHandler itemHandler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, d);
             if (itemHandler != null) {
-                return new BlockingItemHandler(itemHandler, te.getBlockType().getRegistryName().getResourceDomain());
+                return new BlockingItemHandler(itemHandler, te.getBlockType().getRegistryName().getNamespace());
             }
         }
         return null;

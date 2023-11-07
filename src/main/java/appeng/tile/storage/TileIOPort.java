@@ -142,7 +142,7 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
     }
 
     public void updateRedstoneState() {
-        final YesNo currentState = this.world.isBlockIndirectlyGettingPowered(this.pos) != 0 ? YesNo.YES : YesNo.NO;
+        final YesNo currentState = this.world.getRedstonePowerFromNeighbors(this.pos) != 0 ? YesNo.YES : YesNo.NO;
         if (this.lastRedstoneState != currentState) {
             this.lastRedstoneState = currentState;
             this.updateTask();

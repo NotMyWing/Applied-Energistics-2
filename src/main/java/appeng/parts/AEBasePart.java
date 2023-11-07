@@ -392,7 +392,7 @@ public abstract class AEBasePart implements IPart, IGridProxyable, IActionHost, 
             }
         }
 
-        return output.hasNoTags() ? null : output;
+        return output.isEmpty() ? null : output;
     }
 
     public boolean useStandardMemoryCard() {
@@ -416,7 +416,7 @@ public abstract class AEBasePart implements IPart, IGridProxyable, IActionHost, 
                 }
             }
 
-            final String name = is.getUnlocalizedName();
+            final String name = is.getTranslationKey();
 
             if (player.isSneaking()) {
                 final NBTTagCompound data = this.downloadSettings(SettingsFrom.MEMORY_CARD);

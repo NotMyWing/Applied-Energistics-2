@@ -406,7 +406,7 @@ public class AEBaseTile extends TileEntity implements IOrientable, ICommonTile, 
             }
         }
 
-        return output.hasNoTags() ? null : output;
+        return output.isEmpty()? null : output;
     }
 
     @Override

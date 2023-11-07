@@ -38,6 +38,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+
 
 public class BlockMolecularAssembler extends AEBaseTileBlock {
 
@@ -72,7 +74,7 @@ public class BlockMolecularAssembler extends AEBaseTileBlock {
      */
     @SideOnly(Side.CLIENT)
     @Override
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 

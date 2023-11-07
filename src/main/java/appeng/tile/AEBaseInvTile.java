@@ -100,7 +100,7 @@ public abstract class AEBaseInvTile extends AEBaseTile implements IAEAppEngInven
         if (this.hasCustomInventoryName()) {
             return new TextComponentString(this.getCustomInventoryName());
         }
-        return new TextComponentTranslation(this.getBlockType().getUnlocalizedName());
+        return new TextComponentTranslation(this.getBlockType().getTranslationKey());
     }
 
     protected @Nonnull

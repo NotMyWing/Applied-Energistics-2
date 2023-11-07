@@ -91,7 +91,7 @@ public class PartPlacement {
                     if (mop != null) {
                         final List<ItemStack> is = new ArrayList<>();
                         final SelectedPart sp = selectPart(player, host,
-                                mop.hitVec.addVector(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ()));
+                                mop.hitVec.add(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ()));
 
                         if (sp.part != null) {
                             is.add(sp.part.getItemStack(PartItemStack.WRENCH));
@@ -170,7 +170,7 @@ public class PartPlacement {
                 final RayTraceResult mop = block.collisionRayTrace(world.getBlockState(pos), world, pos, dir.getA(), dir.getB());
 
                 if (mop != null) {
-                    mop.hitVec = mop.hitVec.addVector(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ());
+                    mop.hitVec = mop.hitVec.add(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ());
                     final SelectedPart sPart = selectPart(player, host, mop.hitVec);
                     if (sPart != null && sPart.part != null) {
                         if (sPart.part.onShiftActivate(player, hand, mop.hitVec)) {
@@ -263,7 +263,7 @@ public class PartPlacement {
 
             if (mop != null) {
                 final SelectedPart sp = selectPart(player, host,
-                        mop.hitVec.addVector(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ()));
+                        mop.hitVec.add(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ()));
 
                 if (sp.part != null) {
                     if (!player.isSneaking() && sp.part.onActivate(player, hand, mop.hitVec)) {

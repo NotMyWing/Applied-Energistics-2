@@ -152,7 +152,7 @@ public class BlockCableBus extends AEBaseTileBlock implements IAEFacade {
     }
 
     @Override
-    public void onEntityCollidedWithBlock(final World w, final BlockPos pos, final IBlockState state, final Entity entityIn) {
+    public void onEntityCollision(final World w, final BlockPos pos, final IBlockState state, final Entity entityIn) {
         this.cb(w, pos).onEntityCollision(entityIn);
     }
 

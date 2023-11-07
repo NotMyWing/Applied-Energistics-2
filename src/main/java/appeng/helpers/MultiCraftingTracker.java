@@ -54,7 +54,7 @@ public class MultiCraftingTracker {
         for (int x = 0; x < this.size; x++) {
             final NBTTagCompound link = extra.getCompoundTag("links-" + x);
 
-            if (link != null && !link.hasNoTags()) {
+            if (link != null && !link.isEmpty()) {
                 this.setLink(x, AEApi.instance().storage().loadCraftingLink(link, this.owner));
             }
         }

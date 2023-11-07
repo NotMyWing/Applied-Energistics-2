@@ -102,7 +102,7 @@ public class CachedPlane {
 
         for (int x = 0; x < this.x_size; x++) {
             for (int z = 0; z < this.z_size; z++) {
-                this.myColumns[x][z] = new Column(w.getChunkFromChunkCoords((minX + x) >> 4,
+                this.myColumns[x][z] = new Column(w.getChunk((minX + x) >> 4,
                         (minZ + z) >> 4), (minX + x) & 0xF, (minZ + z) & 0xF, minCY, cy_size);
             }
         }
@@ -114,7 +114,7 @@ public class CachedPlane {
                 final List<Entry<BlockPos, TileEntity>> rawTiles = new ArrayList<>();
                 final List<BlockPos> deadTiles = new ArrayList<>();
 
-                final Chunk c = w.getChunkFromChunkCoords(minCX + cx, minCZ + cz);
+                final Chunk c = w.getChunk(minCX + cx, minCZ + cz);
                 this.myChunks[cx][cz] = c;
 
                 rawTiles.addAll(c.getTileEntityMap().entrySet());

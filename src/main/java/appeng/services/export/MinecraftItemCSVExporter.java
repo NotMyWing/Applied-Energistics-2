@@ -147,7 +147,7 @@ final class MinecraftItemCSVExporter implements Exporter {
 
             if (this.mode == ExportMode.VERBOSE) {
                 final Item item = input.getItem();
-                final String unlocalizedItem = input.getUnlocalizedName();
+                final String unlocalizedItem = input.getTranslationKey();
                 final Block block = Block.getBlockFromItem(item);
                 final boolean isBlock = block != Blocks.AIR && !block.equals(Blocks.AIR);
                 final Class<? extends ItemStack> stackClass = input.getClass();
@@ -199,7 +199,7 @@ final class MinecraftItemCSVExporter implements Exporter {
 
                 return null;
             } else {
-                AELog.debug(EXPORTING_SUBTYPES_MESSAGE, input.getUnlocalizedName(), input.getHasSubtypes());
+                AELog.debug(EXPORTING_SUBTYPES_MESSAGE, input.getTranslationKey(), input.getHasSubtypes());
             }
 
             final String itemName = ForgeRegistries.ITEMS.getKey(input).toString();
@@ -212,7 +212,7 @@ final class MinecraftItemCSVExporter implements Exporter {
                 try {
                     input.getSubItems(creativeTab, stacks);
                 } catch (final Exception ignored) {
-                    AELog.warn(EXPORTING_SUBTYPES_FAILED_MESSAGE, input.getUnlocalizedName());
+                    AELog.warn(EXPORTING_SUBTYPES_FAILED_MESSAGE, input.getTranslationKey());
                     AELog.debug(ignored);
 
                     // ignore if mods do bullshit in their code
@@ -232,7 +232,7 @@ final class MinecraftItemCSVExporter implements Exporter {
             }
 
             final List<String> joinedBlockAttributes = Lists.newArrayListWithCapacity(5);
-            final String unlocalizedItem = input.getUnlocalizedName();
+            final String unlocalizedItem = input.getTranslationKey();
             final String localization = I18n.translateToLocal(unlocalizedItem + LOCALIZATION_NAME_EXTENSION);
 
             joinedBlockAttributes.add(itemName);

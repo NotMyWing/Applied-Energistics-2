@@ -89,7 +89,7 @@ public class BlockTinyTNT extends AEBaseBlock implements ICustomCollision {
 
     @Override
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
-        if (world.isBlockIndirectlyGettingPowered(pos) > 0) {
+        if (world.getRedstonePowerFromNeighbors(pos) > 0) {
             this.startFuse(world, pos, null);
             world.setBlockToAir(pos);
         }
@@ -99,7 +99,7 @@ public class BlockTinyTNT extends AEBaseBlock implements ICustomCollision {
     public void onBlockAdded(final World w, final BlockPos pos, final IBlockState state) {
         super.onBlockAdded(w, pos, state);
 
-        if (w.isBlockIndirectlyGettingPowered(pos) > 0) {
+        if (w.getRedstonePowerFromNeighbors(pos) > 0) {
             this.startFuse(w, pos, null);
             w.setBlockToAir(pos);
         }

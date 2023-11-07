@@ -34,9 +34,9 @@ public final class DispenserBehaviorTinyTNT extends BehaviorDefaultDispenseItem 
     protected ItemStack dispenseStack(final IBlockSource dispenser, final ItemStack dispensedItem) {
         final EnumFacing enumfacing = dispenser.getBlockState().getValue(BlockDispenser.FACING);
         final World world = dispenser.getWorld();
-        final int i = dispenser.getBlockPos().getX() + enumfacing.getFrontOffsetX();
-        final int j = dispenser.getBlockPos().getY() + enumfacing.getFrontOffsetY();
-        final int k = dispenser.getBlockPos().getZ() + enumfacing.getFrontOffsetZ();
+        final int i = dispenser.getBlockPos().getX() + enumfacing.getXOffset();
+        final int j = dispenser.getBlockPos().getY() + enumfacing.getYOffset();
+        final int k = dispenser.getBlockPos().getZ() + enumfacing.getZOffset();
         final EntityTinyTNTPrimed primedTinyTNTEntity = new EntityTinyTNTPrimed(world, i + 0.5F, j + 0.5F, k + 0.5F, null);
         world.spawnEntity(primedTinyTNTEntity);
         dispensedItem.setCount(dispensedItem.getCount() - 1);

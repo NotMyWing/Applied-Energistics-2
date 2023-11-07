@@ -252,7 +252,7 @@ public final class P2PTunnelRegistry implements IP2PTunnelRegistry {
 
             // Use the mod id as last option.
             for (final Entry<String, TunnelType> entry : this.modIdTunnels.entrySet()) {
-                if (trigger.getItem().getRegistryName() != null && trigger.getItem().getRegistryName().getResourceDomain().equals(entry.getKey())) {
+                if (trigger.getItem().getRegistryName() != null && trigger.getItem().getRegistryName().getNamespace().equals(entry.getKey())) {
                     return entry.getValue();
                 }
             }

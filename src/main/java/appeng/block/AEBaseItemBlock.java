@@ -38,6 +38,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -77,8 +78,9 @@ public class AEBaseItemBlock extends ItemBlock {
     }
 
     @Override
-    public String getUnlocalizedName(final ItemStack is) {
-        return this.blockType.getUnlocalizedName(is);
+    @NotNull
+    public String getTranslationKey(final ItemStack is) {
+        return this.blockType.getTranslationKey(is);
     }
 
     @Override
@@ -137,7 +139,7 @@ public class AEBaseItemBlock extends ItemBlock {
             ori = ((IOrientableBlock) this.blockType).getOrientable(w, pos);
             up = side;
             forward = EnumFacing.SOUTH;
-            if (up.getFrontOffsetY() == 0) {
+            if (up.getYOffset() == 0) {
                 forward = EnumFacing.UP;
             }
         }

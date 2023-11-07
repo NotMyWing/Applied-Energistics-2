@@ -36,16 +36,18 @@ public abstract class AEBaseStairBlock extends BlockStairs {
         super(block.getDefaultState());
 
         Preconditions.checkNotNull(block);
-        Preconditions.checkNotNull(block.getUnlocalizedName());
-        Preconditions.checkArgument(block.getUnlocalizedName().length() > 0);
+        Preconditions.checkNotNull(block.getTranslationKey());
+        Preconditions.checkArgument(block.getTranslationKey().length() > 0);
 
-        this.setUnlocalizedName("stair." + type);
+
+        this.setTranslationKey("stair." + type);
+        this.getLocalizedName();
         this.setLightOpacity(0);
     }
 
     @Override
     public String toString() {
-        String regName = this.getRegistryName() != null ? this.getRegistryName().getResourcePath() : "unregistered";
+        String regName = this.getRegistryName() != null ? this.getRegistryName().getPath() : "unregistered";
         return this.getClass().getSimpleName() + "[" + regName + "]";
     }
 

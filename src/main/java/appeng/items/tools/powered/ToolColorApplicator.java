@@ -80,7 +80,7 @@ public class ToolColorApplicator extends AEBasePoweredItem implements IStorageCe
 
     static {
         for (final AEColor color : AEColor.VALID_COLORS) {
-            final String dyeName = color.dye.getUnlocalizedName();
+            final String dyeName = color.dye.getTranslationKey();
             final String oreDictName = "dye" + WordUtils.capitalize(dyeName);
             final int oreDictId = OreDictionary.getOreID(oreDictName);
 

@@ -45,7 +45,7 @@ public class LocationRotation implements IOrientable {
 
     @Override
     public EnumFacing getForward() {
-        if (this.getUp().getFrontOffsetY() == 0) {
+        if (this.getUp().getYOffset() == 0) {
             return EnumFacing.UP;
         }
         return EnumFacing.SOUTH;

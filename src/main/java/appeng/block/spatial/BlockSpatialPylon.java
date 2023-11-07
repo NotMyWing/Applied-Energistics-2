@@ -34,6 +34,8 @@ import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
+import javax.annotation.Nonnull;
+
 
 public class BlockSpatialPylon extends AEBaseTileBlock {
 
@@ -83,7 +85,7 @@ public class BlockSpatialPylon extends AEBaseTileBlock {
     }
 
     @Override
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 

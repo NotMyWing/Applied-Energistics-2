@@ -195,8 +195,8 @@ minecraft {
     username = developmentEnvironmentUserName.toString()
     useDependencyAccessTransformers = true
 
-    setMcpMappingChannel("snapshot")
-    setMcpMappingVersion("20171003")
+    setMcpMappingChannel("stable")
+    setMcpMappingVersion("39")
 
     // Automatic token injection with RetroFuturaGradle
     if (gradleTokenModId) {

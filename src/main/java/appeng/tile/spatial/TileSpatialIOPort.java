@@ -85,7 +85,7 @@ public class TileSpatialIOPort extends AENetworkInvTile implements IWorldCallabl
     }
 
     public void updateRedstoneState() {
-        final YesNo currentState = this.world.isBlockIndirectlyGettingPowered(this.pos) != 0 ? YesNo.YES : YesNo.NO;
+        final YesNo currentState = this.world.getRedstonePowerFromNeighbors(this.pos) != 0 ? YesNo.YES : YesNo.NO;
         if (this.lastRedstoneState != currentState) {
             this.lastRedstoneState = currentState;
             if (this.lastRedstoneState == YesNo.YES) {

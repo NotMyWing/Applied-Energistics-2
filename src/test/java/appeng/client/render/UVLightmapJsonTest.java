@@ -77,7 +77,7 @@ public class UVLightmapJsonTest
 			}
 
 			@Override
-			public BlockRenderLayer getBlockLayer()
+			public BlockRenderLayer getRenderLayer()
 			{
 				return BlockRenderLayer.CUTOUT;
 			}

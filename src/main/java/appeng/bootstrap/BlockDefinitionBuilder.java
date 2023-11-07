@@ -164,7 +164,7 @@ class BlockDefinitionBuilder implements IBlockBuilder {
         // Create block and matching item, and set factory name of both
         Block block = this.blockSupplier.get();
         block.setRegistryName(AppEng.MOD_ID, this.registryName);
-        block.setUnlocalizedName("appliedenergistics2." + this.registryName);
+        block.setTranslationKey("appliedenergistics2." + this.registryName);
 
         ItemBlock item = this.constructItemFromBlock(block);
         if (item != null) {

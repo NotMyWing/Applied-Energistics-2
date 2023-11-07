@@ -115,7 +115,7 @@ public final class CompassService {
         final int hi_y = low_y + 32;
 
         // lower level...
-        final Chunk c = w.getChunkFromChunkCoords(cx, cz);
+        final Chunk c = w.getChunk(cx, cz);
 
         Optional<Block> maybeBlock = AEApi.instance().definitions().blocks().skyStoneBlock().maybeBlock();
         if (maybeBlock.isPresent()) {

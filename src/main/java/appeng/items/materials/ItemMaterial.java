@@ -63,6 +63,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -209,7 +210,8 @@ public final class ItemMaterial extends AEBaseItem implements IStorageComponent,
     }
 
     @Override
-    public String getUnlocalizedName(final ItemStack is) {
+    @Nonnull
+    public String getTranslationKey(final ItemStack is) {
         return "item.appliedenergistics2.material." + this.nameOf(is).toLowerCase();
     }
 

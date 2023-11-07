@@ -116,11 +116,11 @@ class BlockRendering implements IBlockRendering, ISelectiveResourceReloadListene
         }
 
         if (this.modelCustomizer != null) {
-            factory.addModelOverride(block.getRegistryName().getResourcePath(), this.modelCustomizer);
+            factory.addModelOverride(block.getRegistryName().getPath(), this.modelCustomizer);
         } else if (block instanceof AEBaseTileBlock) {
             // This is a default rotating model if the base-block uses an AE tile entity which exposes UP/FRONT as
             // extended props
-            factory.addModelOverride(block.getRegistryName().getResourcePath(), (l, m) -> {
+            factory.addModelOverride(block.getRegistryName().getPath(), (l, m) -> {
                 AutoRotatingModel model = new AutoRotatingModel(m);
                 BlockRendering.this.reloads.add(model);
                 return model;

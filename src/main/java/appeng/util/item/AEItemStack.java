@@ -286,7 +286,7 @@ public class AEItemStack extends AEStack<IAEItemStack> implements IAEItemStack {
 
     @SideOnly(Side.CLIENT)
     public String getModID() {
-        return this.getDefinition().getItem().getRegistryName().getResourceDomain();
+        return this.getDefinition().getItem().getRegistryName().getNamespace();
     }
 
     public Optional<OreReference> getOre() {

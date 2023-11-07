@@ -220,9 +220,9 @@ public class Platform {
     }
 
     public static EnumFacing crossProduct(final EnumFacing forward, final EnumFacing up) {
-        final int west_x = forward.getFrontOffsetY() * up.getFrontOffsetZ() - forward.getFrontOffsetZ() * up.getFrontOffsetY();
-        final int west_y = forward.getFrontOffsetZ() * up.getFrontOffsetX() - forward.getFrontOffsetX() * up.getFrontOffsetZ();
-        final int west_z = forward.getFrontOffsetX() * up.getFrontOffsetY() - forward.getFrontOffsetY() * up.getFrontOffsetX();
+        final int west_x = forward.getYOffset() * up.getZOffset() - forward.getZOffset() * up.getYOffset();
+        final int west_y = forward.getZOffset() * up.getXOffset() - forward.getXOffset() * up.getZOffset();
+        final int west_z = forward.getXOffset() * up.getYOffset() - forward.getYOffset() * up.getXOffset();
 
         switch (west_x + west_y * 2 + west_z * 3) {
             case 1:
@@ -571,12 +571,12 @@ public class Platform {
         try {
             String name = itemStack.getDisplayName();
             if (name == null || name.isEmpty()) {
-                name = itemStack.getItem().getUnlocalizedName(itemStack);
+                name = itemStack.getItem().getTranslationKey(itemStack);
             }
             return name == null ? "** Null" : name;
         } catch (final Exception errA) {
             try {
-                final String n = itemStack.getUnlocalizedName();
+                final String n = itemStack.getTranslationKey();
                 return n == null ? "** Null" : n;
             } catch (final Exception errB) {
                 return "** Exception";
@@ -939,7 +939,7 @@ public class Platform {
         }
 
         final Vec3d from = new Vec3d(x, y, z);
-        final Vec3d to = from.addVector(eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance);
+        final Vec3d to = from.add(eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance);
 
         return new LookDirection(from, to);
     }
@@ -962,7 +962,7 @@ public class Platform {
         final float f8 = f3 * f5;
         final double d3 = 32.0D;
 
-        final Vec3d vec31 = vec3.addVector(f7 * d3, f6 * d3, f8 * d3);
+        final Vec3d vec31 = vec3.add(f7 * d3, f6 * d3, f8 * d3);
 
         final AxisAlignedBB bb = new AxisAlignedBB(Math.min(vec3.x, vec31.x), Math.min(vec3.y, vec31.y), Math.min(vec3.z, vec31.z), Math.max(vec3.x, vec31.x), Math.max(vec3.y, vec31.y), Math.max(vec3.z, vec31.z)).grow(16, 16, 16);
 

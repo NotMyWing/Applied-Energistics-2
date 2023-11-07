@@ -163,7 +163,7 @@ public final class ContainerFluidInterfaceConfigurationTerminal extends AEBaseCo
             }
         }
 
-        if (!this.data.hasNoTags()) {
+        if (!this.data.isEmpty()) {
             try {
                 NetworkHandler.instance().sendTo(new PacketCompressedNBT(this.data), (EntityPlayerMP) this.getPlayerInv().player);
             } catch (final IOException e) {
@@ -251,7 +251,7 @@ public final class ContainerFluidInterfaceConfigurationTerminal extends AEBaseCo
         final String name = '=' + Long.toString(inv.which, Character.MAX_RADIX);
         final NBTTagCompound tag = data.getCompoundTag(name);
 
-        if (tag.hasNoTags()) {
+        if (tag.isEmpty()) {
             tag.setLong("sortBy", inv.sortBy);
             tag.setString("un", inv.unlocalizedName);
             tag.setTag("pos", NBTUtil.createPosTag(inv.pos));

@@ -94,7 +94,7 @@ public class ItemFacade extends AEBaseItem implements IFacadeItem, IAlphaPassIte
                     }
 
                     final NonNullList<ItemStack> tmpList = NonNullList.create();
-                    b.getSubBlocks(b.getCreativeTabToDisplayOn(), tmpList);
+                    b.getSubBlocks(b.getCreativeTab(), tmpList);
                     for (final ItemStack l : tmpList) {
                         final ItemStack facade = this.createFacadeForItem(l, false);
                         if (!facade.isEmpty()) {

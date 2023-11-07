@@ -126,7 +126,7 @@ class ItemDefinitionBuilder implements IItemBuilder {
 
         ItemDefinition definition = new ItemDefinition(this.registryName, item);
 
-        item.setUnlocalizedName("appliedenergistics2." + this.registryName);
+        item.setTranslationKey("appliedenergistics2." + this.registryName);
         item.setCreativeTab(this.creativeTab);
 
         // Register all extra handlers

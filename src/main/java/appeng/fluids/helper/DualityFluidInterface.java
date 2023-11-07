@@ -275,8 +275,8 @@ public class DualityFluidInterface implements IGridTickable, IStorageMonitorable
 
                 try {
                     Vec3d from = new Vec3d(hostTile.getPos().getX() + 0.5, hostTile.getPos().getY() + 0.5, hostTile.getPos().getZ() + 0.5);
-                    from = from.addVector(direction.getFrontOffsetX() * 0.501, direction.getFrontOffsetY() * 0.501, direction.getFrontOffsetZ() * 0.501);
-                    final Vec3d to = from.addVector(direction.getFrontOffsetX(), direction.getFrontOffsetY(), direction.getFrontOffsetZ());
+                    from = from.add(direction.getXOffset() * 0.501, direction.getYOffset() * 0.501, direction.getZOffset() * 0.501);
+                    final Vec3d to = from.add(direction.getXOffset(), direction.getYOffset(), direction.getZOffset());
                     final RayTraceResult mop = hostWorld.rayTraceBlocks(from, to, true);
                     if (mop != null && !BAD_BLOCKS.contains(directedBlock)) {
                         if (mop.getBlockPos().equals(directedTile.getPos())) {
@@ -296,7 +296,7 @@ public class DualityFluidInterface implements IGridTickable, IStorageMonitorable
 
                 final Item item = Item.getItemFromBlock(directedBlock);
                 if (item == Items.AIR) {
-                    return directedBlock.getUnlocalizedName();
+                    return directedBlock.getTranslationKey();
                 }
             }
         }

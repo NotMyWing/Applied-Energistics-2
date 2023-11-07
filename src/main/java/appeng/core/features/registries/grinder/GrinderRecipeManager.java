@@ -122,7 +122,7 @@ public final class GrinderRecipeManager implements IGrinderRegistry, IOreListene
             return null;
         }
 
-        this.log("Recipe for '%1$s' found '%2$s'", input.getUnlocalizedName(), Platform.getItemDisplayName(recipe.getOutput()));
+        this.log("Recipe for '%1$s' found '%2$s'", input.getTranslationKey(), Platform.getItemDisplayName(recipe.getOutput()));
         return recipe;
     }
 

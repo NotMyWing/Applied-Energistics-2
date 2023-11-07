@@ -307,13 +307,13 @@ public abstract class AEBaseBlock extends Block {
             return dir;
         }
 
-        final int west_x = forward.getFrontOffsetY() * up.getFrontOffsetZ() - forward.getFrontOffsetZ() * up.getFrontOffsetY();
-        final int west_y = forward.getFrontOffsetZ() * up.getFrontOffsetX() - forward.getFrontOffsetX() * up.getFrontOffsetZ();
-        final int west_z = forward.getFrontOffsetX() * up.getFrontOffsetY() - forward.getFrontOffsetY() * up.getFrontOffsetX();
+        final int west_x = forward.getYOffset() * up.getZOffset() - forward.getZOffset() * up.getYOffset();
+        final int west_y = forward.getZOffset() * up.getYOffset() - forward.getXOffset() * up.getZOffset();
+        final int west_z = forward.getXOffset() * up.getYOffset() - forward.getYOffset() * up.getXOffset();
 
         EnumFacing west = null;
         for (final EnumFacing dx : EnumFacing.VALUES) {
-            if (dx.getFrontOffsetX() == west_x && dx.getFrontOffsetY() == west_y && dx.getFrontOffsetZ() == west_z) {
+            if (dx.getXOffset() == west_x && dx.getYOffset() == west_y && dx.getZOffset() == west_z) {
                 west = dx;
             }
         }
@@ -348,12 +348,12 @@ public abstract class AEBaseBlock extends Block {
 
     @Override
     public String toString() {
-        String regName = this.getRegistryName() != null ? this.getRegistryName().getResourcePath() : "unregistered";
+        String regName = this.getRegistryName() != null ? this.getRegistryName().getPath() : "unregistered";
         return this.getClass().getSimpleName() + "[" + regName + "]";
     }
 
-    protected String getUnlocalizedName(final ItemStack is) {
-        return this.getUnlocalizedName();
+    protected String getTranslationKey(final ItemStack is) {
+        return this.getTranslationKey();
     }
 
     protected boolean hasCustomRotation() {

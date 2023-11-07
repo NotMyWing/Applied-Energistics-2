@@ -399,7 +399,7 @@ public abstract class PartP2PTunnel<T extends PartP2PTunnel> extends PartBasicSt
             this.onTunnelConfigChange();
 
             final ItemStack p2pItem = this.getItemStack(PartItemStack.WRENCH);
-            final String type = p2pItem.getUnlocalizedName();
+            final String type = p2pItem.getTranslationKey();
 
             p2pItem.writeToNBT(data);
             if (needsNewFrequency) {

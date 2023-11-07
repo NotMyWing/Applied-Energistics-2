@@ -446,7 +446,7 @@ public class CableBusContainer extends CableBusStorage implements AEMultiTile, I
 
     private void updateRedstone() {
         final TileEntity te = this.getTile();
-        this.hasRedstone = te.getWorld().isBlockIndirectlyGettingPowered(te.getPos()) != 0 ? YesNo.YES : YesNo.NO;
+        this.hasRedstone = te.getWorld().getRedstonePowerFromNeighbors(te.getPos()) != 0 ? YesNo.YES : YesNo.NO;
     }
 
     private void updateDynamicRender() {

@@ -72,7 +72,7 @@ public class QuadRotator {
         // Figure out where the position is in the array
         VertexFormat format = quad.getFormat();
         int posIdx = this.findPositionOffset(format) / 4;
-        int stride = format.getNextOffset() / 4;
+        int stride = format.getSize() / 4;
         int normalIdx = format.getNormalOffset();
         VertexFormatElement.EnumType normalType = null;
         // Figure out the type of the normals

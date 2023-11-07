@@ -102,20 +102,20 @@ public final class BlockVibrationChamber extends AEBaseTileBlock {
                 final EnumFacing forward = tc.getForward();
                 final EnumFacing up = tc.getUp();
 
-                final int west_x = forward.getFrontOffsetY() * up.getFrontOffsetZ() - forward.getFrontOffsetZ() * up.getFrontOffsetY();
-                final int west_y = forward.getFrontOffsetZ() * up.getFrontOffsetX() - forward.getFrontOffsetX() * up.getFrontOffsetZ();
-                final int west_z = forward.getFrontOffsetX() * up.getFrontOffsetY() - forward.getFrontOffsetY() * up.getFrontOffsetX();
+                final int west_x = forward.getYOffset() * up.getZOffset() - forward.getZOffset() * up.getYOffset();
+                final int west_y = forward.getZOffset() * up.getXOffset() - forward.getXOffset() * up.getZOffset();
+                final int west_z = forward.getXOffset() * up.getYOffset() - forward.getYOffset() * up.getXOffset();
 
-                f1 += forward.getFrontOffsetX() * 0.6;
-                f2 += forward.getFrontOffsetY() * 0.6;
-                f3 += forward.getFrontOffsetZ() * 0.6;
+                f1 += forward.getXOffset() * 0.6;
+                f2 += forward.getYOffset() * 0.6;
+                f3 += forward.getZOffset() * 0.6;
 
                 final float ox = r.nextFloat();
                 final float oy = r.nextFloat() * 0.2f;
 
-                f1 += up.getFrontOffsetX() * (-0.3 + oy);
-                f2 += up.getFrontOffsetY() * (-0.3 + oy);
-                f3 += up.getFrontOffsetZ() * (-0.3 + oy);
+                f1 += up.getXOffset() * (-0.3 + oy);
+                f2 += up.getYOffset() * (-0.3 + oy);
+                f3 += up.getZOffset() * (-0.3 + oy);
 
                 f1 += west_x * (0.3 * ox - 0.15);
                 f2 += west_y * (0.3 * ox - 0.15);
