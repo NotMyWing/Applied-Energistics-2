@@ -39,9 +39,7 @@ public abstract class AEBaseStairBlock extends BlockStairs {
         Preconditions.checkNotNull(block.getTranslationKey());
         Preconditions.checkArgument(block.getTranslationKey().length() > 0);
 
-
         this.setTranslationKey("stair." + type);
-        this.getLocalizedName();
         this.setLightOpacity(0);
     }
 
