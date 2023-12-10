@@ -268,7 +268,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
             this.craftByStacks[btnNum] = Math.abs(cmb.getInt(this.craftByStacks[btnNum]));
             this.priorityByStacks[btnNum] = Math.abs(pmb.getInt(this.priorityByStacks[btnNum]));
-            this.levelByStacks[btnNum] = Math.abs(pmb.getInt(this.levelByStacks[btnNum]));
+            this.levelByStacks[btnNum] = Math.abs(lmb.getInt(this.levelByStacks[btnNum]));
 
             cmb.setComment("Controls buttons on Crafting Screen : Capped at " + buttonCap);
             pmb.setComment("Controls buttons on Priority Screen : Capped at " + buttonCap);
