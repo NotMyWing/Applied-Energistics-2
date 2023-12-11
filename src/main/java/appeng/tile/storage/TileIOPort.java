@@ -183,6 +183,11 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
         if (this.lastRedstoneState != currentState) {
             this.lastRedstoneState = currentState;
             this.updateTask();
+	    if (currentState == YesNo.YES) {
+		if (this.manager.getSetting(Settings.REDSTONE_CONTROLLED) == RedstoneMode.SIGNAL_PULSE) {
+		this.doWork();
+		}
+	    }
         }
     }
 
@@ -198,12 +203,21 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
         if (this.getInstalledUpgrades(Upgrades.REDSTONE) == 0) {
             return true;
         }
-
         final RedstoneMode rs = (RedstoneMode) this.manager.getSetting(Settings.REDSTONE_CONTROLLED);
-        if (rs == RedstoneMode.HIGH_SIGNAL) {
-            return this.getRedstoneState();
-        }
-        return !this.getRedstoneState();
+	switch (rs) {
+                case IGNORE:
+                    return true;
+
+                case HIGH_SIGNAL:
+                    return this.getRedstoneState();
+
+                case LOW_SIGNAL:
+		    return !this.getRedstoneState();
+
+                case SIGNAL_PULSE:
+                default:
+                    return false;
+            }
     }
 
     @Override
@@ -268,8 +282,11 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
         if (!this.getProxy().isActive()) {
             return TickRateModulation.IDLE;
         }
+	return this.doWork();
+    }
 
-        TickRateModulation ret = TickRateModulation.SLEEP;
+    private TickRateModulation doWork() {
+	TickRateModulation ret = TickRateModulation.SLEEP;
         long itemsToMove = 256;
 
         switch (this.getInstalledUpgrades(Upgrades.SPEED)) {
