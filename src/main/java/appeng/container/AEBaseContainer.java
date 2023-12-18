@@ -39,15 +39,7 @@ import appeng.client.me.SlotME;
 import appeng.container.guisync.GuiSync;
 import appeng.container.guisync.SyncData;
 import appeng.container.implementations.ContainerInterface;
-import appeng.container.slot.AppEngSlot;
-import appeng.container.slot.SlotCraftingMatrix;
-import appeng.container.slot.SlotCraftingTerm;
-import appeng.container.slot.SlotDisabled;
-import appeng.container.slot.SlotFake;
-import appeng.container.slot.SlotInaccessible;
-import appeng.container.slot.SlotPlayerHotBar;
-import appeng.container.slot.SlotPlayerInv;
-import appeng.container.slot.SlotRestrictedInput;
+import appeng.container.slot.*;
 import appeng.container.slot.SlotRestrictedInput.PlacableItemType;
 import appeng.core.AELog;
 import appeng.core.sync.network.NetworkHandler;
@@ -65,14 +57,12 @@ import appeng.util.item.AEItemStack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IContainerListener;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -409,10 +399,7 @@ public abstract class AEBaseContainer extends Container {
                                     return ItemStack.EMPTY; // don't insert duplicate encoded patterns to interfaces
                                 }
 
-                                int maxSize = t.getMaxStackSize();
-                                if (maxSize > d.getSlotStackLimit()) {
-                                    maxSize = d.getSlotStackLimit();
-                                }
+                                int maxSize = Math.max(tis.getMaxStackSize(), d.getSlotStackLimit());
 
                                 int placeAble = maxSize - t.getCount();
 
@@ -448,10 +435,7 @@ public abstract class AEBaseContainer extends Container {
 
                     if (d.isItemValid(tis)) {
                         if (!d.getHasStack()) {
-                            int maxSize = tis.getMaxStackSize();
-                            if (maxSize > d.getSlotStackLimit()) {
-                                maxSize = d.getSlotStackLimit();
-                            }
+                            int maxSize = Math.max(tis.getMaxStackSize(), d.getSlotStackLimit());
 
                             final ItemStack tmp = tis.copy();
                             if (tmp.getCount() > maxSize) {
@@ -965,6 +949,47 @@ public abstract class AEBaseContainer extends Container {
 
         a.putStack(testA);
         b.putStack(testB);
+    }
+
+    @Override
+    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, @NotNull EntityPlayer player) {
+        if (slotId >= 0 && clickTypeIn == ClickType.PICKUP) {
+            final var slot = this.getSlot(slotId);
+            if (slot instanceof AppEngSlot appEngSlot) {
+                var slotStack = slot.getStack();
+                var draggedStack = this.invPlayer.getItemStack();
+
+                // The default vanilla behavior assumes that slots can't hold more items than the default stack size.
+                // Thus, it's possible to underflow the vanilla code when clicking non-empty slots with an item stack.
+                if (!draggedStack.isEmpty()) {
+                    if (appEngSlot.isItemValid(draggedStack)) {
+                        if (slotStack.getItem() == draggedStack.getItem() && slotStack.getMetadata() == draggedStack.getMetadata() && ItemStack.areItemStackTagsEqual(slotStack, draggedStack)) {
+                            var maxSize = Math.max(appEngSlot.getSlotStackLimit(), draggedStack.getMaxStackSize());
+                            var maxInsertable = Math.min(draggedStack.getCount(), maxSize - appEngSlot.getStack().getCount());
+                            var toInsert = Math.min(maxInsertable, dragType == 0 ? maxInsertable : 1);
+
+                            draggedStack.shrink(toInsert);
+                            slotStack.grow(toInsert);
+
+                            slot.onSlotChanged();
+                            return ItemStack.EMPTY;
+                        }
+                    }
+                }
+                // Fixes taking and halving issues from oversized slots.
+                else if (dragType == 0 || dragType == 1) {
+                    if (slot.canTakeStack(player) && !slotStack.isEmpty()) {
+                        var toTake = Math.min(slotStack.getCount(), slotStack.getMaxStackSize());
+                        this.invPlayer.setItemStack(slot.decrStackSize(dragType == 0 ? toTake : (toTake + 1) / 2));
+
+                        slot.onTake(player, invPlayer.getItemStack());
+                        return ItemStack.EMPTY;
+                    }
+                }
+
+            }
+        }
+        return super.slotClick(slotId, dragType, clickTypeIn, player);
     }
 
     public void onUpdate(final String field, final Object oldValue, final Object newValue) {
