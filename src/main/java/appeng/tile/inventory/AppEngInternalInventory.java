@@ -27,7 +27,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
@@ -46,7 +45,6 @@ public class AppEngInternalInventory extends ItemStackHandler implements Iterabl
     protected ItemStack previousStack = ItemStack.EMPTY;
     protected IAEItemFilter filter;
     protected boolean dirtyFlag = false;
-    protected boolean limitExtraction;
 
     public AppEngInternalInventory(final IAEAppEngInventory inventory, final int size, final int maxStack, IAEItemFilter filter) {
         super(size);
@@ -220,9 +218,5 @@ public class AppEngInternalInventory extends ItemStackHandler implements Iterabl
 
     public void setTileEntity(final IAEAppEngInventory te) {
         this.te = te;
-    }
-
-    public void limitExtraction(boolean limitExtraction) {
-        this.limitExtraction = limitExtraction;
     }
 }

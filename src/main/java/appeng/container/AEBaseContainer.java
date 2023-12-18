@@ -953,7 +953,6 @@ public abstract class AEBaseContainer extends Container {
 
     @Override
     public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, @NotNull EntityPlayer player) {
-
         if (slotId >= 0 && clickTypeIn == ClickType.PICKUP) {
             final var slot = this.getSlot(slotId);
             if (slot instanceof AppEngSlot appEngSlot) {
@@ -967,7 +966,7 @@ public abstract class AEBaseContainer extends Container {
                         if (slotStack.getItem() == draggedStack.getItem() && slotStack.getMetadata() == draggedStack.getMetadata() && ItemStack.areItemStackTagsEqual(slotStack, draggedStack)) {
                             var maxSize = Math.max(appEngSlot.getSlotStackLimit(), draggedStack.getMaxStackSize());
                             var maxInsertable = Math.min(draggedStack.getCount(), maxSize - appEngSlot.getStack().getCount());
-                            int toInsert = Math.min(maxInsertable, dragType == 0 ? maxInsertable : 1);
+                            var toInsert = Math.min(maxInsertable, dragType == 0 ? maxInsertable : 1);
 
                             draggedStack.shrink(toInsert);
                             slotStack.grow(toInsert);
@@ -977,18 +976,15 @@ public abstract class AEBaseContainer extends Container {
                         }
                     }
                 }
-                // Fixes halving issues with oversized slots.
-                else if (slot.canTakeStack(player) && draggedStack.isEmpty() && !slotStack.isEmpty() && dragType == 1) {
-                    int l2 = (Math.min(slotStack.getCount(), slotStack.getMaxStackSize()) + 1) / 2;
-                    this.invPlayer.setItemStack(slot.decrStackSize(l2));
+                // Fixes taking and halving issues from oversized slots.
+                else if (dragType == 0 || dragType == 1) {
+                    if (slot.canTakeStack(player) && !slotStack.isEmpty()) {
+                        var toTake = Math.min(slotStack.getCount(), slotStack.getMaxStackSize());
+                        this.invPlayer.setItemStack(slot.decrStackSize(dragType == 0 ? toTake : (toTake + 1) / 2));
 
-                    if (slotStack.isEmpty())
-                    {
-                        slot.putStack(ItemStack.EMPTY);
+                        slot.onTake(player, invPlayer.getItemStack());
+                        return ItemStack.EMPTY;
                     }
-
-                    slot.onTake(player, invPlayer.getItemStack());
-                    return ItemStack.EMPTY;
                 }
 
             }
