@@ -953,26 +953,44 @@ public abstract class AEBaseContainer extends Container {
 
     @Override
     public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, @NotNull EntityPlayer player) {
-        // The default vanilla behavior assumes that slots can't hold more items than the default stack size.
-        // Thus, it's possible to underflow the vanilla code when clicking non-empty slots with an item stack.
+
         if (slotId >= 0 && clickTypeIn == ClickType.PICKUP) {
             final var slot = this.getSlot(slotId);
             if (slot instanceof AppEngSlot appEngSlot) {
                 var slotStack = slot.getStack();
                 var draggedStack = this.invPlayer.getItemStack();
-                if (appEngSlot.isItemValid(draggedStack)) {
-                    if (slotStack.getItem() == draggedStack.getItem() && slotStack.getMetadata() == draggedStack.getMetadata() && ItemStack.areItemStackTagsEqual(slotStack, draggedStack)) {
-                        var maxSize = Math.max(appEngSlot.getSlotStackLimit(), draggedStack.getMaxStackSize());
-                        var maxInsertable = Math.min(draggedStack.getCount(), maxSize - appEngSlot.getStack().getCount());
-                        int toInsert = Math.min(maxInsertable, dragType == 0 ? maxInsertable : 1);
 
-                        draggedStack.shrink(toInsert);
-                        slotStack.grow(toInsert);
+                // The default vanilla behavior assumes that slots can't hold more items than the default stack size.
+                // Thus, it's possible to underflow the vanilla code when clicking non-empty slots with an item stack.
+                if (!draggedStack.isEmpty()) {
+                    if (appEngSlot.isItemValid(draggedStack)) {
+                        if (slotStack.getItem() == draggedStack.getItem() && slotStack.getMetadata() == draggedStack.getMetadata() && ItemStack.areItemStackTagsEqual(slotStack, draggedStack)) {
+                            var maxSize = Math.max(appEngSlot.getSlotStackLimit(), draggedStack.getMaxStackSize());
+                            var maxInsertable = Math.min(draggedStack.getCount(), maxSize - appEngSlot.getStack().getCount());
+                            int toInsert = Math.min(maxInsertable, dragType == 0 ? maxInsertable : 1);
 
-                        slot.onSlotChanged();
-                        return ItemStack.EMPTY;
+                            draggedStack.shrink(toInsert);
+                            slotStack.grow(toInsert);
+
+                            slot.onSlotChanged();
+                            return ItemStack.EMPTY;
+                        }
                     }
                 }
+                // Fixes halving issues with oversized slots.
+                else if (slot.canTakeStack(player) && draggedStack.isEmpty() && !slotStack.isEmpty() && dragType == 1) {
+                    int l2 = (Math.min(slotStack.getCount(), slotStack.getMaxStackSize()) + 1) / 2;
+                    this.invPlayer.setItemStack(slot.decrStackSize(l2));
+
+                    if (slotStack.isEmpty())
+                    {
+                        slot.putStack(ItemStack.EMPTY);
+                    }
+
+                    slot.onTake(player, invPlayer.getItemStack());
+                    return ItemStack.EMPTY;
+                }
+
             }
         }
         return super.slotClick(slotId, dragType, clickTypeIn, player);
