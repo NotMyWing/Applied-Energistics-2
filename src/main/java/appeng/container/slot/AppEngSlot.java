@@ -29,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -158,6 +159,24 @@ public class AppEngSlot extends Slot {
 
     @Override
     public boolean canTakeStack(final EntityPlayer par1EntityPlayer) {
+        if (this.isSlotEnabled()) {
+            var draggedStack = par1EntityPlayer.inventory.getItemStack();
+            ItemStack slotStack = this.getStack();
+
+
+            if (!draggedStack.isEmpty()) {
+                if (draggedStack.isItemEqual(slotStack)) {
+                    if (draggedStack.getCount() >= draggedStack.getMaxStackSize()) {
+                        // Prevent over-pulling.
+                        return false;
+                    }
+                } else if (slotStack.getCount() > slotStack.getMaxStackSize()) {
+                    // Prevent swapping when clicking slots that hold more items than the max stack size.
+                    return false;
+                }
+            }
+        }
+
         if (this.isSlotEnabled()) {
             return !this.itemHandler.extractItem(this.index, Integer.MAX_VALUE, true).isEmpty();
         }
