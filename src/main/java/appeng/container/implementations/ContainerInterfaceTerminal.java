@@ -25,9 +25,12 @@ import appeng.api.config.YesNo;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionHost;
+import appeng.client.me.SlotDisconnected;
 import appeng.container.AEBaseContainer;
+import appeng.container.slot.AppEngSlot;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketCompressedNBT;
+import appeng.core.sync.packets.PacketInventoryAction;
 import appeng.helpers.DualityInterface;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.InventoryAction;
@@ -44,6 +47,7 @@ import appeng.util.inv.WrapperCursorItemHandler;
 import appeng.util.inv.WrapperFilteredItemHandler;
 import appeng.util.inv.WrapperRangeItemHandler;
 import appeng.util.inv.filter.IAEItemFilter;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -51,6 +55,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -175,6 +180,26 @@ public final class ContainerInterfaceTerminal extends AEBaseContainer {
     public void doAction(final EntityPlayerMP player, final InventoryAction action, final int slot, final long id) {
         final InvTracker inv = this.byId.get(id);
         if (inv != null) {
+            // The code below this block assumes "slot" is an interface slot id. Not in this case.
+            if (action == InventoryAction.PLACE_SINGLE) {
+                final AppEngSlot playerSlot;
+                try {
+                    playerSlot = (AppEngSlot) this.inventorySlots.get(slot);
+                } catch (IndexOutOfBoundsException ignored) { return; }
+
+                if (!playerSlot.isPlayerSide() || !playerSlot.getHasStack()) return;
+
+                var itemStack = playerSlot.getStack();
+                if (!itemStack.isEmpty()) {
+                    var handler = new WrapperFilteredItemHandler(
+                        new WrapperRangeItemHandler(inv.server, 0, 9 * (inv.numUpgrades + 1)), new PatternSlotFilter());
+                    playerSlot.putStack(ItemHandlerHelper.insertItem(handler, itemStack, false));
+                    detectAndSendChanges();
+                }
+
+                return;
+            }
+
             final ItemStack is = inv.server.getStackInSlot(slot);
             final boolean hasItemInHand = !player.inventory.getItemStack().isEmpty();
 
@@ -271,8 +296,6 @@ public final class ContainerInterfaceTerminal extends AEBaseContainer {
                     }
 
                     break;
-                default:
-                    return;
             }
 
             this.updateHeld(player);
@@ -354,6 +377,27 @@ public final class ContainerInterfaceTerminal extends AEBaseContainer {
         }
 
         data.setTag(name, tag);
+    }
+
+    @Override
+    public ItemStack transferStackInSlot(EntityPlayer p, int idx) {
+        if (Platform.isClient()) {
+            var playerSlot = this.inventorySlots.get(idx);
+            if (playerSlot instanceof AppEngSlot playerAppEngSlot && playerAppEngSlot.isPlayerSide()) {
+                for (var slot : this.inventorySlots) {
+                    if (slot instanceof SlotDisconnected slotDisconnected && !slot.getHasStack()) {
+                        // Signal the server to move the pattern.
+                        var packet = new PacketInventoryAction(InventoryAction.PLACE_SINGLE,
+                            playerAppEngSlot.slotNumber, slotDisconnected.getSlot().getId());
+
+                        NetworkHandler.instance().sendToServer(packet);
+
+                        return ItemStack.EMPTY;
+                    }
+                }
+            }
+        }
+        return super.transferStackInSlot(p, idx);
     }
 
     private static class InvTracker {
