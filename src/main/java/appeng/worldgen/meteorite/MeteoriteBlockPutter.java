@@ -36,7 +36,7 @@ public class MeteoriteBlockPutter {
         return true;
     }
 
-    void put(final IMeteoriteWorld w, final int i, final int j, final int k, final IBlockState state, final int meta) {
+    public void put(final IMeteoriteWorld w, final int i, final int j, final int k, final IBlockState state) {
         if (w.getBlock(i, j, k) == Blocks.BEDROCK) {
             return;
         }

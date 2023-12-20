@@ -21,11 +21,13 @@ package appeng.services;
 
 import appeng.api.AEApi;
 import appeng.api.util.DimensionalCoord;
+import appeng.block.storage.BlockSkyChest;
 import appeng.services.compass.CompassReader;
 import appeng.services.compass.ICompassCallback;
 import appeng.util.Platform;
 import com.google.common.base.Preconditions;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.world.WorldEvent;
@@ -117,15 +119,19 @@ public final class CompassService {
         // lower level...
         final Chunk c = w.getChunk(cx, cz);
 
-        Optional<Block> maybeBlock = AEApi.instance().definitions().blocks().skyStoneBlock().maybeBlock();
+        Optional<Block> maybeBlock = AEApi.instance().definitions().blocks().skyStoneChest().maybeBlock();
         if (maybeBlock.isPresent()) {
-            Block skyStoneBlock = maybeBlock.get();
+            Block skyStoneChest = maybeBlock.get();
             for (int i = 0; i < CHUNK_SIZE; i++) {
                 for (int j = 0; j < CHUNK_SIZE; j++) {
                     for (int k = low_y; k < hi_y; k++) {
-                        final Block blk = c.getBlockState(i, k, j).getBlock();
-                        if (blk == skyStoneBlock) {
-                            return this.executor.submit(new CMUpdatePost(w, cx, cz, cdy, true));
+                        final IBlockState state = c.getBlockState(i, k, j);
+                        final Block blk = state.getBlock();
+                        if (blk == skyStoneChest) {
+                            if (state.getPropertyKeys().contains(BlockSkyChest.NATURAL)
+                                    && state.getValue(BlockSkyChest.NATURAL)) {
+                                return this.executor.submit(new CMUpdatePost(w, cx, cz, cdy, true));
+                            }
                         }
                     }
                 }

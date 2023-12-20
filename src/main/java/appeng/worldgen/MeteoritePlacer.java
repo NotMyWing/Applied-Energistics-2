@@ -23,6 +23,7 @@ import appeng.api.AEApi;
 import appeng.api.definitions.IBlockDefinition;
 import appeng.api.definitions.IBlocks;
 import appeng.api.definitions.IMaterials;
+import appeng.block.storage.BlockSkyChest;
 import appeng.core.AEConfig;
 import appeng.core.features.AEFeature;
 import appeng.core.worlddata.WorldData;
@@ -192,7 +193,8 @@ public final class MeteoritePlacer {
         this.skyStoneDefinition.maybeBlock().ifPresent(block -> this.placeMeteoriteSkyStone(w, x, y, z, block));
 
         if (AEConfig.instance().isFeatureEnabled(AEFeature.SPAWN_PRESSES_IN_METEORITES)) {
-            this.skyChestDefinition.maybeBlock().ifPresent(block -> this.putter.put(w, x, y, z, block));
+            this.skyChestDefinition.maybeBlock().ifPresent(block -> this.putter.put(w, x, y, z,
+                            block.getDefaultState().withProperty(BlockSkyChest.NATURAL, true)));
 
             final TileEntity te = w.getTileEntity(x, y, z);
             final InventoryAdaptor ap = InventoryAdaptor.getAdaptor(te, EnumFacing.UP);

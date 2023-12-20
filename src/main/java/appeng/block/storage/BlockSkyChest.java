@@ -26,6 +26,8 @@ import appeng.helpers.ICustomCollision;
 import appeng.tile.storage.TileSkyChest;
 import appeng.util.Platform;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -48,6 +50,8 @@ public class BlockSkyChest extends AEBaseTileBlock implements ICustomCollision {
     private static final double AABB_OFFSET_SIDES = 0.06;
     private static final double AABB_OFFSET_TOP = 0.125;
 
+    public static final PropertyBool NATURAL = PropertyBool.create("natural");
+
     public enum SkyChestType {
         STONE, BLOCK
     }
@@ -61,6 +65,22 @@ public class BlockSkyChest extends AEBaseTileBlock implements ICustomCollision {
         this.setHardness(50);
         this.blockResistance = 150.0f;
         this.type = type;
+        setDefaultState(getDefaultState().withProperty(NATURAL, true));
+    }
+
+    @Override
+    protected IProperty[] getAEStates() {
+        return new IProperty[]{NATURAL};
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return state.getValue(NATURAL) ? 1 : 0;
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return getDefaultState().withProperty(NATURAL, meta == 1);
     }
 
     @Override
