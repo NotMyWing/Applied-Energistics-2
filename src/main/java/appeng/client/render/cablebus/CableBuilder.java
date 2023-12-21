@@ -611,14 +611,14 @@ class CableBuilder {
             case DOWN:
             case UP:
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 3);
-                cubeBuilder.addCube(5, 0, 5, 11, 16, 11);
+                cubeBuilder.addCube(5, -0.01f, 5, 11, 16.01f, 11);
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 0);
                 break;
             case EAST:
             case WEST:
                 cubeBuilder.setUvRotation(EnumFacing.SOUTH, 3);
                 cubeBuilder.setUvRotation(EnumFacing.NORTH, 3);
-                cubeBuilder.addCube(0, 5, 5, 16, 11, 11);
+                cubeBuilder.addCube(-0.01f, 5, 5, 16.01f, 11, 11);
                 cubeBuilder.setUvRotation(EnumFacing.SOUTH, 0);
                 cubeBuilder.setUvRotation(EnumFacing.NORTH, 0);
                 break;
@@ -626,7 +626,7 @@ class CableBuilder {
             case SOUTH:
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 3);
                 cubeBuilder.setUvRotation(EnumFacing.WEST, 3);
-                cubeBuilder.addCube(5, 5, 0, 11, 11, 16);
+                cubeBuilder.addCube(5, 5, -0.01f, 11, 11, 16.01f);
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 0);
                 cubeBuilder.setUvRotation(EnumFacing.WEST, 0);
                 break;
