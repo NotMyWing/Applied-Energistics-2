@@ -123,6 +123,8 @@ public interface ICellInventory<T extends IAEStack<T>> extends IMEInventory<T>
 	 *
 	 * 3 - red, ( usually means the cell is 100% full )
 	 *
+	 * 4 - blue, ( usually means the cell is available and completely empty. )
+	 *
 	 * @return get the status of the cell based on its contents.
 	 */
 	int getStatusForCell();

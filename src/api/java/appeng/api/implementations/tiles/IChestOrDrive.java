@@ -40,11 +40,13 @@ public interface IChestOrDrive extends ICellContainer, IGridHost, IOrientable
 	/**
 	 * 0 - cell is missing.
 	 *
-	 * 1 - green,
+	 * 1 - green, the cell is present and partially empty
 	 *
-	 * 2 - orange,
+	 * 2 - orange, the cell is present and full on types
 	 *
-	 * 3 - red
+	 * 3 - red, the cell is present and full on bytes
+	 *
+	 * 4 - blue, the cell is present but totally empty
 	 *
 	 * @param slot slot index
 	 *

@@ -91,13 +91,19 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
     private final IConfigManager config = new ConfigManager(this);
     private long lastStateChange = 0;
     private int priority = 0;
-    private int state = 0;
     private boolean wasActive = false;
     private AEColor paintedColor = AEColor.TRANSPARENT;
     private boolean isCached = false;
     private ChestMonitorHandler cellHandler;
     private Accessor accessor;
     private IFluidHandler fluidHandler;
+
+    // Client-sided caches for rendering
+    // state value holds 3 bits per drive
+    private int cellState;
+    private boolean powered = false;
+    // bit index corresponds to cell index
+    private int blinking;
 
     public TileChest() {
         this.setInternalMaxPower(PowerMultiplier.CONFIG.multiply(128));
@@ -131,17 +137,14 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
     }
 
     private void recalculateDisplay() {
-        final int oldState = this.state;
+        final int oldCellState = this.cellState;
+        final boolean oldPowered = this.powered;
 
         for (int x = 0; x < this.getCellCount(); x++) {
-            this.state |= (this.getCellStatus(x) << (3 * x));
+            this.cellState |= (this.getCellStatus(x) << (3 * x));
         }
 
-        if (this.isPowered()) {
-            this.state |= 0x40;
-        } else {
-            this.state &= ~0x40;
-        }
+        this.powered = this.isPowered();
 
         final boolean currentActive = this.getProxy().isActive();
         if (this.wasActive != currentActive) {
@@ -153,7 +156,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
             }
         }
 
-        if (oldState != this.state) {
+        if (oldCellState != this.cellState || oldPowered != this.powered) {
             this.markForUpdate();
         }
     }
@@ -215,7 +218,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
     @Override
     public int getCellStatus(final int slot) {
         if (Platform.isClient()) {
-            return (this.state >> (slot * 3)) & 3;
+            return (this.cellState >> (slot * 3)) & 0b111;
         }
 
         this.updateHandler();
@@ -233,7 +236,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
     @Override
     public boolean isPowered() {
         if (Platform.isClient()) {
-            return (this.state & 0x40) == 0x40;
+            return this.powered;
         }
 
         boolean gridPowered = this.getAECurrentPower() > 64;
@@ -255,7 +258,7 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
             return false;
         }
 
-        return ((this.state >> (slot * 3 + 2)) & 0x01) == 0x01;
+        return (this.blinking & (1 << slot)) == 1;
     }
 
     @Override
@@ -287,13 +290,13 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
         try {
             if (!this.getProxy().getEnergy().isNetworkPowered()) {
                 final double powerUsed = this.extractAEPower(idleUsage, Actionable.MODULATE, PowerMultiplier.CONFIG); // drain
-                if (powerUsed + 0.1 >= idleUsage != (this.state & 0x40) > 0) {
+                if (powerUsed + 0.1 >= idleUsage != this.powered) {
                     this.recalculateDisplay();
                 }
             }
         } catch (final GridAccessException e) {
             final double powerUsed = this.extractAEPower(this.getProxy().getIdlePowerUsage(), Actionable.MODULATE, PowerMultiplier.CONFIG); // drain
-            if (powerUsed + 0.1 >= idleUsage != (this.state & 0x40) > 0) {
+            if (powerUsed + 0.1 >= idleUsage != this.powered) {
                 this.recalculateDisplay();
             }
         }
@@ -308,22 +311,24 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
         super.writeToStream(data);
 
         if (this.world.getTotalWorldTime() - this.lastStateChange > 8) {
-            this.state = 0;
+            this.cellState = 0;
+            this.powered = false;
+            this.blinking = 0;
         } else {
-            this.state &= 0x24924924; // just keep the blinks...
+            // just keep the blinks...
+            this.cellState = 0;
+            this.powered = false;
         }
 
         for (int x = 0; x < this.getCellCount(); x++) {
-            this.state |= (this.getCellStatus(x) << (3 * x));
+            this.cellState |= (this.getCellStatus(x) << (3 * x));
         }
 
-        if (this.isPowered()) {
-            this.state |= 0x40;
-        } else {
-            this.state &= ~0x40;
-        }
+        this.powered = this.isPowered();
 
-        data.writeByte(this.state);
+        data.writeByte(this.cellState);
+        data.writeBoolean(this.powered);
+        data.writeByte(this.blinking);
         data.writeByte(this.paintedColor.ordinal());
     }
 
@@ -331,15 +336,19 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
     protected boolean readFromStream(final ByteBuf data) throws IOException {
         final boolean c = super.readFromStream(data);
 
-        final int oldState = this.state;
+        final int oldState = this.cellState;
+        final boolean oldPowered = this.powered;
+        final int oldBlinking = this.blinking;
 
-        this.state = data.readByte();
+        this.cellState = data.readByte();
+        this.powered = data.readBoolean();
+        this.blinking = data.readByte();
         final AEColor oldPaintedColor = this.paintedColor;
         this.paintedColor = AEColor.values()[data.readByte()];
 
         this.lastStateChange = this.world.getTotalWorldTime();
 
-        return oldPaintedColor != this.paintedColor || (this.state & 0xDB6DB6DB) != (oldState & 0xDB6DB6DB) || c;
+        return oldPaintedColor != this.paintedColor || this.cellState != oldState || c || oldPowered != this.powered || oldBlinking != this.blinking;
     }
 
     @Override
@@ -470,11 +479,13 @@ public class TileChest extends AENetworkPowerTile implements IMEChest, ITerminal
     public void blinkCell(final int slot) {
         final long now = this.world.getTotalWorldTime();
         if (now - this.lastStateChange > 8) {
-            this.state = 0;
+            this.cellState = 0;
+            this.powered = false;
+            this.blinking = 0;
         }
         this.lastStateChange = now;
 
-        this.state |= 1 << (slot * 3 + 2);
+        this.blinking |= (1 << slot);
 
         this.recalculateDisplay();
     }

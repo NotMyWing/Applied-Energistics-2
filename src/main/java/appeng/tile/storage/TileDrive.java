@@ -55,10 +55,6 @@ import java.util.*;
 
 public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPriorityHost {
 
-    private static final int BIT_POWER_MASK = 0x80000000;
-    private static final int BIT_BLINK_MASK = 0x24924924;
-    private static final int BIT_STATE_MASK = 0xDB6DB6DB;
-
     private final AppEngCellInventory inv = new AppEngCellInventory(this, 10);
     private final ICellHandler[] handlersBySlot = new ICellHandler[10];
     private final DriveWatcher<IAEItemStack>[] invBySlot = new DriveWatcher[10];
@@ -71,15 +67,15 @@ public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPrior
     /**
      * The state of all cells inside a drive as bitset, using the following format.
      * <p>
-     * Bit 31: power state. 0 = off, 1 = on.
-     * Bit 30: undefined
      * Bit 29-0: 3 bits as state of each cell with the cell in slot 0 located in the 3 least significant bits.
      * <p>
      * Cell states:
-     * Bit 2: blink. 0 = off, 1 = on.
-     * Bit 1-0: cell status
+     * Bit 2-0: cell status, representing {@link appeng.block.storage.DriveSlotState}.
      */
-    private int state = 0;
+    private int cellState = 0;
+    private boolean powered;
+    // bit index corresponds to cell index
+    private int blinking;
 
     public TileDrive() {
         this.mySrc = new MachineSource(this);
@@ -91,25 +87,27 @@ public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPrior
     @Override
     protected void writeToStream(final ByteBuf data) throws IOException {
         super.writeToStream(data);
+
         int newState = 0;
-
-        if (this.getProxy().isActive()) {
-            newState |= BIT_POWER_MASK;
-        }
-
         for (int x = 0; x < this.getCellCount(); x++) {
             newState |= (this.getCellStatus(x) << (3 * x));
         }
 
         data.writeInt(newState);
+        data.writeBoolean(this.getProxy().isActive());
+        data.writeInt(this.blinking);
     }
 
     @Override
     protected boolean readFromStream(final ByteBuf data) throws IOException {
         final boolean c = super.readFromStream(data);
-        final int oldState = this.state;
-        this.state = data.readInt();
-        return (this.state & BIT_STATE_MASK) != (oldState & BIT_STATE_MASK) || c;
+        final int oldCellState = this.cellState;
+        final boolean oldPowered = this.powered;
+        final int oldBlinking = this.blinking;
+        this.cellState = data.readInt();
+        this.powered = data.readBoolean();
+        this.blinking = data.readInt();
+        return oldCellState != this.cellState || oldPowered != this.powered || oldBlinking != this.blinking || c;
     }
 
     @Override
@@ -120,7 +118,7 @@ public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPrior
     @Override
     public int getCellStatus(final int slot) {
         if (Platform.isClient()) {
-            return (this.state >> (slot * 3)) & 3;
+            return (this.cellState >> (slot * 3)) & 0b111;
         }
 
         final DriveWatcher handler = this.invBySlot[slot];
@@ -134,7 +132,7 @@ public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPrior
     @Override
     public boolean isPowered() {
         if (Platform.isClient()) {
-            return (this.state & BIT_POWER_MASK) == BIT_POWER_MASK;
+            return this.powered;
         }
 
         return this.getProxy().isActive();
@@ -142,7 +140,7 @@ public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPrior
 
     @Override
     public boolean isCellBlinking(final int slot) {
-        return ((this.state >> (slot * 3 + 2)) & 0x01) == 0x01;
+        return (this.blinking & (1 << slot)) == 1;
     }
 
     @Override
@@ -166,11 +164,10 @@ public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPrior
 
     private void recalculateDisplay() {
         final boolean currentActive = this.getProxy().isActive();
-        int newState = 0;
+        final int oldCellState = this.cellState;
+        final boolean oldPowered = this.powered;
 
-        if (currentActive) {
-            newState |= BIT_POWER_MASK;
-        }
+        this.powered = currentActive;
 
         if (this.wasActive != currentActive) {
             this.wasActive = currentActive;
@@ -182,11 +179,10 @@ public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPrior
         }
 
         for (int x = 0; x < this.getCellCount(); x++) {
-            newState |= (this.getCellStatus(x) << (3 * x));
+            cellState |= (this.getCellStatus(x) << (3 * x));
         }
 
-        if (newState != this.state) {
-            this.state = newState;
+        if (oldCellState != this.cellState || oldPowered != this.powered) {
             this.markForUpdate();
         }
     }
@@ -306,7 +302,7 @@ public class TileDrive extends AENetworkInvTile implements IChestOrDrive, IPrior
 
     @Override
     public void blinkCell(final int slot) {
-        this.state |= 1 << (slot * 3 + 2);
+        this.blinking |= (1 << slot);
 
         this.recalculateDisplay();
     }

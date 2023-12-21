@@ -54,6 +54,16 @@
             "model": "appliedenergistics2:chest/cell_state_full"
           }
         }
+      },
+      "no_contents": {
+        "submodel": {
+          "lights": {
+            "model": "appliedenergistics2:chest/lights_on"
+          },
+          "state": {
+            "model": "appliedenergistics2:chest/cell_state_no_contents"
+          }
+        }
       }
     }
   }
