@@ -467,8 +467,8 @@ class CableBuilder {
         // Dense cables show used channels in groups of 4, rounded up
         channels = (int) ((channels + 3) / 4) / (AEConfig.instance().getDenseChannelCapacity() / 32);
 
-        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
-        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);
+        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForDenseChannels(channels);
+        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForDenseChannels(channels);
 
         // Render the channel indicators brightly lit at night
         cubeBuilder.setRenderFullBright(true);
@@ -493,7 +493,7 @@ class CableBuilder {
         TextureAtlasSprite texture = this.connectionTextures.get(AECableType.DENSE_COVERED).get(cableColor);
         cubeBuilder.setTexture(texture);
 
-        setStraightCableUVs(cubeBuilder, facing, 5, 11);
+        setStraightCableUVs(cubeBuilder, facing, 3, 13);
 
         addStraightDenseCableSizedCube(facing, cubeBuilder);
     }
@@ -504,15 +504,15 @@ class CableBuilder {
         TextureAtlasSprite texture = this.connectionTextures.get(AECableType.DENSE_SMART).get(cableColor);
         cubeBuilder.setTexture(texture);
 
-        setStraightCableUVs(cubeBuilder, facing, 5, 11);
+        setStraightCableUVs(cubeBuilder, facing, 3, 13);
 
         addStraightDenseCableSizedCube(facing, cubeBuilder);
 
         // Dense cables show used channels in groups of 4, rounded up
         channels = (int) ((channels + 3) / 4) / (AEConfig.instance().getDenseChannelCapacity() / 32);
 
-        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
-        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);
+        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForDenseChannels(channels);
+        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForDenseChannels(channels);
 
         // Render the channel indicators brightly lit at night
         cubeBuilder.setRenderFullBright(true);
@@ -702,6 +702,7 @@ class CableBuilder {
         }
 
         Collections.addAll(locations, SmartCableTextures.SMART_CHANNELS_TEXTURES);
+        Collections.addAll(locations, SmartCableTextures.DENSE_SMART_CHANNELS_TEXTURES);
 
         return locations;
     }

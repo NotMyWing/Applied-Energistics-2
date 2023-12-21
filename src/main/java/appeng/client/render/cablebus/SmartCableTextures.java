@@ -32,20 +32,43 @@ import java.util.function.Function;
  */
 public class SmartCableTextures {
 
-    public static final ResourceLocation[] SMART_CHANNELS_TEXTURES = {new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_00"),
-            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_01"), new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_02"),
-            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_03"), new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_04"),
-            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_10"), new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_11"),
-            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_12"), new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_13"),
-            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_14")
+    public static final ResourceLocation[] SMART_CHANNELS_TEXTURES = {
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_00"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_01"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_02"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_03"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_04"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_10"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_11"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_12"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_13"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/smart/channels_14"),
     };
 
     // Textures used to display channels on smart cables. There's two sets of 5 textures each, and
     // one of each set are composed together to get even/odd colored channels
     private final TextureAtlasSprite[] textures;
 
+    public static final ResourceLocation[] DENSE_SMART_CHANNELS_TEXTURES = {
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_00"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_01"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_02"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_03"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_04"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_10"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_11"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_12"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_13"),
+            new ResourceLocation(AppEng.MOD_ID, "parts/cable/dense_smart/channels_14"),
+    };
+
+    // Textures used to display channels on dense smart cables. There's two sets of 5 textures each, and
+    // one of each set are composed together to get even/odd colored channels
+    private final TextureAtlasSprite[] denseTextures;
+
     public SmartCableTextures(Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
         this.textures = Arrays.stream(SMART_CHANNELS_TEXTURES).map(bakedTextureGetter::apply).toArray(TextureAtlasSprite[]::new);
+        this.denseTextures = Arrays.stream(DENSE_SMART_CHANNELS_TEXTURES).map(bakedTextureGetter::apply).toArray(TextureAtlasSprite[]::new);
     }
 
     /**
@@ -61,8 +84,18 @@ public class SmartCableTextures {
         }
     }
 
+    public TextureAtlasSprite getOddTextureForDenseChannels(int channels) {
+        if (channels < 0) {
+            return this.denseTextures[0];
+        } else if (channels <= 4) {
+            return this.denseTextures[channels];
+        } else {
+            return this.denseTextures[4];
+        }
+    }
+
     /**
-     * The odd variant is used for displaying channels 5-8 as in use.
+     * The even variant is used for displaying channels 5-8 as in use.
      */
     public TextureAtlasSprite getEvenTextureForChannels(int channels) {
         if (channels < 5) {
@@ -71,6 +104,16 @@ public class SmartCableTextures {
             return this.textures[1 + channels];
         } else {
             return this.textures[9];
+        }
+    }
+
+    public TextureAtlasSprite getEvenTextureForDenseChannels(int channels) {
+        if (channels < 5) {
+            return this.denseTextures[5];
+        } else if (channels <= 8) {
+            return this.denseTextures[1 + channels];
+        } else {
+            return this.denseTextures[9];
         }
     }
 }
