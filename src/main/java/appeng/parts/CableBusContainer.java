@@ -976,7 +976,10 @@ public class CableBusContainer extends CableBusStorage implements AEMultiTile, I
 
                 // Check if the adjacent TE is a cable bus or not
                 if (adjacentTe instanceof IPartHost) {
-                    renderState.getCableBusAdjacent().add(facing);
+                    IPartHost host = (IPartHost) adjacentTe;
+                    if (host.getPart(facing) != null) {
+                        renderState.getCableBusAdjacent().add(facing);
+                    }
                 }
 
                 renderState.getConnectionTypes().put(facing, connectionType);
