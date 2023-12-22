@@ -1,10 +1,10 @@
 {
     "textures": {
-        "sides": "appliedenergistics2:parts/export_bus_sides",
+        "sides": "appliedenergistics2:parts/interface_sides",
         "sidesStatus": "appliedenergistics2:parts/monitor_sides_status",
-        "back": "appliedenergistics2:parts/monitor_back",
+        "back": "appliedenergistics2:parts/interface_back",
         "front": "appliedenergistics2:items/part/interface",
-        "particle": "appliedenergistics2:parts/monitor_back"
+        "particle": "appliedenergistics2:parts/interface_back"
     },
     "elements": [
         {
