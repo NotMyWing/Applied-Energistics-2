@@ -28,12 +28,15 @@ import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.events.MENetworkEvent;
+import appeng.api.networking.events.MENetworkEventSubscribe;
+import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.events.MENetworkSpatialEvent;
 import appeng.api.networking.spatial.ISpatialCache;
 import appeng.api.util.AECableType;
 import appeng.api.util.AEPartLocation;
 import appeng.api.util.DimensionalCoord;
 import appeng.hooks.TickHandler;
+import appeng.me.GridAccessException;
 import appeng.me.cache.SpatialPylonCache;
 import appeng.tile.grid.AENetworkInvTile;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -42,6 +45,7 @@ import appeng.util.Platform;
 import appeng.util.inv.InvOperation;
 import appeng.util.inv.WrapperFilteredItemHandler;
 import appeng.util.inv.filter.IAEItemFilter;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -49,6 +53,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 
 
 public class TileSpatialIOPort extends AENetworkInvTile implements IWorldCallable<Void> {
@@ -57,8 +62,15 @@ public class TileSpatialIOPort extends AENetworkInvTile implements IWorldCallabl
     private final IItemHandler invExt = new WrapperFilteredItemHandler(this.inv, new SpatialIOFilter());
     private YesNo lastRedstoneState = YesNo.UNDECIDED;
 
+    private boolean isActive = false;
+
     public TileSpatialIOPort() {
         this.getProxy().setFlags(GridFlags.REQUIRE_CHANNEL);
+    }
+
+    @MENetworkEventSubscribe
+    public void onPower(final MENetworkPowerStatusChange ch) {
+        this.markForUpdate();
     }
 
     @Override
@@ -74,6 +86,32 @@ public class TileSpatialIOPort extends AENetworkInvTile implements IWorldCallabl
         if (data.hasKey("lastRedstoneState")) {
             this.lastRedstoneState = YesNo.values()[data.getInteger("lastRedstoneState")];
         }
+    }
+
+    @Override
+    protected boolean readFromStream(ByteBuf data) throws IOException {
+        boolean c = super.readFromStream(data);
+
+        final boolean oldIsActive = this.isActive;
+        this.isActive = data.readBoolean();
+        return oldIsActive != this.isActive || c;
+    }
+
+    @Override
+    protected void writeToStream(ByteBuf data) throws IOException {
+        super.writeToStream(data);
+        data.writeBoolean(this.isActive());
+    }
+
+    public boolean isActive() {
+        if (Platform.isServer()) {
+            try {
+                return this.getProxy().getEnergy().isNetworkPowered();
+            } catch (final GridAccessException e) {
+                return false;
+            }
+        }
+        return this.isActive;
     }
 
     public boolean getRedstoneState() {

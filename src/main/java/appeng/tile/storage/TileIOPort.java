@@ -25,6 +25,8 @@ import appeng.api.implementations.IUpgradeableHost;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.energy.IEnergySource;
+import appeng.api.networking.events.MENetworkEventSubscribe;
+import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
@@ -55,6 +57,7 @@ import appeng.util.inv.InvOperation;
 import appeng.util.inv.WrapperChainedItemHandler;
 import appeng.util.inv.WrapperFilteredItemHandler;
 import appeng.util.inv.filter.AEItemFilters;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -63,6 +66,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 
+import java.io.IOException;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +91,8 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
     private ItemStack currentCell;
     private Map<IStorageChannel<?>, IMEInventory<?>> cachedInventories;
 
+    private boolean isActive = false;
+
     public TileIOPort() {
         this.getProxy().setFlags(GridFlags.REQUIRE_CHANNEL);
         this.manager = new ConfigManager(this);
@@ -98,6 +104,11 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
 
         final Block ioPortBlock = AEApi.instance().definitions().blocks().iOPort().maybeBlock().get();
         this.upgrades = new BlockUpgradeInventory(ioPortBlock, this, NUMBER_OF_UPGRADE_SLOTS);
+    }
+
+    @MENetworkEventSubscribe
+    public void onPower(final MENetworkPowerStatusChange ch) {
+        this.markForUpdate();
     }
 
     @Override
@@ -117,6 +128,32 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
         if (data.hasKey("lastRedstoneState")) {
             this.lastRedstoneState = YesNo.values()[data.getInteger("lastRedstoneState")];
         }
+    }
+
+    @Override
+    protected boolean readFromStream(ByteBuf data) throws IOException {
+        boolean c = super.readFromStream(data);
+
+        final boolean oldIsActive = this.isActive;
+        this.isActive = data.readBoolean();
+        return oldIsActive != this.isActive || c;
+    }
+
+    @Override
+    protected void writeToStream(ByteBuf data) throws IOException {
+        super.writeToStream(data);
+        data.writeBoolean(this.isActive());
+    }
+
+    public boolean isActive() {
+        if (Platform.isServer()) {
+            try {
+                return this.getProxy().getEnergy().isNetworkPowered();
+            } catch (GridAccessException e) {
+                return false;
+            }
+        }
+        return this.isActive;
     }
 
     @Override
