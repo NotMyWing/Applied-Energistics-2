@@ -166,6 +166,7 @@ public enum AEFeature {
     MOLECULAR_ASSEMBLER("MolecularAssembler", Constants.CATEGORY_CRAFTING_FEATURES),
     PATTERNS("Patterns", Constants.CATEGORY_CRAFTING_FEATURES),
     CRAFTING_CPU("CraftingCPU", Constants.CATEGORY_CRAFTING_FEATURES),
+    CRAFTING_TOASTS("CraftingToasts", Constants.CATEGORY_CRAFTING_FEATURES),
 
     BASIC_CARDS("BasicCards", Constants.CATEGORY_UPGRADES),
     ADVANCED_CARDS("AdvancedCards", Constants.CATEGORY_UPGRADES),

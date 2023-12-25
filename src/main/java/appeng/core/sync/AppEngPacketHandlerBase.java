@@ -86,7 +86,9 @@ public class AppEngPacketHandlerBase {
 
         PACKET_CRAFTING_CPUS_UPDATE(PacketCraftingCPUsUpdate.class),
 
-        PACKET_TERMINAL_KEYBIND(PacketTerminalUse.class);
+        PACKET_TERMINAL_KEYBIND(PacketTerminalUse.class),
+
+        PACKET_CRAFTING_TOAST(PacketCraftingToast.class);
 
 
         private final Class<? extends AppEngPacket> packetClass;

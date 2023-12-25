@@ -251,6 +251,8 @@ gui.appliedenergistics2.SmallFontCraft=Craft
 gui.appliedenergistics2.LargeFontCraft=+
 gui.appliedenergistics2.Renamer=Custom Name: (Enter to set)
 gui.appliedenergistics2.Nothing=Nothing
+gui.appliedenergistics2.CraftingToastDone=Crafting Done!
+gui.appliedenergistics2.CraftingToastCancelled=Crafting Cancelled!
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=Store Items
