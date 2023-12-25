@@ -390,13 +390,16 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
     }
 
     private void notifyRequester(boolean cancelled) {
-        if (Platform.isServer() && AEConfig.instance().isFeatureEnabled(AEFeature.CRAFTING_TOASTS) && this.requestingPlayerUUID != null) {
-            var player = PlayerHelper.getPlayerByUUID(this.requestingPlayerUUID);
-            if (player != null) {
-                try {
-                    NetworkHandler.instance().sendTo(new PacketCraftingToast(this.finalOutput, cancelled), player);
-                } catch (IOException ignored) {}
-            }
+        if (!Platform.isServer()) return;
+        if (this.requestingPlayerUUID == null) return;
+        if (this.finalOutput == null) return;
+        if (!AEConfig.instance().isFeatureEnabled(AEFeature.CRAFTING_TOASTS)) return;
+
+        var player = PlayerHelper.getPlayerByUUID(this.requestingPlayerUUID);
+        if (player != null) {
+            try {
+                NetworkHandler.instance().sendTo(new PacketCraftingToast(this.finalOutput, cancelled), player);
+            } catch (IOException ignored) {}
         }
     }
 
@@ -541,13 +544,12 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
             this.postCraftingStatusChange(is);
         }
 
+        notifyRequester(true);
+        this.requestingPlayerUUID = null;
         this.finalOutput = null;
         this.updateCPU();
 
         this.storeItems(); // marks dirty
-
-        notifyRequester(false);
-        this.requestingPlayerUUID = null;
     }
 
     public void updateCraftingLogic(final IGrid grid, final IEnergyGrid eg, final CraftingGridCache cc) {
