@@ -8,9 +8,13 @@
         "url": "https://github.com/PrototypeTrousers/Applied-Energistics-2",
         "updateUrl": "",
         "authorList": [
-            "AlgorithmX2"
+            "NotMyWing",
+            "Serenibyss",
+            "PrototypeTrousers",
+            "AlgorithmX2",
+            "contributors <3"
         ],
-        "credits": "AlgorithmX2",
+        "credits": "The AE2:UEL team, AlgorithmX2 & contributors",
         "logoFile": "assets/appliedenergistics2/meta/logo.png",
         "screenshots":[]
     }
