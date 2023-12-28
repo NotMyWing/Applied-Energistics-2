@@ -10,10 +10,12 @@ import appeng.parts.PartPlacement.Placement;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,6 +35,10 @@ public class RenderBlockOutlineHook {
         // noinspection ConstantConditions
         if (event.getTarget().getBlockPos() == null) return;
 
+        if (event.getTarget().typeOfHit != RayTraceResult.Type.BLOCK) {
+            return;
+        }
+
         EntityPlayer player = event.getPlayer();
         ItemStack stack = player.getHeldItemMainhand();
         BlockPos hitPos = event.getTarget().getBlockPos();
@@ -44,6 +50,9 @@ public class RenderBlockOutlineHook {
 
     private static boolean replaceBlockOutline(EntityPlayer player, World world, ItemStack stack, BlockPos hitPos, EnumFacing side, float partialTicks) {
         if (!(stack.getItem() instanceof IPartItem<?> partItem)) {
+            return false;
+        }
+        if (world.getBlockState(hitPos).getBlock() == Blocks.AIR) {
             return false;
         }
         Placement placement = PartPlacement.getPartPlacement(player, world, stack, hitPos, side);
@@ -73,7 +82,7 @@ public class RenderBlockOutlineHook {
         IPartCollisionHelper helper = new BusCollisionHelper(boxes, AEPartLocation.fromFacing(placement.side()), player, true);
         part.getBoxes(helper);
         for (AxisAlignedBB box : boxes) {
-            box = offsetBox(box, hitPos, player, partialTicks);
+            box = offsetBox(box, placement.pos(), player, partialTicks);
             RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.4F);
         }
         GlStateManager.depthMask(true);
@@ -86,6 +95,6 @@ public class RenderBlockOutlineHook {
         double dX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         double dY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
         double dZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
-        return box.offset(pos.getX() - dX, pos.getY() - dY, pos.getZ() - dZ);
+        return box.offset(pos.getX() - dX, pos.getY() - dY, pos.getZ() - dZ).shrink(0.002D);
     }
 }
