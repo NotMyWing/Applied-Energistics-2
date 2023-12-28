@@ -5,7 +5,7 @@
         "description": "A Mod about Matter, Energy and using them to conquer the world..",
         "version": "${version}",
         "mcversion": "${mcversion}",
-        "url": "https://github.com/PrototypeTrousers/Applied-Energistics-2",
+        "url": "https://github.com/AE2-UEL/Applied-Energistics-2",
         "updateUrl": "",
         "authorList": [
             "NotMyWing",
