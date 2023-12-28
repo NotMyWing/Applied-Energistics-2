@@ -68,9 +68,9 @@ public class BlockIOPort extends AEBaseTileBlock {
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
         final TileIOPort te = this.getTileEntity(world, pos);
         if (te != null) {
-	    if (te.getInstalledUpgrades(Upgrades.REDSTONE) != 0) {
-		te.updateRedstoneState();
-	    }
+            if (te.getInstalledUpgrades(Upgrades.REDSTONE) != 0) {
+                te.updateRedstoneState();
+            }
         }
     }
 

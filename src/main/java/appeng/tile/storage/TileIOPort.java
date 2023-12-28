@@ -183,11 +183,11 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
         if (this.lastRedstoneState != currentState) {
             this.lastRedstoneState = currentState;
             this.updateTask();
-	    if (currentState == YesNo.YES) {
-		if (this.manager.getSetting(Settings.REDSTONE_CONTROLLED) == RedstoneMode.SIGNAL_PULSE) {
-		this.doWork();
-		}
-	    }
+            if (currentState == YesNo.YES) {
+                if (this.manager.getSetting(Settings.REDSTONE_CONTROLLED) == RedstoneMode.SIGNAL_PULSE) {
+                    this.doWork();
+                }
+            }
         }
     }
 
@@ -204,20 +204,20 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
             return true;
         }
         final RedstoneMode rs = (RedstoneMode) this.manager.getSetting(Settings.REDSTONE_CONTROLLED);
-	switch (rs) {
-                case IGNORE:
-                    return true;
+        switch (rs) {
+            case IGNORE:
+                return true;
 
-                case HIGH_SIGNAL:
-                    return this.getRedstoneState();
+            case HIGH_SIGNAL:
+                return this.getRedstoneState();
 
-                case LOW_SIGNAL:
-		    return !this.getRedstoneState();
+            case LOW_SIGNAL:
+                return !this.getRedstoneState();
 
-                case SIGNAL_PULSE:
-                default:
-                    return false;
-            }
+            case SIGNAL_PULSE:
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -282,11 +282,11 @@ public class TileIOPort extends AENetworkInvTile implements IUpgradeableHost, IC
         if (!this.getProxy().isActive()) {
             return TickRateModulation.IDLE;
         }
-	return this.doWork();
+        return this.doWork();
     }
 
     private TickRateModulation doWork() {
-	TickRateModulation ret = TickRateModulation.SLEEP;
+        TickRateModulation ret = TickRateModulation.SLEEP;
         long itemsToMove = 256;
 
         switch (this.getInstalledUpgrades(Upgrades.SPEED)) {
