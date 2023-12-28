@@ -36,7 +36,7 @@ public class ApiPart implements IPartHelper {
 
     @Override
     public EnumActionResult placeBus(final ItemStack is, final BlockPos pos, final EnumFacing side, final EntityPlayer player, final EnumHand hand, final World w) {
-        return PartPlacement.place(is, pos, side, player, hand, w, PartPlacement.PlaceType.PLACE_ITEM, 0);
+        return PartPlacement.place(is, pos, side, player, hand, w);
     }
 
     @Override

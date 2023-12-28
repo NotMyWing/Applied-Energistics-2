@@ -44,8 +44,6 @@ public class AppEngPacketHandlerBase {
 
         PACKET_CONFIG_BUTTON(PacketConfigButton.class),
 
-        PACKET_PART_PLACEMENT(PacketPartPlacement.class),
-
         PACKET_LIGHTNING(PacketLightning.class),
 
         PACKET_MATTER_CANNON(PacketMatterCannon.class),

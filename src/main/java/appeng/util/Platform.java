@@ -384,6 +384,10 @@ public class Platform {
         return dc.getWorld().canMineBlockBody(player, dc.getPos());
     }
 
+    public static boolean hasPermissions(final World world, final BlockPos pos, final EntityPlayer player) {
+        return world.canMineBlockBody(player, pos);
+    }
+
     /*
      * Checks to see if a block is air?
      */

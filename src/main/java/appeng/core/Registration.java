@@ -60,7 +60,6 @@ import appeng.items.parts.ItemFacade;
 import appeng.items.parts.ItemPart;
 import appeng.loot.ChestLoot;
 import appeng.me.cache.*;
-import appeng.parts.PartPlacement;
 import appeng.recipes.AEItemResolver;
 import appeng.recipes.AERecipeLoader;
 import appeng.recipes.game.DisassembleRecipe;
@@ -192,8 +191,6 @@ final class Registration {
         definitions.getRegistry().getBootstrapComponents(IInitComponent.class).forEachRemaining(b -> b.initialize(event.getSide()));
 
         MinecraftForge.EVENT_BUS.register(TickHandler.INSTANCE);
-
-        MinecraftForge.EVENT_BUS.register(new PartPlacement());
 
         if (AEConfig.instance().isFeatureEnabled(AEFeature.CHEST_LOOT)) {
             MinecraftForge.EVENT_BUS.register(new ChestLoot());

@@ -37,6 +37,7 @@ import appeng.core.AELog;
 import appeng.core.AEConfig;
 import appeng.facade.FacadeContainer;
 import appeng.helpers.AEMultiTile;
+import appeng.items.parts.ItemFacade;
 import appeng.me.GridConnection;
 import appeng.parts.networking.PartCable;
 import appeng.util.Platform;
@@ -110,7 +111,7 @@ public class CableBusContainer extends CableBusStorage implements AEMultiTile, I
 
     @Override
     public boolean canAddPart(ItemStack is, final AEPartLocation side) {
-        if (PartPlacement.isFacade(is, side) != null) {
+        if (ItemFacade.createFacade(is, side) != null) {
             return true;
         }
 
