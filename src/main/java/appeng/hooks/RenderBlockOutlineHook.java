@@ -2,9 +2,14 @@ package appeng.hooks;
 
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartCollisionHelper;
+import appeng.api.parts.IPartHost;
 import appeng.api.parts.IPartItem;
 import appeng.api.util.AEPartLocation;
+import appeng.facade.FacadePart;
+import appeng.facade.IFacadeItem;
+import appeng.items.parts.ItemFacade;
 import appeng.parts.BusCollisionHelper;
+import appeng.parts.PartHelper;
 import appeng.parts.PartPlacement;
 import appeng.parts.PartPlacement.Placement;
 import net.minecraft.client.renderer.GlStateManager;
@@ -49,9 +54,6 @@ public class RenderBlockOutlineHook {
     }
 
     private static boolean replaceBlockOutline(EntityPlayer player, World world, ItemStack stack, BlockPos hitPos, EnumFacing side, float partialTicks) {
-        if (!(stack.getItem() instanceof IPartItem<?> partItem)) {
-            return false;
-        }
         if (world.getBlockState(hitPos).getBlock() == Blocks.AIR) {
             return false;
         }
@@ -63,6 +65,57 @@ public class RenderBlockOutlineHook {
             return false;
         }
 
+        if (stack.getItem() instanceof IPartItem<?> partItem) {
+            return renderPart(partItem, stack, placement, player, partialTicks);
+        } else if (stack.getItem() instanceof IFacadeItem facadeItem) {
+            return renderFacade(facadeItem, stack, placement, player, world, partialTicks);
+        }
+        return false;
+    }
+
+    private static boolean renderPart(IPartItem<?> partItem, ItemStack stack, Placement placement, EntityPlayer player, float partialTicks) {
+        IPart part = partItem.createPartFromItemStack(stack);
+        if (part == null) {
+            return false;
+        }
+
+        setup();
+        List<AxisAlignedBB> boxes = new ArrayList<>();
+        IPartCollisionHelper helper = new BusCollisionHelper(boxes, AEPartLocation.fromFacing(placement.side()), player, true);
+        part.getBoxes(helper);
+        for (AxisAlignedBB box : boxes) {
+            box = offsetBox(box, placement.pos(), player, partialTicks);
+            RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.4F);
+        }
+        cleanup();
+
+        return true;
+    }
+
+    private static boolean renderFacade(IFacadeItem facadeItem, ItemStack stack, Placement placement, EntityPlayer player, World world, float partialTicks) {
+        FacadePart part = facadeItem.createPartFromItemStack(stack, AEPartLocation.fromFacing(placement.side()));
+        if (part == null) {
+            return false;
+        }
+        IPartHost host = PartHelper.getPartHost(world, placement.pos());
+        if (host == null || !ItemFacade.canPlaceFacade(host, part)) {
+            return false;
+        }
+
+        setup();
+        List<AxisAlignedBB> boxes = new ArrayList<>();
+        IPartCollisionHelper helper = new BusCollisionHelper(boxes, AEPartLocation.fromFacing(placement.side()), player, true);
+        part.getBoxes(helper, player);
+        for (AxisAlignedBB box : boxes) {
+            box = offsetBox(box, placement.pos(), player, partialTicks);
+            RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.4F);
+        }
+        cleanup();
+
+        return true;
+    }
+
+    private static void setup() {
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
@@ -73,22 +126,12 @@ public class RenderBlockOutlineHook {
         GlStateManager.glLineWidth(2.0F);
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask(false);
+    }
 
-        IPart part = partItem.createPartFromItemStack(stack);
-        if (part == null) {
-            return false;
-        }
-        List<AxisAlignedBB> boxes = new ArrayList<>();
-        IPartCollisionHelper helper = new BusCollisionHelper(boxes, AEPartLocation.fromFacing(placement.side()), player, true);
-        part.getBoxes(helper);
-        for (AxisAlignedBB box : boxes) {
-            box = offsetBox(box, placement.pos(), player, partialTicks);
-            RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.4F);
-        }
+    private static void cleanup() {
         GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
-        return true;
     }
 
     private static AxisAlignedBB offsetBox(AxisAlignedBB box, BlockPos pos, EntityPlayer player, float partialTicks) {
