@@ -1,5 +1,6 @@
 package appeng.hooks;
 
+import appeng.api.AEApi;
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartCollisionHelper;
 import appeng.api.parts.IPartHost;
@@ -27,6 +28,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,10 +67,11 @@ public class RenderBlockOutlineHook {
             return false;
         }
 
+        IPartHost host = PartHelper.getPartHost(world, placement.pos());
         if (stack.getItem() instanceof IPartItem<?> partItem) {
             return renderPart(partItem, stack, placement, player, partialTicks);
         } else if (stack.getItem() instanceof IFacadeItem facadeItem) {
-            return renderFacade(facadeItem, stack, placement, player, world, partialTicks);
+            return renderFacade(facadeItem, stack, host, placement, player, partialTicks);
         }
         return false;
     }
@@ -79,43 +82,38 @@ public class RenderBlockOutlineHook {
             return false;
         }
 
-        setup();
         List<AxisAlignedBB> boxes = new ArrayList<>();
         IPartCollisionHelper helper = new BusCollisionHelper(boxes, AEPartLocation.fromFacing(placement.side()), player, true);
         part.getBoxes(helper);
-        for (AxisAlignedBB box : boxes) {
-            box = offsetBox(box, placement.pos(), player, partialTicks);
-            RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.4F);
-        }
-        cleanup();
+
+        renderBoxes(boxes, placement, player, partialTicks);
 
         return true;
     }
 
-    private static boolean renderFacade(IFacadeItem facadeItem, ItemStack stack, Placement placement, EntityPlayer player, World world, float partialTicks) {
+    private static boolean renderFacade(IFacadeItem facadeItem, ItemStack stack, IPartHost host, Placement placement, EntityPlayer player, float partialTicks) {
         FacadePart part = facadeItem.createPartFromItemStack(stack, AEPartLocation.fromFacing(placement.side()));
         if (part == null) {
             return false;
         }
-        IPartHost host = PartHelper.getPartHost(world, placement.pos());
         if (host == null || !ItemFacade.canPlaceFacade(host, part)) {
             return false;
         }
-
-        setup();
         List<AxisAlignedBB> boxes = new ArrayList<>();
         IPartCollisionHelper helper = new BusCollisionHelper(boxes, AEPartLocation.fromFacing(placement.side()), player, true);
         part.getBoxes(helper, player);
-        for (AxisAlignedBB box : boxes) {
-            box = offsetBox(box, placement.pos(), player, partialTicks);
-            RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.4F);
+
+        // Render a cable anchor part box as well if there is no attachments on this side
+        if (host.getPart(placement.side()) == null) {
+            addAnchorBoxes(helper);
         }
-        cleanup();
+
+        renderBoxes(boxes, placement, player, partialTicks);
 
         return true;
     }
 
-    private static void setup() {
+    private static void renderBoxes(List<AxisAlignedBB> boxes, Placement placement, EntityPlayer player, float partialTicks) {
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
@@ -126,9 +124,21 @@ public class RenderBlockOutlineHook {
         GlStateManager.glLineWidth(2.0F);
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask(false);
-    }
 
-    private static void cleanup() {
+        // Render boxes "underneath" other parts, blocks, facades etc
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        for (AxisAlignedBB box : boxes) {
+            box = offsetBox(box, placement.pos(), player, partialTicks);
+            RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.2F);
+        }
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        // Render normal boxes
+        for (AxisAlignedBB box : boxes) {
+            box = offsetBox(box, placement.pos(), player, partialTicks);
+            RenderGlobal.drawSelectionBoundingBox(box, 1, 1, 1, 0.4F);
+        }
+
         GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
@@ -138,6 +148,16 @@ public class RenderBlockOutlineHook {
         double dX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         double dY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
         double dZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
-        return box.offset(pos.getX() - dX, pos.getY() - dY, pos.getZ() - dZ).shrink(0.002D);
+        return box.offset(pos.getX() - dX, pos.getY() - dY, pos.getZ() - dZ);
+    }
+
+    private static void addAnchorBoxes(IPartCollisionHelper helper) {
+        ItemStack anchorStack = AEApi.instance().definitions().parts().cableAnchor().maybeStack(1).orElse(null);
+        if (anchorStack != null && anchorStack.getItem() instanceof IPartItem<?> anchorPartItem) {
+            IPart anchorPart = anchorPartItem.createPartFromItemStack(anchorStack);
+            if (anchorPart != null) {
+                anchorPart.getBoxes(helper);
+            }
+        }
     }
 }
