@@ -83,6 +83,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private int craftingCalculationTimePerTick = 5;
     private PowerUnits selectedPowerUnit = PowerUnits.AE;
     private boolean showCraftableTooltip = true;
+    private boolean showPlacementPreview = true;
 
     // Spatial IO/Dimension
     private int storageProviderID = -1;
@@ -257,6 +258,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
         this.useLargeFonts = this.get("Client", "useTerminalUseLargeFont", false).getBoolean(false);
         this.useColoredCraftingStatus = this.get("Client", "useColoredCraftingStatus", true).getBoolean(true);
         this.showCraftableTooltip = this.get("Client", "showCraftableTooltip", true, "Whether to add \"Craftable\" to item tooltips when they can be crafted automatically.").getBoolean(true);
+        this.showPlacementPreview = this.get("Client", "showPlacementPreview", true, "Whether to show a preview of part and facade placement.").getBoolean(true);
 
         // load buttons..
         for (int btnNum = 0; btnNum < 4; btnNum++) {
@@ -512,6 +514,10 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
     public boolean isShowCraftableTooltip() {
         return this.showCraftableTooltip;
+    }
+
+    public boolean showPlacementPreview() {
+        return this.showPlacementPreview;
     }
 
     public boolean isDisableColoredCableRecipesInJEI() {

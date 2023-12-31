@@ -8,6 +8,7 @@ import appeng.api.parts.IPartHost;
 import appeng.api.parts.IPartItem;
 import appeng.api.parts.SelectedPart;
 import appeng.api.util.AEPartLocation;
+import appeng.core.AEConfig;
 import appeng.facade.FacadePart;
 import appeng.facade.IFacadeItem;
 import appeng.items.parts.ItemFacade;
@@ -63,16 +64,18 @@ public class RenderBlockOutlineHook {
         BlockPos pos = hitResult.getBlockPos();
 
         // Render the placement preview
-        // todo config
-        renderPartPlacementPreview(player, hitResult, stack, partialTicks);
+        if (AEConfig.instance().showPlacementPreview()) {
+            renderPartPlacementPreview(player, hitResult, stack, partialTicks);
+        }
 
         IPartHost host = PartHelper.getPartHost(player.world, pos);
         if (host != null) {
 
             // Try to render facade placement preview here, since it's a
             // convenient time to do it due to having the Part Host already.
-            // todo config
-            renderFacadePlacementPreview(host, player, hitResult, stack, partialTicks);
+            if (AEConfig.instance().showPlacementPreview()) {
+                renderFacadePlacementPreview(host, player, hitResult, stack, partialTicks);
+            }
 
             // Render the Part Host block outline, which is done differently from default behavior
             SelectedPart selectedPart = host.selectPartGlobal(hitResult.hitVec);
