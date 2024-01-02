@@ -331,6 +331,10 @@ class CableBuilder {
         TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
         TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
 
+        // Thin part of connector, here to prevent the color of the channels
+        // from leaking into it
+        addCoveredCableSizedCube(facing, cubeBuilder);
+
         // For to-machine connections, use a thicker end-cap for the connection
         if (connectionType != AECableType.GLASS && !cableBusAdjacent) {
             this.addBigCoveredCableSizedCube(facing, cubeBuilder);
@@ -351,7 +355,6 @@ class CableBuilder {
             cubeBuilder.setTexture(texture);
         }
 
-        addCoveredCableSizedCube(facing, cubeBuilder);
 
         // Render the channel indicators brightly lit at night
         cubeBuilder.setRenderFullBright(true);
