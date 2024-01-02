@@ -1,7 +1,7 @@
 # Japanese translate by GTModpackTeam
 # 日本語ローカライズ担当： GTModpackTeam
-# Corresponding Version: v0.55.22
-# 対応バージョン: v0.55.22
+# Corresponding Version: v0.55.29
+# 対応バージョン: v0.55.29
 
 // Blocks
 tile.appliedenergistics2.cable_bus.name=AE2ケーブル または バス
@@ -256,6 +256,8 @@ gui.appliedenergistics2.SmallFontCraft=クラフト
 gui.appliedenergistics2.LargeFontCraft=+
 gui.appliedenergistics2.Renamer=カスタム名称: (Enterで設定)
 gui.appliedenergistics2.Nothing=なし
+gui.appliedenergistics2.CraftingToastDone=作成が完了!
+gui.appliedenergistics2.CraftingToastCancelled=作成を停止!
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=アイテムを保存
