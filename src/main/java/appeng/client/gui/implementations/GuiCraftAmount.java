@@ -22,10 +22,9 @@ package appeng.client.gui.implementations;
 import appeng.api.AEApi;
 import appeng.api.definitions.IDefinitions;
 import appeng.api.definitions.IParts;
-import appeng.api.features.IWirelessTermHandler;
 import appeng.api.storage.ITerminalHost;
 import appeng.client.gui.AEBaseGui;
-import appeng.client.gui.widgets.GuiNumberBox;
+import appeng.client.gui.MathExpressionParser;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.AEBaseContainer;
 import appeng.container.implementations.ContainerCraftAmount;
@@ -42,6 +41,7 @@ import appeng.parts.reporting.PartExpandedProcessingPatternTerminal;
 import appeng.parts.reporting.PartPatternTerminal;
 import appeng.parts.reporting.PartTerminal;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
@@ -50,7 +50,7 @@ import java.io.IOException;
 
 
 public class GuiCraftAmount extends AEBaseGui {
-    private GuiNumberBox amountToCraft;
+    private GuiTextField amountToCraft;
     private GuiTabButton originalGuiBtn;
 
     private GuiButton next;
@@ -126,7 +126,7 @@ public class GuiCraftAmount extends AEBaseGui {
             this.buttonList.add(this.originalGuiBtn = new GuiTabButton(this.guiLeft + 154, this.guiTop, myIcon, myIcon.getDisplayName(), this.itemRender));
         }
 
-        this.amountToCraft = new GuiNumberBox(this.fontRenderer, this.guiLeft + 62, this.guiTop + 57, 59, this.fontRenderer.FONT_HEIGHT, Integer.class);
+        this.amountToCraft = new GuiTextField(0, this.fontRenderer, this.guiLeft + 62, this.guiTop + 57, 59, this.fontRenderer.FONT_HEIGHT);
         this.amountToCraft.setEnableBackgroundDrawing(false);
         this.amountToCraft.setMaxStringLength(16);
         this.amountToCraft.setTextColor(0xFFFFFF);
@@ -149,8 +149,17 @@ public class GuiCraftAmount extends AEBaseGui {
         this.drawTexturedModalRect(offsetX, offsetY, 0, 0, this.xSize, this.ySize);
 
         try {
-            long amt = Long.parseLong(this.amountToCraft.getText());
-            this.next.enabled = (!this.amountToCraft.getText().isEmpty() && amt > 0);
+            String out = this.amountToCraft.getText();
+            double resultD = MathExpressionParser.parse(out);
+            long amt;
+
+            if (resultD <= 0 || Double.isNaN(resultD)) {
+                amt = 0;
+            } else {
+                amt = (long) MathExpressionParser.round(resultD, 0);
+            }
+
+            this.next.enabled = amt > 0;
         } catch (final NumberFormatException e) {
             this.next.enabled = false;
         }
@@ -164,33 +173,7 @@ public class GuiCraftAmount extends AEBaseGui {
             if (key == Keyboard.KEY_RETURN || key == Keyboard.KEY_NUMPADENTER) {
                 this.actionPerformed(this.next);
             }
-            if ((key == 211 || key == 205 || key == 203 || key == 14 || character == '-' || Character.isDigit(character)) && this.amountToCraft
-                    .textboxKeyTyped(character, key)) {
-                try {
-                    String out = this.amountToCraft.getText();
-
-                    boolean fixed = false;
-                    while (out.startsWith("0") && out.length() > 1) {
-                        out = out.substring(1);
-                        fixed = true;
-                    }
-
-                    if (fixed) {
-                        this.amountToCraft.setText(out);
-                    }
-
-                    if (out.isEmpty()) {
-                        out = "0";
-                    }
-
-                    final long result = Long.parseLong(out);
-                    if (result < 0) {
-                        this.amountToCraft.setText("1");
-                    }
-                } catch (final NumberFormatException e) {
-                    // :P
-                }
-            } else {
+            if (!this.amountToCraft.textboxKeyTyped(character, key)) {
                 super.keyTyped(character, key);
             }
         }
@@ -207,7 +190,15 @@ public class GuiCraftAmount extends AEBaseGui {
             }
 
             if (btn == this.next) {
-                NetworkHandler.instance().sendToServer(new PacketCraftRequest(Integer.parseInt(this.amountToCraft.getText()), isShiftKeyDown()));
+                double resultD = MathExpressionParser.parse(this.amountToCraft.getText());
+                int result;
+                if (resultD <= 0 || Double.isNaN(resultD)) {
+                    result = 1;
+                } else {
+                    result = (int) MathExpressionParser.round(resultD, 0);
+                }
+
+                NetworkHandler.instance().sendToServer(new PacketCraftRequest(result, isShiftKeyDown()));
             }
         } catch (final NumberFormatException e) {
             // nope..
@@ -226,21 +217,14 @@ public class GuiCraftAmount extends AEBaseGui {
         try {
             String out = this.amountToCraft.getText();
 
-            boolean fixed = false;
-            while (out.startsWith("0") && out.length() > 1) {
-                out = out.substring(1);
-                fixed = true;
-            }
+            double resultD = MathExpressionParser.parse(out);
+            int result;
 
-            if (fixed) {
-                this.amountToCraft.setText(out);
+            if (resultD <= 0 || Double.isNaN(resultD)) {
+                result = 0;
+            } else {
+                result = (int) MathExpressionParser.round(resultD, 0);
             }
-
-            if (out.isEmpty()) {
-                out = "0";
-            }
-
-            long result = Integer.parseInt(out);
 
             if (result == 1 && i > 1) {
                 result = 0;
@@ -251,8 +235,7 @@ public class GuiCraftAmount extends AEBaseGui {
                 result = 1;
             }
 
-            out = Long.toString(result);
-            Integer.parseInt(out);
+            out = Integer.toString(result);
             this.amountToCraft.setText(out);
         } catch (final NumberFormatException e) {
             // :P
