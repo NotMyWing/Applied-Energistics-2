@@ -60,6 +60,7 @@ import net.minecraft.item.ItemSnowball;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -98,7 +99,21 @@ public class ToolColorApplicator extends AEBasePoweredItem implements IStorageCe
     }
 
     @Override
+    public ActionResult<ItemStack> onItemRightClick(World w, EntityPlayer p, EnumHand hand) {
+        ItemStack stack = p.getHeldItem(hand);
+        if (p.isSneaking()) {
+            if (!w.isRemote) {
+                cycleColors(stack, getColor(stack), 1);
+            }
+            return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
+        }
+        return ActionResult.newResult(EnumActionResult.PASS, stack);
+    }
+
+    @Override
     public EnumActionResult onItemUse(ItemStack is, EntityPlayer p, World w, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+        if (p.isSneaking()) return EnumActionResult.PASS;
+
         final Block blk = w.getBlockState(pos).getBlock();
 
         ItemStack paintBall = this.getColor(is);
@@ -156,10 +171,6 @@ public class ToolColorApplicator extends AEBasePoweredItem implements IStorageCe
                     }
                 }
             }
-        }
-
-        if (p.isSneaking()) {
-            this.cycleColors(is, paintBall, 1);
         }
 
         return EnumActionResult.FAIL;
