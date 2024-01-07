@@ -19,21 +19,13 @@
 package appeng.core.sync.packets;
 
 
-import appeng.api.AEApi;
-import appeng.api.definitions.IComparableDefinition;
-import appeng.api.definitions.IItems;
-import appeng.api.implementations.items.IMemoryCard;
-import appeng.api.implementations.items.MemoryCardMessages;
 import appeng.block.networking.BlockCableBus;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
-import appeng.items.tools.ToolNetworkTool;
-import appeng.items.tools.powered.ToolColorApplicator;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -99,30 +91,11 @@ public class PacketClick extends AppEngPacket {
 
     @Override
     public void serverPacketData(final INetworkInfo manager, final AppEngPacket packet, final EntityPlayer player) {
-        final ItemStack is = player.inventory.getCurrentItem();
-        final IItems items = AEApi.instance().definitions().items();
-        final IComparableDefinition maybeMemoryCard = items.memoryCard();
-        final IComparableDefinition maybeColorApplicator = items.colorApplicator();
         final BlockPos pos = new BlockPos(this.x, this.y, this.z);
         if (this.leftClick) {
             final Block block = player.world.getBlockState(pos).getBlock();
             if (block instanceof BlockCableBus) {
                 ((BlockCableBus) block).onBlockClickPacket(player.world, pos, player, this.hand, new Vec3d(this.hitX, this.hitY, this.hitZ));
-            }
-        } else {
-            if (!is.isEmpty()) {
-                if (is.getItem() instanceof ToolNetworkTool) {
-                    final ToolNetworkTool tnt = (ToolNetworkTool) is.getItem();
-                    tnt.serverSideToolLogic(is, player, this.hand, player.world, pos, this.side, this.hitX, this.hitY,
-                            this.hitZ);
-                } else if (maybeMemoryCard.isSameAs(is)) {
-                    final IMemoryCard mem = (IMemoryCard) is.getItem();
-                    mem.notifyUser(player, MemoryCardMessages.SETTINGS_CLEARED);
-                    is.setTagCompound(null);
-                } else if (maybeColorApplicator.isSameAs(is)) {
-                    final ToolColorApplicator mem = (ToolColorApplicator) is.getItem();
-                    mem.cycleColors(is, mem.getColor(is), 1);
-                }
             }
         }
     }
