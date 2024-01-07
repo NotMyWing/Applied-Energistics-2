@@ -20,9 +20,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerInteractHook {
+/**
+ * Wrench action, handled in event rather than item to support implementors of our wrench api
+ */
+public class WrenchClickHook {
 
-    // Wrench action, handled in event rather than item to support implementors of our wrench api
     @SubscribeEvent
     public void playerInteract(final PlayerInteractEvent event) {
         // Only handle the main hand event

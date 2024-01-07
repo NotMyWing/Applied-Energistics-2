@@ -54,7 +54,7 @@ import appeng.core.stats.PartItemPredicate;
 import appeng.core.stats.Stats;
 import appeng.core.worlddata.SpatialDimensionManager;
 import appeng.fluids.registries.BasicFluidCellGuiHandler;
-import appeng.hooks.PlayerInteractHook;
+import appeng.hooks.WrenchClickHook;
 import appeng.hooks.TickHandler;
 import appeng.items.materials.ItemMaterial;
 import appeng.items.parts.ItemFacade;
@@ -109,7 +109,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -193,7 +192,7 @@ final class Registration {
 
         MinecraftForge.EVENT_BUS.register(TickHandler.INSTANCE);
 
-        MinecraftForge.EVENT_BUS.register(new PlayerInteractHook());
+        MinecraftForge.EVENT_BUS.register(new WrenchClickHook());
 
         if (AEConfig.instance().isFeatureEnabled(AEFeature.CHEST_LOOT)) {
             MinecraftForge.EVENT_BUS.register(new ChestLoot());
