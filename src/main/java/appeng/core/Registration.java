@@ -54,6 +54,7 @@ import appeng.core.stats.PartItemPredicate;
 import appeng.core.stats.Stats;
 import appeng.core.worlddata.SpatialDimensionManager;
 import appeng.fluids.registries.BasicFluidCellGuiHandler;
+import appeng.hooks.PlayerInteractHook;
 import appeng.hooks.TickHandler;
 import appeng.items.materials.ItemMaterial;
 import appeng.items.parts.ItemFacade;
@@ -191,6 +192,8 @@ final class Registration {
         definitions.getRegistry().getBootstrapComponents(IInitComponent.class).forEachRemaining(b -> b.initialize(event.getSide()));
 
         MinecraftForge.EVENT_BUS.register(TickHandler.INSTANCE);
+
+        MinecraftForge.EVENT_BUS.register(new PlayerInteractHook());
 
         if (AEConfig.instance().isFeatureEnabled(AEFeature.CHEST_LOOT)) {
             MinecraftForge.EVENT_BUS.register(new ChestLoot());
