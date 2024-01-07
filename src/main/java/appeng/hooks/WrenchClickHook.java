@@ -37,6 +37,10 @@ public class WrenchClickHook {
             World world = event.getWorld();
             ItemStack held = event.getItemStack();
 
+            if (!Platform.hasPermissions(new DimensionalCoord(world, pos), player)) {
+                return;
+            }
+
             if (player.isSneaking() && Platform.isWrench(player, held, pos)) {
                 Block block = world.getBlockState(pos).getBlock();
                 TileEntity tile = world.getTileEntity(pos);
@@ -52,35 +56,29 @@ public class WrenchClickHook {
                         return;
                     }
 
-                    if (!Platform.hasPermissions(new DimensionalCoord(world, pos), player)) {
-                        return;
+                    final List<ItemStack> is = new ArrayList<>();
+
+                    if (sp.part != null) {
+                        is.add(sp.part.getItemStack(PartItemStack.WRENCH));
+                        sp.part.getDrops(is, true);
+                        host.removePart(sp.side, false);
                     }
 
-                    if (!world.isRemote) {
-                        final List<ItemStack> is = new ArrayList<>();
-
-                        if (sp.part != null) {
-                            is.add(sp.part.getItemStack(PartItemStack.WRENCH));
-                            sp.part.getDrops(is, true);
-                            host.removePart(sp.side, false);
-                        }
-
-                        if (sp.facade != null) {
-                            is.add(sp.facade.getItemStack());
-                            host.getFacadeContainer().removeFacade(host, sp.side);
-                            Platform.notifyBlocksOfNeighbors(world, pos);
-                        }
-
-                        if (host.isEmpty()) {
-                            host.cleanup();
-                        }
-
-                        if (!is.isEmpty()) {
-                            Platform.spawnDrops(world, pos, is);
-                        }
-                    } else {
-                        player.swingArm(hand);
+                    if (sp.facade != null) {
+                        is.add(sp.facade.getItemStack());
+                        host.getFacadeContainer().removeFacade(host, sp.side);
+                        Platform.notifyBlocksOfNeighbors(world, pos);
                     }
+
+                    if (host.isEmpty()) {
+                        host.cleanup();
+                    }
+
+                    if (!is.isEmpty()) {
+                        Platform.spawnDrops(world, pos, is);
+                    }
+                } else {
+                    player.swingArm(hand);
                 }
             }
         }
