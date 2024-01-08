@@ -27,22 +27,13 @@ import appeng.api.parts.IPartHelper;
 import appeng.core.AppEng;
 import appeng.parts.PartPlacement;
 import appeng.api.parts.IPartHost;
-import appeng.api.parts.LayerBase;
 import appeng.api.util.AEPartLocation;
-import appeng.core.AELog;
-import appeng.core.AppEng;
-import appeng.parts.PartPlacement;
-import appeng.tile.AEBaseTile;
-import appeng.tile.networking.TileCableBus;
 import appeng.util.Platform;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -50,19 +41,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import org.jetbrains.annotations.Nullable;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.util.*;
 
 
 public class ApiPart implements IPartHelper {
