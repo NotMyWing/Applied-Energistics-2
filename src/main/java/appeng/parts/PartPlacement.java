@@ -73,7 +73,7 @@ public class PartPlacement {
     }
 
     public static IPart placePart(@Nullable EntityPlayer player, World world, ItemStack partItem, BlockPos pos, EnumFacing side, EnumHand hand) {
-        IPartHost host = PartHelper.getOrPlacePartHost(world, pos, false, player);
+        IPartHost host = AEApi.instance().partHelper().getOrPlacePartHost(world, pos, false, player);
         if (host == null) {
             return null;
         }
@@ -112,10 +112,10 @@ public class PartPlacement {
     }
 
     public static boolean canPlacePartOnBlock(@Nullable EntityPlayer player, World world, ItemStack partStack, BlockPos pos, EnumFacing side) {
-        IPartHost host = PartHelper.getPartHost(world, pos);
+        IPartHost host = AEApi.instance().partHelper().getPartHost(world, pos);
 
         // There is no host at the location, we also cannot place one
-        if (host == null && !PartHelper.canPlacePartHost(player, world, pos)) {
+        if (host == null && !AEApi.instance().partHelper().canPlacePartHost(world, pos, player)) {
             return false;
         }
 

@@ -13,7 +13,6 @@ import appeng.facade.FacadePart;
 import appeng.facade.IFacadeItem;
 import appeng.items.parts.ItemFacade;
 import appeng.parts.BusCollisionHelper;
-import appeng.parts.PartHelper;
 import appeng.parts.PartPlacement;
 import appeng.parts.PartPlacement.Placement;
 import net.minecraft.client.renderer.GlStateManager;
@@ -68,7 +67,7 @@ public class RenderBlockOutlineHook {
             renderPartPlacementPreview(player, hitResult, stack, partialTicks);
         }
 
-        IPartHost host = PartHelper.getPartHost(player.world, pos);
+        IPartHost host = AEApi.instance().partHelper().getPartHost(player.world, pos);
         if (host != null) {
 
             // Try to render facade placement preview here, since it's a

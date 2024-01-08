@@ -30,7 +30,6 @@ import appeng.core.FacadeConfig;
 import appeng.facade.FacadePart;
 import appeng.facade.IFacadeItem;
 import appeng.items.AEBaseItem;
-import appeng.parts.PartHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -90,7 +89,7 @@ public class ItemFacade extends AEBaseItem implements IFacadeItem, IAlphaPassIte
     }
 
     private static boolean placeFacade(FacadePart facade, World world, BlockPos pos) {
-        IPartHost host = PartHelper.getPartHost(world, pos);
+        IPartHost host = AEApi.instance().partHelper().getPartHost(world, pos);
         if (host == null) {
             return false;
         }
