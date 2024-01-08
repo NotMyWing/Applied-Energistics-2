@@ -151,7 +151,7 @@ public interface IPartHost extends ICustomCableConnection
 	void markForSave();
 
 	/**
-	 * part of the {@link LayerBase}
+	 * called when parts are added or removed
 	 */
 	void partChanged();
 
@@ -168,11 +168,6 @@ public interface IPartHost extends ICustomCableConnection
 	 * returns false if this block contains any parts or facades, true other wise.
 	 */
 	boolean isEmpty();
-
-	/**
-	 * @return a mutable list of flags you can adjust to track state.
-	 */
-	Set<LayerFlags> getLayerFlags();
 
 	/**
 	 * remove host from world...

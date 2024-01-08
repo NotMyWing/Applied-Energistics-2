@@ -19,9 +19,6 @@
 package appeng.tile.networking;
 
 
-import appeng.block.networking.BlockCableBus;
-
-
 public class TileCableBusTESR extends TileCableBus {
 
     /**
@@ -31,7 +28,7 @@ public class TileCableBusTESR extends TileCableBus {
     protected void updateTileSetting() {
         if (!this.getCableBus().isRequiresDynamicRender()) {
             try {
-                final TileCableBus tcb = (TileCableBus) BlockCableBus.getNoTesrTile().newInstance();
+                final TileCableBus tcb = TileCableBus.class.newInstance();
                 tcb.copyFrom(this);
                 this.getWorld().setTileEntity(this.pos, tcb);
             } catch (final Throwable ignored) {
