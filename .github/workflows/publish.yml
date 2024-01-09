@@ -4,7 +4,7 @@ name: Publish
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+' # any semver tag, e.g. 1.2.3
+      - 'v[0-9]+.[0-9]+.[0-9]+' # any semver tag, e.g. 1.2.3
 
 env:
   # type of release
