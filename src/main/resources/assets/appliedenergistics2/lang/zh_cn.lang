@@ -251,6 +251,8 @@ gui.appliedenergistics2.SmallFontCraft=Craft
 gui.appliedenergistics2.LargeFontCraft=+
 gui.appliedenergistics2.Renamer=自定义名称（按下Enter以设定）
 gui.appliedenergistics2.Nothing=无
+gui.appliedenergistics2.CraftingToastDone=合成已完成！
+gui.appliedenergistics2.CraftingToastCancelled=合成已取消！
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=存储物品
