@@ -205,7 +205,7 @@ public class BasicCellInventory<T extends IAEStack<T>> extends AbstractCellInven
     }
 
     @Override
-    protected boolean loadCellItem(NBTTagCompound compoundTag, int stackSize) {
+    protected boolean loadCellItem(NBTTagCompound compoundTag, long stackSize) {
         // Now load the item stack
         final T t;
         try {
