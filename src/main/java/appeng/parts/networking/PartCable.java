@@ -36,6 +36,7 @@ import appeng.api.util.AEColor;
 import appeng.api.util.AEPartLocation;
 import appeng.api.util.IReadOnlyCollection;
 import appeng.items.parts.ItemPart;
+import appeng.items.tools.powered.ToolColorApplicator;
 import appeng.me.GridAccessException;
 import appeng.parts.AEBasePart;
 import appeng.util.Platform;
@@ -45,6 +46,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -90,6 +92,22 @@ public class PartCable extends AEBasePart implements IPartCable {
             return -1;
         } else {
             return 8;
+        }
+    }
+
+    @Override
+    public void onPlacement(EntityPlayer player, EnumHand hand, ItemStack held, AEPartLocation side) {
+        super.onPlacement(player, hand, held, side);
+
+        // Apply color applicator color if held in offhand
+        ItemStack stack = player.getHeldItem(EnumHand.OFF_HAND);
+        if (!stack.isEmpty() && stack.getItem() instanceof ToolColorApplicator colorApp) {
+            AEColor color = colorApp.getActiveColor(stack);
+            if (color != null && color != getCableColor() && colorApp.consumeColor(stack, color, true)) {
+                if (changeColor(color, player) && !player.isCreative()) {
+                    colorApp.consumeColor(stack, color, false);
+                }
+            }
         }
     }
 

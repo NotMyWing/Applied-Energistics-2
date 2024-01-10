@@ -26,6 +26,7 @@ import com.google.common.io.ByteStreams;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.Loader;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.ClassRemapper;
@@ -43,23 +44,29 @@ public class AE2ELTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
-        if (Loader.instance().getIndexedModList().get("stackup") != null) {
-            return basicClass;
-        }
         transformedName = transformedName.replace('/', '.');
 
-        Consumer<ClassNode> consumer = (n) -> {
-        };
+        if ("net.minecraftforge.common.ForgeHooks".equals(transformedName)) {
+            ClassReader cr = new ClassReader(basicClass);
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+            ClassVisitor cv = new PickBlockPatch(cw);
+            cr.accept(cv, ClassReader.EXPAND_FRAMES);
+            return cw.toByteArray();
+        }
+
+        Consumer<ClassNode> consumer = (n) -> {};
         Consumer<ClassNode> emptyConsumer = consumer;
 
-        if ("net.minecraft.item.ItemStack".equals(transformedName)) {
-            consumer = consumer.andThen(ItemStackPatch::patchCountGetSet);
-        } else if ("net.minecraft.network.PacketBuffer".equals(transformedName)) {
-            consumer = consumer.andThen((node) -> {
-                spliceClasses(node, "appeng.core.transformer.PacketBufferPatch",
-                        "readItemStack", "func_150791_c",
-                        "writeItemStack", "func_150788_a");
-            });
+        if (Loader.instance().getIndexedModList().get("stackup") == null) {
+            if ("net.minecraft.item.ItemStack".equals(transformedName)) {
+                consumer = consumer.andThen(ItemStackPatch::patchCountGetSet);
+            } else if ("net.minecraft.network.PacketBuffer".equals(transformedName)) {
+                consumer = consumer.andThen((node) -> {
+                    spliceClasses(node, "appeng.core.transformer.PacketBufferPatch",
+                            "readItemStack", "func_150791_c",
+                            "writeItemStack", "func_150788_a");
+                });
+            }
         }
 
         if (consumer != emptyConsumer) {
