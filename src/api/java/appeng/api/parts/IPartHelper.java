@@ -24,6 +24,7 @@
 package appeng.api.parts;
 
 
+import appeng.api.util.AEPartLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
@@ -32,35 +33,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+
 
 public interface IPartHelper
 {
-	/**
-	 * Register a new layer with the part layer system, this allows you to write an in between between tile entities and
-	 * parts.
-	 *
-	 * AE By Default includes,
-	 *
-	 * 1. ISidedInventory ( and by extension IInventory. )
-	 *
-	 * 2. IFluidHandler Forge Fluids
-	 *
-	 * 3. IPowerEmitter BC Power output.
-	 *
-	 * 4. IPowerReceptor BC Power input.
-	 *
-	 * 5. IEnergySink IC2 Power input.
-	 *
-	 * 6. IEnergySource IC2 Power output.
-	 *
-	 * 7. IPipeConnection BC Pipe Connections
-	 *
-	 * As long as a valid layer is registered for a interface you can simply implement that interface on a part get
-	 * implement it.
-	 *
-	 * @return true on success, false on failure, usually a error will be logged as well.
-	 */
-	boolean registerNewLayer( String string, String layerInterface );
 
 	/**
 	 * use in use item, to try and place a IBusItem
@@ -79,4 +56,51 @@ public interface IPartHelper
 	 * @return the render mode
 	 */
 	CableRenderMode getCableRenderMode();
+
+	/**
+	 * Try to get a part at a specific place in the world.
+	 *
+	 * @param w    world the part is in
+	 * @param pos  pos of the part host
+	 * @param side side to test for a part on.
+	 *
+	 * @return the part if it exists, null otherwise
+	 */
+	@Nullable
+	IPart getPart( World w, BlockPos pos, AEPartLocation side );
+
+	/**
+	 * Try to get a part host at a specific place in the world.
+	 *
+	 * @param w   world the part host is in
+	 * @param pos pos of the part host
+	 *
+	 * @return the part host if it exists, null otherwise
+	 */
+	@Nullable
+	IPartHost getPartHost( World w, BlockPos pos );
+
+	/**
+	 * Get a part host if it exists, or place one if it doesn't.
+	 *
+	 * @param w     world the part host is in
+	 * @param pos   pos to get or place the part host
+	 * @param force whether to skip permission and existing block checks and forcibly place the part host here.
+	 * @param p     the placing player, or null if none
+	 *
+	 * @return the existing or created part host, or null if it didn't already exist and part host is unable to be placed.
+	 */
+	@Nullable
+	IPartHost getOrPlacePartHost( World w, BlockPos pos, boolean force, @Nullable EntityPlayer p );
+
+	/**
+	 * Test if a part host can be successfully placed at a given position by the provided player.
+	 *
+	 * @param w   world the part host is in
+	 * @param pos pos to test for part host placement
+	 * @param p   the placing player, or null if none
+	 *
+	 * @return if the part can be placed at the provided world and position
+	 */
+	boolean canPlacePartHost( World w, BlockPos pos, @Nullable EntityPlayer p );
 }

@@ -18,377 +18,113 @@
 
 package appeng.parts;
 
-
 import appeng.api.AEApi;
-import appeng.api.definitions.IBlockDefinition;
-import appeng.api.definitions.IItems;
 import appeng.api.parts.*;
 import appeng.api.util.AEPartLocation;
-import appeng.api.util.DimensionalCoord;
-import appeng.core.AppEng;
-import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketClick;
-import appeng.core.sync.packets.PacketPartPlacement;
-import appeng.facade.IFacadeItem;
-import appeng.util.LookDirection;
-import appeng.util.Platform;
-import net.minecraft.block.Block;
+import com.github.bsideup.jabel.Desugar;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import javax.annotation.Nullable;
 
 public class PartPlacement {
 
-    private static float eyeHeight = 0.0f;
-    private final ThreadLocal<Object> placing = new ThreadLocal<>();
-    private boolean wasCanceled = false;
+    public static EnumActionResult place(final ItemStack held, final BlockPos pos, EnumFacing side, final EntityPlayer player, final EnumHand hand, final World world) {
+        if (!(held.getItem() instanceof IPartItem<?>)) {
+            return EnumActionResult.PASS;
+        }
 
-    public static EnumActionResult place(final ItemStack held, final BlockPos pos, EnumFacing side, final EntityPlayer player, final EnumHand hand, final World world, PlaceType pass, final int depth) {
-        if (depth > 3) {
+        // determine where the part would be placed
+        Placement placement = getPartPlacement(player, world, held, pos, side);
+        if (placement == null) {
             return EnumActionResult.FAIL;
         }
 
-        if (!held.isEmpty() && Platform.isWrench(player, held, pos) && player.isSneaking()) {
-            if (!Platform.hasPermissions(new DimensionalCoord(world, pos), player)) {
-                return EnumActionResult.FAIL;
-            }
-
-            final Block block = world.getBlockState(pos).getBlock();
-            final TileEntity tile = world.getTileEntity(pos);
-            IPartHost host = null;
-
-            if (tile instanceof IPartHost) {
-                host = (IPartHost) tile;
-            }
-
-            if (host != null) {
-                if (!world.isRemote) {
-                    final LookDirection dir = Platform.getPlayerRay(player, getEyeOffset(player));
-                    final RayTraceResult mop = block.collisionRayTrace(world.getBlockState(pos), world, pos, dir.getA(), dir.getB());
-
-                    if (mop != null) {
-                        final List<ItemStack> is = new ArrayList<>();
-                        final SelectedPart sp = selectPart(player, host,
-                                mop.hitVec.add(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ()));
-
-                        if (sp.part != null) {
-                            is.add(sp.part.getItemStack(PartItemStack.WRENCH));
-                            sp.part.getDrops(is, true);
-                            host.removePart(sp.side, false);
-                        }
-
-                        if (sp.facade != null) {
-                            is.add(sp.facade.getItemStack());
-                            host.getFacadeContainer().removeFacade(host, sp.side);
-                            Platform.notifyBlocksOfNeighbors(world, pos);
-                        }
-
-                        if (host.isEmpty()) {
-                            host.cleanup();
-                        }
-
-                        if (!is.isEmpty()) {
-                            Platform.spawnDrops(world, pos, is);
-                        }
-                    }
-                } else {
-                    player.swingArm(hand);
-                    NetworkHandler.instance().sendToServer(new PacketPartPlacement(pos, side, getEyeOffset(player), hand));
-                }
-                return EnumActionResult.SUCCESS;
-            }
-
-            return EnumActionResult.PASS;
+        // then try to place it
+        IPart part = placePart(player, world, held, placement.pos(), placement.side(), hand);
+        if (part == null) {
+            return EnumActionResult.FAIL;
         }
 
-        TileEntity tile = world.getTileEntity(pos);
-        IPartHost host = null;
-
-        if (tile instanceof IPartHost) {
-            host = (IPartHost) tile;
-        }
-
-        if (!held.isEmpty()) {
-            final IFacadePart fp = isFacade(held, AEPartLocation.fromFacing(side));
-            if (fp != null) {
-                if (host != null) {
-                    if (!world.isRemote) {
-                        if (host.getPart(AEPartLocation.INTERNAL) == null) {
-                            return EnumActionResult.FAIL;
-                        }
-
-                        if (host.canAddPart(held, AEPartLocation.fromFacing(side))) {
-                            if (host.getFacadeContainer().addFacade(fp)) {
-                                host.markForSave();
-                                host.markForUpdate();
-                                if (!player.capabilities.isCreativeMode) {
-                                    held.grow(-1);
-                                    if (held.getCount() == 0) {
-                                        player.setHeldItem(hand, ItemStack.EMPTY);
-                                        MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(player, held, hand));
-                                    }
-                                }
-                                return EnumActionResult.SUCCESS;
-                            }
-                        }
-                    } else {
-                        player.swingArm(hand);
-                        NetworkHandler.instance().sendToServer(new PacketPartPlacement(pos, side, getEyeOffset(player), hand));
-                        return EnumActionResult.SUCCESS;
-                    }
-                }
-                return EnumActionResult.FAIL;
-            }
-        }
-
-        if (held.isEmpty()) {
-            final Block block = world.getBlockState(pos).getBlock();
-            if (host != null && player.isSneaking() && block != null) {
-                final LookDirection dir = Platform.getPlayerRay(player, getEyeOffset(player));
-                final RayTraceResult mop = block.collisionRayTrace(world.getBlockState(pos), world, pos, dir.getA(), dir.getB());
-
-                if (mop != null) {
-                    mop.hitVec = mop.hitVec.add(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ());
-                    final SelectedPart sPart = selectPart(player, host, mop.hitVec);
-                    if (sPart != null && sPart.part != null) {
-                        if (sPart.part.onShiftActivate(player, hand, mop.hitVec)) {
-                            if (world.isRemote) {
-                                NetworkHandler.instance().sendToServer(new PacketPartPlacement(pos, side, getEyeOffset(player), hand));
-                            }
-                            return EnumActionResult.SUCCESS;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (held.isEmpty() || !(held.getItem() instanceof IPartItem)) {
-            return EnumActionResult.PASS;
-        }
-
-        BlockPos te_pos = pos;
-
-        final IBlockDefinition multiPart = AEApi.instance().definitions().blocks().multiPart();
-        if (host == null && pass == PlaceType.PLACE_ITEM) {
-            EnumFacing offset = null;
-
-            final Block blkID = world.getBlockState(pos).getBlock();
-            if (blkID != null && !blkID.isReplaceable(world, pos)) {
-                offset = side;
-                if (Platform.isServer()) {
-                    side = side.getOpposite();
-                }
-            }
-
-            te_pos = offset == null ? pos : pos.offset(offset);
-
-            tile = world.getTileEntity(te_pos);
-            if (tile instanceof IPartHost) {
-                host = (IPartHost) tile;
-            }
-
-            final Optional<ItemStack> maybeMultiPartStack = multiPart.maybeStack(1);
-            final Optional<Block> maybeMultiPartBlock = multiPart.maybeBlock();
-            final Optional<ItemBlock> maybeMultiPartItemBlock = multiPart.maybeItemBlock();
-
-            final boolean hostIsNotPresent = host == null;
-            final boolean multiPartPresent = maybeMultiPartBlock.isPresent() && maybeMultiPartStack.isPresent() && maybeMultiPartItemBlock.isPresent();
-            final boolean canMultiPartBePlaced = maybeMultiPartBlock.get().canPlaceBlockAt(world, te_pos);
-
-            if (hostIsNotPresent && multiPartPresent && canMultiPartBePlaced && maybeMultiPartItemBlock.get()
-                    .placeBlockAt(maybeMultiPartStack.get(), player,
-                            world, te_pos, side, 0.5f, 0.5f, 0.5f, maybeMultiPartBlock.get().getDefaultState())) {
-                if (!world.isRemote) {
-                    tile = world.getTileEntity(te_pos);
-
-                    if (tile instanceof IPartHost) {
-                        host = (IPartHost) tile;
-                    }
-
-                    pass = PlaceType.INTERACT_SECOND_PASS;
-                } else {
-                    player.swingArm(hand);
-                    NetworkHandler.instance().sendToServer(new PacketPartPlacement(pos, side, getEyeOffset(player), hand));
-                    return EnumActionResult.SUCCESS;
-                }
-            } else if (host != null && !host.canAddPart(held, AEPartLocation.fromFacing(side))) {
-                return EnumActionResult.FAIL;
-            }
-        }
-
-        if (host == null) {
-            return EnumActionResult.PASS;
-        }
-
-        if (!host.canAddPart(held, AEPartLocation.fromFacing(side))) {
-            if (pass == PlaceType.INTERACT_FIRST_PASS || pass == PlaceType.PLACE_ITEM) {
-                te_pos = pos.offset(side);
-
-                final Block blkID = world.getBlockState(te_pos).getBlock();
-
-                if (blkID == null || blkID.isReplaceable(world, te_pos) || host != null) {
-                    return place(held, te_pos, side.getOpposite(), player, hand, world,
-                            pass == PlaceType.INTERACT_FIRST_PASS ? PlaceType.INTERACT_SECOND_PASS : PlaceType.PLACE_ITEM, depth + 1);
-                }
-            }
-            return EnumActionResult.PASS;
-        }
-
+        // handle placement logic with the stack
         if (!world.isRemote) {
-            final IBlockState state = world.getBlockState(pos);
-            final LookDirection dir = Platform.getPlayerRay(player, getEyeOffset(player));
-            final RayTraceResult mop = state.getBlock().collisionRayTrace(state, world, pos, dir.getA(), dir.getB());
-
-            if (mop != null) {
-                final SelectedPart sp = selectPart(player, host,
-                        mop.hitVec.add(-mop.getBlockPos().getX(), -mop.getBlockPos().getY(), -mop.getBlockPos().getZ()));
-
-                if (sp.part != null) {
-                    if (!player.isSneaking() && sp.part.onActivate(player, hand, mop.hitVec)) {
-                        return EnumActionResult.FAIL;
-                    }
+            if (player != null && !player.isCreative()) {
+                held.shrink(1);
+                if (held.getCount() == 0) {
+                    player.setHeldItem(hand, ItemStack.EMPTY);
+                    MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(player, held, hand));
                 }
             }
-
-            final DimensionalCoord dc = host.getLocation();
-            if (!Platform.hasPermissions(dc, player)) {
-                return EnumActionResult.FAIL;
-            }
-
-            final AEPartLocation mySide = host.addPart(held, AEPartLocation.fromFacing(side), player, hand);
-            if (mySide != null) {
-                multiPart.maybeBlock().ifPresent(multiPartBlock ->
-                {
-                    final SoundType ss = multiPartBlock.getSoundType(state, world, pos, player);
-
-                    world.playSound(null, pos, ss.getPlaceSound(), SoundCategory.BLOCKS, (ss.getVolume() + 1.0F) / 2.0F, ss.getPitch() * 0.8F);
-                });
-
-                if (!player.capabilities.isCreativeMode) {
-                    held.grow(-1);
-                    if (held.getCount() == 0) {
-                        player.setHeldItem(hand, ItemStack.EMPTY);
-                        MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(player, held, hand));
-                    }
-                }
-            }
+            return EnumActionResult.SUCCESS;
         } else {
             player.swingArm(hand);
+            return EnumActionResult.PASS;
         }
-        return EnumActionResult.SUCCESS;
     }
 
-    private static float getEyeOffset(final EntityPlayer p) {
-        if (p.world.isRemote) {
-            return Platform.getEyeOffset(p);
+    public static IPart placePart(@Nullable EntityPlayer player, World world, ItemStack partItem, BlockPos pos, EnumFacing side, EnumHand hand) {
+        IPartHost host = AEApi.instance().partHelper().getOrPlacePartHost(world, pos, false, player);
+        if (host == null) {
+            return null;
         }
 
-        return getEyeHeight();
-    }
-
-    private static SelectedPart selectPart(final EntityPlayer player, final IPartHost host, final Vec3d pos) {
-        AppEng.proxy.updateRenderMode(player);
-        final SelectedPart sp = host.selectPart(pos);
-        AppEng.proxy.updateRenderMode(null);
-
-        return sp;
-    }
-
-    public static IFacadePart isFacade(final ItemStack held, final AEPartLocation side) {
-        if (held.getItem() instanceof IFacadeItem) {
-            return ((IFacadeItem) held.getItem()).createPartFromItemStack(held, side);
+        AEPartLocation location = host.addPart(partItem, AEPartLocation.fromFacing(side), player, hand);
+        IPart part = host.getPart(location);
+        if (part == null) {
+            if (host.isEmpty()) {
+                host.cleanup();
+            }
+            return null;
         }
 
+        IBlockState multiPartState = AEApi.instance().definitions().blocks().multiPart().maybeBlock().get().getDefaultState();
+        SoundType soundType = multiPartState.getBlock().getSoundType(multiPartState, world, pos, null);
+        world.playSound(null, pos, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
+        return part;
+    }
+
+    @Nullable
+    public static Placement getPartPlacement(@Nullable EntityPlayer player, World world, ItemStack partStack, BlockPos pos, EnumFacing side) {
+        if (canPlacePartOnBlock(player, world, partStack, pos, side)) {
+            return new Placement(pos, side);
+        }
+
+        // If the part cannot be placed directly in the block, try the opposite side of
+        // the adjacent block. This is somewhat similar to how torches are placed.
+        pos = pos.offset(side);
+        side = side.getOpposite();
+        if (canPlacePartOnBlock(player, world, partStack, pos, side)) {
+            return new Placement(pos, side);
+        }
+
+        // can't place the part
         return null;
     }
 
-    @SubscribeEvent
-    public void playerInteract(final TickEvent.ClientTickEvent event) {
-        this.wasCanceled = false;
-    }
+    public static boolean canPlacePartOnBlock(@Nullable EntityPlayer player, World world, ItemStack partStack, BlockPos pos, EnumFacing side) {
+        IPartHost host = AEApi.instance().partHelper().getPartHost(world, pos);
 
-    @SubscribeEvent
-    public void playerInteract(final PlayerInteractEvent event) {
-        // Only handle the main hand event
-        if (event.getHand() != EnumHand.MAIN_HAND) {
-            return;
+        // There is no host at the location, we also cannot place one
+        if (host == null && !AEApi.instance().partHelper().canPlacePartHost(world, pos, player)) {
+            return false;
         }
 
-        if (event instanceof PlayerInteractEvent.RightClickEmpty && event.getEntityPlayer().world.isRemote) {
-            // re-check to see if this event was already channeled, cause these two events are really stupid...
-            final RayTraceResult mop = Platform.rayTrace(event.getEntityPlayer(), true, false);
-            final Minecraft mc = Minecraft.getMinecraft();
-
-            final float f = 1.0F;
-            final double d0 = mc.playerController.getBlockReachDistance();
-            final Vec3d vec3 = mc.getRenderViewEntity().getPositionEyes(f);
-
-            if (mop != null && mop.hitVec.distanceTo(vec3) < d0) {
-                final World w = event.getEntity().world;
-                final TileEntity te = w.getTileEntity(mop.getBlockPos());
-                if (te instanceof IPartHost && this.wasCanceled) {
-                    event.setCanceled(true);
-                }
-            } else {
-                final ItemStack held = event.getEntityPlayer().getHeldItem(event.getHand());
-                final IItems items = AEApi.instance().definitions().items();
-
-                boolean supportedItem = items.memoryCard().isSameAs(held);
-                supportedItem |= items.colorApplicator().isSameAs(held);
-
-                if (event.getEntityPlayer().isSneaking() && !held.isEmpty() && supportedItem) {
-                    NetworkHandler.instance().sendToServer(new PacketClick(event.getPos(), event.getFace(), 0, 0, 0, event.getHand()));
-                }
-            }
-        } else if (event instanceof PlayerInteractEvent.RightClickBlock && !event.getEntityPlayer().world.isRemote) {
-            if (this.placing.get() != null) {
-                return;
-            }
-
-            this.placing.set(event);
-
-            final ItemStack held = event.getEntityPlayer().getHeldItem(event.getHand());
-            if (place(held, event.getPos(), event.getFace(), event.getEntityPlayer(), event.getHand(), event.getEntityPlayer().world,
-                    PlaceType.INTERACT_FIRST_PASS, 0) == EnumActionResult.SUCCESS) {
-                event.setCanceled(true);
-                this.wasCanceled = true;
-            }
-
-            this.placing.set(null);
-        }
+        // Either there is no host, then we assume a freshly placed host will always accept our part,
+        // or there is a host, and it has a free side.
+        return host == null || host.canAddPart(partStack, AEPartLocation.fromFacing(side));
     }
 
-    private static float getEyeHeight() {
-        return eyeHeight;
-    }
-
-    public static void setEyeHeight(final float eyeHeight) {
-        PartPlacement.eyeHeight = eyeHeight;
-    }
-
-    public enum PlaceType {
-        PLACE_ITEM, INTERACT_FIRST_PASS, INTERACT_SECOND_PASS
+    @Desugar
+    public record Placement(BlockPos pos, EnumFacing side) {
     }
 }

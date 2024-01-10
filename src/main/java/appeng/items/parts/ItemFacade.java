@@ -22,6 +22,8 @@ package appeng.items.parts;
 import appeng.api.AEApi;
 import appeng.api.exceptions.MissingDefinitionException;
 import appeng.api.parts.IAlphaPassItem;
+import appeng.api.parts.IFacadePart;
+import appeng.api.parts.IPartHost;
 import appeng.api.util.AEPartLocation;
 import appeng.core.AELog;
 import appeng.core.FacadeConfig;
@@ -40,7 +42,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +63,62 @@ public class ItemFacade extends AEBaseItem implements IFacadeItem, IAlphaPassIte
 
     @Override
     public EnumActionResult onItemUseFirst(final EntityPlayer player, final World world, final BlockPos pos, final EnumFacing side, final float hitX, final float hitY, final float hitZ, final EnumHand hand) {
-        return AEApi.instance().partHelper().placeBus(player.getHeldItem(hand), pos, side, player, hand, world);
+        ItemStack stack = player.getHeldItem(hand);
+        if (stack.getItem() != this) {
+            return EnumActionResult.PASS;
+        }
+
+        FacadePart facade = createPartFromItemStack(stack, AEPartLocation.fromFacing(side));
+        if (!placeFacade(facade, world, pos)) {
+            return EnumActionResult.FAIL;
+        }
+
+        if (!world.isRemote) {
+            if (!player.isCreative()) {
+                stack.grow(-1);
+                if (stack.isEmpty()) {
+                    player.setHeldItem(hand, ItemStack.EMPTY);
+                    MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(player, stack, hand));
+                }
+            }
+            return EnumActionResult.SUCCESS;
+        } else {
+            player.swingArm(hand);
+            return EnumActionResult.PASS;
+        }
+    }
+
+    private static boolean placeFacade(FacadePart facade, World world, BlockPos pos) {
+        IPartHost host = AEApi.instance().partHelper().getPartHost(world, pos);
+        if (host == null) {
+            return false;
+        }
+
+        if (!canPlaceFacade(host, facade)) {
+            return false;
+        }
+
+        if (!host.getFacadeContainer().addFacade(facade)) {
+            return false;
+        }
+
+        host.markForSave();
+        host.markForUpdate();
+        return true;
+    }
+
+    public static boolean canPlaceFacade(IPartHost host, FacadePart facade) {
+        if (host.getPart(AEPartLocation.INTERNAL) == null) {
+            return false;
+        }
+        return host.getFacadeContainer().canAddFacade(facade);
+    }
+
+    public static IFacadePart createFacade(ItemStack held, AEPartLocation side) {
+        if (held.getItem() instanceof IFacadeItem facadeItem) {
+            return facadeItem.createPartFromItemStack(held, side);
+        }
+        return null;
     }
 
     @Override

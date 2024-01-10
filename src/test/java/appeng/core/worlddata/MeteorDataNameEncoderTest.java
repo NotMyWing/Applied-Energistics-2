@@ -19,9 +19,10 @@
 package appeng.core.worlddata;
 
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Tests for {@link MeteorDataNameEncoder}
@@ -51,7 +52,7 @@ public class MeteorDataNameEncoderTest
 		final String expected = WITHOUT_EXPECTED;
 		final String actual = this.encoderWithZeroShifting.encode( WITHOUT_DIMENSION, WITHOUT_CHUNK_X, WITHOUT_CHUNK_Z );
 
-		Assert.assertEquals( expected, actual );
+		assertThat( expected, is(actual) );
 	}
 
 	@Test
@@ -60,6 +61,6 @@ public class MeteorDataNameEncoderTest
 		final String expected = WITH_EXPECTED;
 		final String actual = this.encoderWithFourShifting.encode( WITH_DIMENSION, WITH_CHUNK_X, WITH_CHUNK_Z );
 
-		Assert.assertEquals( expected, actual );
+		assertThat( expected, is(actual) );
 	}
 }

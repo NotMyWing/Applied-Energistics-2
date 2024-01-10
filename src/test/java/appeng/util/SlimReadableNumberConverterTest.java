@@ -2,9 +2,11 @@
 package appeng.util;
 
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /*
@@ -72,75 +74,75 @@ public final class SlimReadableNumberConverterTest
 
 	private final ISlimReadableNumberConverter converter = ReadableNumberConverter.INSTANCE;
 
-	@Test( expected = AssertionError.class )
+	@Test
 	public void testConvertNeg999999()
 	{
-		assertEquals( RESULT_NEG_999999, this.converter.toSlimReadableForm( NUMBER_NEG_999999 ) );
+		assertThrows(AssertionError.class, () -> this.converter.toSlimReadableForm( NUMBER_NEG_999999 ) );
 	}
 
-	@Test( expected = AssertionError.class )
+	@Test
 	public void testConvertNeg9999()
 	{
-		assertEquals( RESULT_NEG_9999, this.converter.toSlimReadableForm( NUMBER_NEG_9999 ) );
+		assertThrows(AssertionError.class, () -> this.converter.toSlimReadableForm( NUMBER_NEG_9999 ) );
 	}
 
-	@Test( expected = AssertionError.class )
+	@Test
 	public void testConvertNeg999()
 	{
-		assertEquals( RESULT_NEG_999, this.converter.toSlimReadableForm( NUMBER_NEG_999 ) );
+		assertThrows(AssertionError.class, () -> this.converter.toSlimReadableForm( NUMBER_NEG_999 ) );
 	}
 
 	@Test
 	public void testConvert0()
 	{
-		assertEquals( RESULT_0, this.converter.toSlimReadableForm( NUMBER_0 ) );
+		assertThat( RESULT_0, is( this.converter.toSlimReadableForm( NUMBER_0 ) ) );
 	}
 
 	@Test
 	public void testConvert999()
 	{
-		assertEquals( RESULT_999, this.converter.toSlimReadableForm( NUMBER_999 ) );
+		assertThat( RESULT_999, is( this.converter.toSlimReadableForm( NUMBER_999 ) ) );
 	}
 
 	@Test
 	public void testConvert9999()
 	{
-		assertEquals( RESULT_9999, this.converter.toSlimReadableForm( NUMBER_9999 ) );
+		assertThat( RESULT_9999, is( this.converter.toSlimReadableForm( NUMBER_9999 ) ) );
 	}
 
 	@Test
 	public void testConvert10000()
 	{
-		assertEquals( RESULT_10000, this.converter.toSlimReadableForm( NUMBER_10000 ) );
+		assertThat( RESULT_10000, is( this.converter.toSlimReadableForm( NUMBER_10000 ) ) );
 	}
 
 	@Test
 	public void testConvert10500()
 	{
-		assertEquals( RESULT_10500, this.converter.toSlimReadableForm( NUMBER_10500 ) );
+		assertThat( RESULT_10500, is( this.converter.toSlimReadableForm( NUMBER_10500 ) ) );
 	}
 
 	@Test
 	public void testConvert155555()
 	{
-		assertEquals( RESULT_155555, this.converter.toSlimReadableForm( NUMBER_155555 ) );
+		assertThat( RESULT_155555, is( this.converter.toSlimReadableForm( NUMBER_155555 ) ) );
 	}
 
 	@Test
 	public void testConvert9999999()
 	{
-		assertEquals( RESULT_9999999, this.converter.toSlimReadableForm( NUMBER_9999999 ) );
+		assertThat( RESULT_9999999, is( this.converter.toSlimReadableForm( NUMBER_9999999 ) ) );
 	}
 
 	@Test
 	public void testConvert10000000()
 	{
-		assertEquals( RESULT_10000000, this.converter.toSlimReadableForm( NUMBER_10000000 ) );
+		assertThat( RESULT_10000000, is( this.converter.toSlimReadableForm( NUMBER_10000000 ) ) );
 	}
 
 	@Test
 	public void testConvert155555555()
 	{
-		assertEquals( RESULT_155555555, this.converter.toSlimReadableForm( NUMBER_155555555 ) );
+		assertThat( RESULT_155555555, is( this.converter.toSlimReadableForm( NUMBER_155555555 ) ) );
 	}
 }

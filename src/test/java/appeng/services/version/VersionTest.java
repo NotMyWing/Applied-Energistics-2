@@ -19,8 +19,10 @@
 package appeng.services.version;
 
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 
 /**
@@ -43,77 +45,77 @@ public final class VersionTest
 	@Test
 	public void testDevBuild()
 	{
-		Assert.assertEquals( DO_NOT_CHECK_VERSION.formatted(), "dev build" );
+		assertThat( DO_NOT_CHECK_VERSION.formatted(), is( "dev build" ) );
 	}
 
 	@Test
 	public void testMissingBuild()
 	{
-		Assert.assertEquals( MISSING_VERSION.formatted(), "missing" );
+		assertThat( MISSING_VERSION.formatted(), is ( "missing" ) );
 	}
 
 	@Test
 	public void compareVersionToDoNotCheck()
 	{
-		Assert.assertFalse( DEFAULT_VERSION_RV2_ALPHA_8.isNewerAs( DO_NOT_CHECK_VERSION ) );
-		Assert.assertTrue( DO_NOT_CHECK_VERSION.isNewerAs( DEFAULT_VERSION_RV2_ALPHA_8 ) );
+		assertThat( DEFAULT_VERSION_RV2_ALPHA_8.isNewerAs( DO_NOT_CHECK_VERSION ), is( false ) );
+		assertThat( DO_NOT_CHECK_VERSION.isNewerAs( DEFAULT_VERSION_RV2_ALPHA_8 ), is( true ) );
 	}
 
 	@Test
 	public void compareVersionToMissingVersion()
 	{
-		Assert.assertTrue( DEFAULT_VERSION_RV2_ALPHA_8.isNewerAs( MISSING_VERSION ) );
-		Assert.assertFalse( MISSING_VERSION.isNewerAs( DEFAULT_VERSION_RV2_ALPHA_8 ) );
+		assertThat( DEFAULT_VERSION_RV2_ALPHA_8.isNewerAs( MISSING_VERSION ), is( true ) );
+		assertThat( MISSING_VERSION.isNewerAs( DEFAULT_VERSION_RV2_ALPHA_8 ), is( false ) );
 	}
 
 	@Test
 	public void compareTwoDefaultVersions()
 	{
-		Assert.assertTrue( DEFAULT_VERSION_RV2_BETA_8.isNewerAs( DEFAULT_VERSION_RV2_ALPHA_8 ) );
-		Assert.assertTrue( DEFAULT_VERSION_RV4_ALPHA_1.isNewerAs( DEFAULT_VERSION_RV3_BETA_8 ) );
-		Assert.assertTrue( DEFAULT_VERSION_RV2_BETA_9.isNewerAs( DEFAULT_VERSION_RV2_BETA_8 ) );
+		assertThat( DEFAULT_VERSION_RV2_BETA_8.isNewerAs( DEFAULT_VERSION_RV2_ALPHA_8 ), is( true ) );
+		assertThat( DEFAULT_VERSION_RV4_ALPHA_1.isNewerAs( DEFAULT_VERSION_RV3_BETA_8 ), is( true ) );
+		assertThat( DEFAULT_VERSION_RV2_BETA_9.isNewerAs( DEFAULT_VERSION_RV2_BETA_8 ), is( true ) );
 	}
 
 	@Test
 	public void testEqualsNonVersion()
 	{
-		Assert.assertFalse( DEFAULT_VERSION_RV2_ALPHA_8.equals( new Object() ) );
+		assertThat( DEFAULT_VERSION_RV2_ALPHA_8, is( not( equalTo( new Object() ) ) ) );
 	}
 
 	@Test
 	public void testEqualsUnequalBuild()
 	{
-		Assert.assertFalse( DEFAULT_VERSION_RV2_BETA_8.equals( DEFAULT_VERSION_RV2_BETA_9 ) );
+		assertThat( DEFAULT_VERSION_RV2_BETA_8, is( not( equalTo( DEFAULT_VERSION_RV2_BETA_9 ) ) ) );
 	}
 
 	@Test
 	public void testEqualsUnequalChannel()
 	{
-		Assert.assertFalse( DEFAULT_VERSION_RV2_BETA_8.equals( DEFAULT_VERSION_RV2_ALPHA_8 ) );
+		assertThat( DEFAULT_VERSION_RV2_BETA_8, is( not( equalTo( DEFAULT_VERSION_RV2_ALPHA_8 ) ) ) );
 	}
 
 	@Test
 	public void testEqualsUnequalRevision()
 	{
-		Assert.assertFalse( DEFAULT_VERSION_RV2_BETA_8.equals( DEFAULT_VERSION_RV3_BETA_8 ) );
+		assertThat( DEFAULT_VERSION_RV2_BETA_8, is( not( equalTo( DEFAULT_VERSION_RV3_BETA_8 ) ) ) );
 	}
 
 	@Test
 	public void testUnequalHash()
 	{
-		Assert.assertNotEquals( DEFAULT_VERSION_RV2_BETA_8.hashCode(), DEFAULT_VERSION_RV2_ALPHA_8.hashCode() );
+		assertThat( DEFAULT_VERSION_RV2_BETA_8.hashCode(), is( not( equalTo( DEFAULT_VERSION_RV2_ALPHA_8.hashCode() ) ) ) );
 	}
 
 	@Test
 	public void testToString()
 	{
-		Assert.assertEquals( DEFAULT_VERSION_RV2_BETA_8.toString(), "Version{revision=2, channel=Beta, build=8}" );
+		assertThat( DEFAULT_VERSION_RV2_BETA_8.toString(), is( "Version{revision=2, channel=Beta, build=8}" ) );
 	}
 
 	@Test
 	public void testFormatted()
 	{
-		Assert.assertEquals( DEFAULT_VERSION_RV2_BETA_8.formatted(), "rv2-beta-8" );
+		assertThat( DEFAULT_VERSION_RV2_BETA_8.formatted(), is( "rv2-beta-8" ) );
 	}
 
 }

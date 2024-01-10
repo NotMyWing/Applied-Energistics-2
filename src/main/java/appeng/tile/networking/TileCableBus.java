@@ -22,13 +22,11 @@ package appeng.tile.networking;
 import appeng.api.networking.IGridNode;
 import appeng.api.parts.IFacadeContainer;
 import appeng.api.parts.IPart;
-import appeng.api.parts.LayerFlags;
 import appeng.api.parts.SelectedPart;
 import appeng.api.util.AECableType;
 import appeng.api.util.AEColor;
 import appeng.api.util.AEPartLocation;
 import appeng.api.util.DimensionalCoord;
-import appeng.block.networking.BlockCableBus;
 import appeng.helpers.AEMultiTile;
 import appeng.helpers.ICustomCollision;
 import appeng.hooks.TickHandler;
@@ -101,7 +99,7 @@ public class TileCableBus extends AEBaseTile implements AEMultiTile, ICustomColl
     protected void updateTileSetting() {
         if (this.getCableBus().isRequiresDynamicRender()) {
             try {
-                final TileCableBus tcb = (TileCableBus) BlockCableBus.getTesrTile().newInstance();
+                final TileCableBus tcb = TileCableBusTESR.class.newInstance();
                 tcb.copyFrom(this);
                 this.getWorld().setTileEntity(this.pos, tcb);
             } catch (final Throwable ignored) {
@@ -281,11 +279,6 @@ public class TileCableBus extends AEBaseTile implements AEMultiTile, ICustomColl
     @Override
     public boolean isEmpty() {
         return this.getCableBus().isEmpty();
-    }
-
-    @Override
-    public Set<LayerFlags> getLayerFlags() {
-        return this.getCableBus().getLayerFlags();
     }
 
     @Override

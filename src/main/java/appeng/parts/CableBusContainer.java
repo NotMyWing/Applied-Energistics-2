@@ -37,6 +37,7 @@ import appeng.core.AELog;
 import appeng.core.AEConfig;
 import appeng.facade.FacadeContainer;
 import appeng.helpers.AEMultiTile;
+import appeng.items.parts.ItemFacade;
 import appeng.me.GridConnection;
 import appeng.parts.networking.PartCable;
 import appeng.util.Platform;
@@ -65,7 +66,6 @@ import java.util.*;
 public class CableBusContainer extends CableBusStorage implements AEMultiTile, ICableBusContainer {
 
     private static final ThreadLocal<Boolean> IS_LOADING = new ThreadLocal<>();
-    private final EnumSet<LayerFlags> myLayerFlags = EnumSet.noneOf(LayerFlags.class);
     private YesNo hasRedstone = YesNo.UNDECIDED;
     private IPartHost tcb;
     // TODO 1.10.2-R - does somebody seriously want to make parts TESR??? Hope not.
@@ -111,7 +111,7 @@ public class CableBusContainer extends CableBusStorage implements AEMultiTile, I
 
     @Override
     public boolean canAddPart(ItemStack is, final AEPartLocation side) {
-        if (PartPlacement.isFacade(is, side) != null) {
+        if (ItemFacade.createFacade(is, side) != null) {
             return true;
         }
 
@@ -422,11 +422,6 @@ public class CableBusContainer extends CableBusStorage implements AEMultiTile, I
             }
         }
         return true;
-    }
-
-    @Override
-    public Set<LayerFlags> getLayerFlags() {
-        return this.myLayerFlags;
     }
 
     @Override
@@ -972,11 +967,6 @@ public class CableBusContainer extends CableBusStorage implements AEMultiTile, I
                     final AECableType adjacentType = gridHost.getCableConnectionType(AEPartLocation.fromFacing(facing.getOpposite()));
 
                     connectionType = AECableType.min(connectionType, adjacentType);
-                }
-
-                // Check if the adjacent TE is a cable bus or not
-                if (adjacentTe instanceof IPartHost) {
-                    renderState.getCableBusAdjacent().add(facing);
                 }
 
                 renderState.getConnectionTypes().put(facing, connectionType);

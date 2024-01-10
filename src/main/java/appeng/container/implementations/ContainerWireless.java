@@ -19,6 +19,7 @@
 package appeng.container.implementations;
 
 
+import appeng.api.config.PowerMultiplier;
 import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
 import appeng.container.slot.SlotRestrictedInput;
@@ -51,7 +52,7 @@ public class ContainerWireless extends AEBaseContainer {
         final int boosters = this.boosterSlot.getStack().isEmpty() ? 0 : this.boosterSlot.getStack().getCount();
 
         this.setRange((long) (10 * AEConfig.instance().wireless_getMaxRange(boosters)));
-        this.setDrain((long) (100 * AEConfig.instance().wireless_getPowerDrain(boosters)));
+        this.setDrain((long) (100 * PowerMultiplier.CONFIG.multiply(AEConfig.instance().wireless_getPowerDrain(boosters))));
 
         super.detectAndSendChanges();
     }

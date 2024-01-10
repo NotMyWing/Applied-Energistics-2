@@ -19,9 +19,10 @@
 package appeng.services.version;
 
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  * @author thatsIch
@@ -46,20 +47,20 @@ public class ModVersionFetcherTest
 	}
 
 	@Test
-	public void testInDev() throws Exception
+	public void testInDev()
 	{
-		Assert.assertEquals( this.indev.get(), new DoNotCheckVersion() );
+		assertThat( this.indev.get(), is( new DoNotCheckVersion() ) );
 	}
 
 	@Test
-	public void testPR() throws Exception
+	public void testPR()
 	{
-		Assert.assertEquals( this.pullRequest.get(), new DoNotCheckVersion() );
+		assertThat( this.pullRequest.get(), is( new DoNotCheckVersion() ) );
 	}
 
 	@Test
-	public void testWorking() throws Exception
+	public void testWorking()
 	{
-		Assert.assertEquals( this.working.get(), new DefaultVersion( 2, Channel.Beta, 8 ) );
+		assertThat( this.working.get(), is( new DefaultVersion( 2, Channel.Beta, 8) ) );
 	}
 }

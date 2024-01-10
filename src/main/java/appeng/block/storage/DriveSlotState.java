@@ -40,7 +40,10 @@ public enum DriveSlotState implements IStringSerializable {
     TYPES_FULL("types_full"),
 
     // Completely full
-    FULL("full");
+    FULL("full"),
+
+    // Online and completely empty
+    NO_CONTENTS("no_contents");
 
     private final String name;
 
@@ -64,6 +67,8 @@ public enum DriveSlotState implements IStringSerializable {
                 return DriveSlotState.TYPES_FULL;
             case 3:
                 return DriveSlotState.FULL;
+            case 4:
+                return DriveSlotState.NO_CONTENTS;
         }
     }
 

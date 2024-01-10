@@ -291,6 +291,9 @@ public abstract class AbstractCellInventory<T extends IAEStack<T>> implements IC
 
     @Override
     public int getStatusForCell() {
+        if (this.getUsedBytes() == 0) {
+            return 4;
+        }
         if (this.canHoldNewItem()) {
             return 1;
         }

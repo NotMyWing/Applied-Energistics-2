@@ -1,32 +1,83 @@
-# exclude all
-/*
+.nopublish
 
-# include important folders
-# need gradle 
-!gradle/
-!gradlew
-!gradlew.bat
-!build.gradle
-!gradle.properties
-!settings.gradle
-!.travis.yml
+### Windows ###
 
-# include markdowns
-!README.md
-!LICENSE
+thumbs.db
+*.db
 
-# include sourcecode
-!src/
+### Java ###
 
-# include git important files
-!.gitmodules
-!.gitignore
+*.class
 
-# code format to reduce noise in git commits
-!codeformat/
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
 
-# Github specific files and directories
-!.github/
+# Package Files #
+*.war
+*.ear
+*.txt
 
-# Explicit ignores
-Thumbs.db
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+### Eclipse ###
+
+*.pydevproject
+.metadata
+.gradle
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+/eclipse
+
+# Eclipse Core
+.project
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+
+# Java annotation processor (APT)
+.factorypath
+
+# PDT-specific
+.buildpath
+
+# sbteclipse plugin
+.target
+
+# TeXlipse plugin
+.texlipse
+
+### Intellij IDEA ###
+
+*.iml
+*.ipr
+*.iws
+
+.idea/
+.idea_modules/
+/classes/
+/out/
+/build/
+
+# Linux
+*~
+
+run/
+
+logs/

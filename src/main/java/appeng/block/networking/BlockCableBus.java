@@ -29,7 +29,6 @@ import appeng.block.AEBaseTileBlock;
 import appeng.client.UnlistedProperty;
 import appeng.client.render.cablebus.CableBusBakedModel;
 import appeng.client.render.cablebus.CableBusRenderState;
-import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketClick;
@@ -90,10 +89,6 @@ public class BlockCableBus extends AEBaseTileBlock implements IAEFacade {
     public static final UnlistedProperty<CableBusRenderState> RENDER_STATE_PROPERTY = new UnlistedProperty<>("cable_bus_render_state", CableBusRenderState.class);
 
     private static final ICableBusContainer NULL_CABLE_BUS = new NullCableBusContainer();
-
-    private static Class<? extends AEBaseTile> noTesrTile;
-
-    private static Class<? extends AEBaseTile> tesrTile;
 
     public BlockCableBus() {
         super(AEGlassMaterial.INSTANCE);
@@ -378,10 +373,9 @@ public class BlockCableBus extends AEBaseTileBlock implements IAEFacade {
     }
 
     public void setupTile() {
-        noTesrTile = Api.INSTANCE.partHelper().getCombinedInstance(TileCableBus.class);
-        this.setTileEntity(noTesrTile);
+        this.setTileEntity(TileCableBus.class);
 
-        GameRegistry.registerTileEntity(noTesrTile, AppEng.MOD_ID.toLowerCase() + ":" + "BlockCableBus");
+        GameRegistry.registerTileEntity(TileCableBus.class, AppEng.MOD_ID.toLowerCase() + ":" + "BlockCableBus");
 
         if (Platform.isClient()) {
             setupTesr();
@@ -390,9 +384,8 @@ public class BlockCableBus extends AEBaseTileBlock implements IAEFacade {
 
     @SideOnly(Side.CLIENT)
     private static void setupTesr() {
-        tesrTile = Api.INSTANCE.partHelper().getCombinedInstance(TileCableBusTESR.class);
-        GameRegistry.registerTileEntity(tesrTile, AppEng.MOD_ID.toLowerCase() + ":" + "ClientOnly_TESR_CableBus");
-        ClientRegistry.bindTileEntitySpecialRenderer(BlockCableBus.getTesrTile(), new CableBusTESR());
+        GameRegistry.registerTileEntity(TileCableBusTESR.class, AppEng.MOD_ID.toLowerCase() + ":" + "ClientOnly_TESR_CableBus");
+        ClientRegistry.bindTileEntitySpecialRenderer(TileCableBusTESR.class, new CableBusTESR());
     }
 
     @Override
@@ -436,14 +429,6 @@ public class BlockCableBus extends AEBaseTileBlock implements IAEFacade {
             }
         }
         super.onEntityWalk(world, pos, entityIn);
-    }
-
-    public static Class<? extends AEBaseTile> getNoTesrTile() {
-        return noTesrTile;
-    }
-
-    public static Class<? extends AEBaseTile> getTesrTile() {
-        return tesrTile;
     }
 
     // Helper to get access to the protected constructor

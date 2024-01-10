@@ -1,0 +1,52 @@
+//file:noinspection DependencyNotationArgument
+// TODO remove when fixed in RFG ^
+/*
+ * Add your dependencies here. Common configurations:
+ *  - implementation("group:name:version:classifier"): if you need this for internal implementation details of the mod.
+ *       Available at compiletime and runtime for your environment.
+ *
+ *  - compileOnlyApi("g:n:v:c"): if you need this for internal implementation details of the mod.
+ *       Available at compiletime but not runtime for your environment.
+ *
+ *  - annotationProcessor("g:n:v:c"): mostly for java compiler plugins, if you know you need this, use it, otherwise don't worry
+ *
+ *  - testCONFIG("g:n:v:c"): replace CONFIG by one of the above, same as above but for the test sources instead of main
+ *
+ * You can exclude transitive dependencies (dependencies of the chosen dependency) by appending { transitive = false } if needed.
+ *
+ * To add a mod with CurseMaven, replace '("g:n:v:c")' in the above with 'rfg.deobf("curse.maven:project_slug-project_id:file_id")'
+ * Example: implementation rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:4527757")
+ *
+ * To shadow a dependency, use 'shadowImplementation'. For more info, see https://github.com/GregTechCEu/Buildscripts/blob/master/docs/shadow.md
+ *
+ * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
+ */
+dependencies {
+
+    // Mods always in-game
+    implementation rfg.deobf("curse.maven:gregtechceu-557242:4429261") // GTCEu
+    implementation rfg.deobf("curse.maven:codechicken-lib-1-8-242818:2779848") // CCL 3.2.3.358
+    implementation rfg.deobf("curse.maven:baubles-227083:2518667") // Baubles
+    implementation rfg.deobf("curse.maven:industrial-craft-242638:2547175") // IC2
+    implementation rfg.deobf("curse.maven:forestry-59751:2684780") // Forestry
+
+    // Mods only in code by default
+    compileOnly "curse.maven:chisel-235279:2915375"
+    compileOnly "curse.maven:hwyla-253449:2568751"
+    compileOnly "curse.maven:recipe-stages-280554:3405072"
+    compileOnly "curse.maven:item-stages-280316:2696769"
+    compileOnly "curse.maven:game-stages-268655:2951844"
+    compileOnly "net.darkhax.tesla:Tesla-1.12.2:1.0.63"
+    compileOnly "curse.maven:CoFHCore-69162:2920433"
+    compileOnly "CraftTweaker2:CraftTweaker2-API:4.1.20.684"
+    compileOnly "curse.maven:inventory-tweaks-223094:2482482"
+    compileOnly "curse.maven:inventory-bogo-sorter-632327:4399738"
+    compileOnly rfg.deobf("curse.maven:ctm-267602:2915363") // CTM 1.0.2.31
+    compileOnly rfg.deobf("curse.maven:actually-additions-228404:3117927") // ActuallyAdditions r152
+}
+
+minecraft {
+    injectedTags.put('AEVERSION', aeversion)
+    injectedTags.put('AECHANNEL', aechannel)
+    injectedTags.put('AEBUILD', aebuild)
+}

@@ -1,5 +1,4 @@
 {
-    "ambientocclusion": false,
     "display": {
         "firstperson_righthand": {
             "rotation": [
@@ -46,7 +45,6 @@
                 0,
                 0
             ],
-            "shade": false,
             "to": [
                 16,
                 16,

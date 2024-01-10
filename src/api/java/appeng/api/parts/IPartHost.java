@@ -146,12 +146,23 @@ public interface IPartHost extends ICustomCableConnection
 	SelectedPart selectPart( Vec3d pos );
 
 	/**
+	 * Same as {@link #selectPart(Vec3d)}, but with global instead of local coordinates.
+	 */
+	default SelectedPart selectPartGlobal( Vec3d pos ) {
+		DimensionalCoord globalPos = getLocation();
+		return selectPart(pos.subtract(
+				globalPos.getPos().getX(),
+				globalPos.getPos().getY(),
+				globalPos.getPos().getZ()));
+	}
+
+	/**
 	 * can be used by parts to trigger the tile or part to save.
 	 */
 	void markForSave();
 
 	/**
-	 * part of the {@link LayerBase}
+	 * called when parts are added or removed
 	 */
 	void partChanged();
 
@@ -168,11 +179,6 @@ public interface IPartHost extends ICustomCableConnection
 	 * returns false if this block contains any parts or facades, true other wise.
 	 */
 	boolean isEmpty();
-
-	/**
-	 * @return a mutable list of flags you can adjust to track state.
-	 */
-	Set<LayerFlags> getLayerFlags();
 
 	/**
 	 * remove host from world...

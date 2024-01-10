@@ -19,10 +19,10 @@
 package appeng.util;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 
 /**
@@ -44,18 +44,18 @@ public final class UUIDMatcherTest
 	@Test
 	public void testUUID_shouldPass()
 	{
-		assertTrue( this.matcher.isUUID( IS_UUID ) );
+		assertThat( this.matcher.isUUID( IS_UUID ), is( true ) );
 	}
 
 	@Test
 	public void testNoUUD_shouldPass()
 	{
-		assertFalse( this.matcher.isUUID( NO_UUID ) );
+		assertThat( this.matcher.isUUID( NO_UUID ), is( false ) );
 	}
 
 	@Test
 	public void testInvalidUUID_shouldPass()
 	{
-		assertFalse( this.matcher.isUUID( INVALID_UUID ) );
+		assertThat( this.matcher.isUUID( INVALID_UUID ), is( false ) );
 	}
 }

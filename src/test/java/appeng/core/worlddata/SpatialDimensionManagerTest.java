@@ -2,10 +2,11 @@
 package appeng.core.worlddata;
 
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import net.minecraft.util.math.BlockPos;
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 
 public class SpatialDimensionManagerTest
@@ -45,31 +46,31 @@ public class SpatialDimensionManagerTest
 	{
 		SpatialDimensionManager manager = new SpatialDimensionManager( null );
 
-		Assert.assertEquals( ID_1, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_2, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_3, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_4, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_5, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_6, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_7, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_8, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_9, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_A, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_B, manager.createNewCellDimension( CONTENT, -1 ) );
-		Assert.assertEquals( ID_C, manager.createNewCellDimension( CONTENT, -1 ) );
+		assertThat( ID_1, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_2, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_3, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_4, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_5, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_6, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_7, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_8, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_9, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_A, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_B, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
+		assertThat( ID_C, is(manager.createNewCellDimension( CONTENT, -1 ) ) );
 
-		Assert.assertEquals( POS_1, manager.getCellDimensionOrigin( ID_1 ) );
-		Assert.assertEquals( POS_2, manager.getCellDimensionOrigin( ID_2 ) );
-		Assert.assertEquals( POS_3, manager.getCellDimensionOrigin( ID_3 ) );
-		Assert.assertEquals( POS_4, manager.getCellDimensionOrigin( ID_4 ) );
-		Assert.assertEquals( POS_5, manager.getCellDimensionOrigin( ID_5 ) );
-		Assert.assertEquals( POS_6, manager.getCellDimensionOrigin( ID_6 ) );
-		Assert.assertEquals( POS_7, manager.getCellDimensionOrigin( ID_7 ) );
-		Assert.assertEquals( POS_8, manager.getCellDimensionOrigin( ID_8 ) );
-		Assert.assertEquals( POS_9, manager.getCellDimensionOrigin( ID_9 ) );
-		Assert.assertEquals( POS_A, manager.getCellDimensionOrigin( ID_A ) );
-		Assert.assertEquals( POS_B, manager.getCellDimensionOrigin( ID_B ) );
-		Assert.assertEquals( POS_C, manager.getCellDimensionOrigin( ID_C ) );
+		assertThat( POS_1, is(manager.getCellDimensionOrigin( ID_1 ) ) );
+		assertThat( POS_2, is(manager.getCellDimensionOrigin( ID_2 ) ) );
+		assertThat( POS_3, is(manager.getCellDimensionOrigin( ID_3 ) ) );
+		assertThat( POS_4, is(manager.getCellDimensionOrigin( ID_4 ) ) );
+		assertThat( POS_5, is(manager.getCellDimensionOrigin( ID_5 ) ) );
+		assertThat( POS_6, is(manager.getCellDimensionOrigin( ID_6 ) ) );
+		assertThat( POS_7, is(manager.getCellDimensionOrigin( ID_7 ) ) );
+		assertThat( POS_8, is(manager.getCellDimensionOrigin( ID_8 ) ) );
+		assertThat( POS_9, is(manager.getCellDimensionOrigin( ID_9 ) ) );
+		assertThat( POS_A, is(manager.getCellDimensionOrigin( ID_A ) ) );
+		assertThat( POS_B, is(manager.getCellDimensionOrigin( ID_B ) ) );
+		assertThat( POS_C, is(manager.getCellDimensionOrigin( ID_C ) ) );
 	}
 
 }

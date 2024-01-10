@@ -331,6 +331,10 @@ class CableBuilder {
         TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
         TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels((int) (channels / (AEConfig.instance().getNormalChannelCapacity() / 8)));
 
+        // Thin part of connector, here to prevent the color of the channels
+        // from leaking into it
+        addCoveredCableSizedCube(facing, cubeBuilder);
+
         // For to-machine connections, use a thicker end-cap for the connection
         if (connectionType != AECableType.GLASS && !cableBusAdjacent) {
             this.addBigCoveredCableSizedCube(facing, cubeBuilder);
@@ -351,7 +355,6 @@ class CableBuilder {
             cubeBuilder.setTexture(texture);
         }
 
-        addCoveredCableSizedCube(facing, cubeBuilder);
 
         // Render the channel indicators brightly lit at night
         cubeBuilder.setRenderFullBright(true);
@@ -467,8 +470,8 @@ class CableBuilder {
         // Dense cables show used channels in groups of 4, rounded up
         channels = (int) ((channels + 3) / 4) / (AEConfig.instance().getDenseChannelCapacity() / 32);
 
-        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
-        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);
+        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForDenseChannels(channels);
+        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForDenseChannels(channels);
 
         // Render the channel indicators brightly lit at night
         cubeBuilder.setRenderFullBright(true);
@@ -493,7 +496,7 @@ class CableBuilder {
         TextureAtlasSprite texture = this.connectionTextures.get(AECableType.DENSE_COVERED).get(cableColor);
         cubeBuilder.setTexture(texture);
 
-        setStraightCableUVs(cubeBuilder, facing, 5, 11);
+        setStraightCableUVs(cubeBuilder, facing, 3, 13);
 
         addStraightDenseCableSizedCube(facing, cubeBuilder);
     }
@@ -504,15 +507,15 @@ class CableBuilder {
         TextureAtlasSprite texture = this.connectionTextures.get(AECableType.DENSE_SMART).get(cableColor);
         cubeBuilder.setTexture(texture);
 
-        setStraightCableUVs(cubeBuilder, facing, 5, 11);
+        setStraightCableUVs(cubeBuilder, facing, 3, 13);
 
         addStraightDenseCableSizedCube(facing, cubeBuilder);
 
         // Dense cables show used channels in groups of 4, rounded up
         channels = (int) ((channels + 3) / 4) / (AEConfig.instance().getDenseChannelCapacity() / 32);
 
-        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForChannels(channels);
-        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForChannels(channels);
+        TextureAtlasSprite oddChannel = this.smartCableTextures.getOddTextureForDenseChannels(channels);
+        TextureAtlasSprite evenChannel = this.smartCableTextures.getEvenTextureForDenseChannels(channels);
 
         // Render the channel indicators brightly lit at night
         cubeBuilder.setRenderFullBright(true);
@@ -556,14 +559,14 @@ class CableBuilder {
             case DOWN:
             case UP:
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 3);
-                cubeBuilder.addCube(3, 0, 3, 13, 16, 13);
+                cubeBuilder.addCube(3, -0.01f, 3, 13, 16.01f, 13);
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 0);
                 break;
             case EAST:
             case WEST:
                 cubeBuilder.setUvRotation(EnumFacing.SOUTH, 3);
                 cubeBuilder.setUvRotation(EnumFacing.NORTH, 3);
-                cubeBuilder.addCube(0, 3, 3, 16, 13, 13);
+                cubeBuilder.addCube(-0.01f, 3, 3, 16.01f, 13, 13);
                 cubeBuilder.setUvRotation(EnumFacing.SOUTH, 0);
                 cubeBuilder.setUvRotation(EnumFacing.NORTH, 0);
                 break;
@@ -571,7 +574,7 @@ class CableBuilder {
             case SOUTH:
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 3);
                 cubeBuilder.setUvRotation(EnumFacing.WEST, 3);
-                cubeBuilder.addCube(3, 3, 0, 13, 13, 16);
+                cubeBuilder.addCube(3, 3, -0.01f, 13, 13, 16.01f);
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 0);
                 cubeBuilder.setUvRotation(EnumFacing.WEST, 0);
                 break;
@@ -611,14 +614,14 @@ class CableBuilder {
             case DOWN:
             case UP:
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 3);
-                cubeBuilder.addCube(5, 0, 5, 11, 16, 11);
+                cubeBuilder.addCube(5, -0.01f, 5, 11, 16.01f, 11);
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 0);
                 break;
             case EAST:
             case WEST:
                 cubeBuilder.setUvRotation(EnumFacing.SOUTH, 3);
                 cubeBuilder.setUvRotation(EnumFacing.NORTH, 3);
-                cubeBuilder.addCube(0, 5, 5, 16, 11, 11);
+                cubeBuilder.addCube(-0.01f, 5, 5, 16.01f, 11, 11);
                 cubeBuilder.setUvRotation(EnumFacing.SOUTH, 0);
                 cubeBuilder.setUvRotation(EnumFacing.NORTH, 0);
                 break;
@@ -626,7 +629,7 @@ class CableBuilder {
             case SOUTH:
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 3);
                 cubeBuilder.setUvRotation(EnumFacing.WEST, 3);
-                cubeBuilder.addCube(5, 5, 0, 11, 11, 16);
+                cubeBuilder.addCube(5, 5, -0.01f, 11, 11, 16.01f);
                 cubeBuilder.setUvRotation(EnumFacing.EAST, 0);
                 cubeBuilder.setUvRotation(EnumFacing.WEST, 0);
                 break;
@@ -702,6 +705,7 @@ class CableBuilder {
         }
 
         Collections.addAll(locations, SmartCableTextures.SMART_CHANNELS_TEXTURES);
+        Collections.addAll(locations, SmartCableTextures.DENSE_SMART_CHANNELS_TEXTURES);
 
         return locations;
     }
