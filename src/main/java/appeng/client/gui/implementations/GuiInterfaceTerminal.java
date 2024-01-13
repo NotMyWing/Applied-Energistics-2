@@ -94,11 +94,11 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
     private MEGuiTextField searchFieldOutputs;
     private MEGuiTextField searchFieldInputs;
+    private MEGuiTextField searchFieldNames;
 
     private GuiButton guiButtonHideFull;
     private GuiButton guiButtonAssemblersOnly;
     private boolean refreshList = false;
-    private boolean onlyInterfacesWithFreeSlots = false;
     private boolean onlyMolecularAssemblers = false;
     private GuiImgButton terminalStyleBox;
 
@@ -147,19 +147,26 @@ public class GuiInterfaceTerminal extends AEBaseGui {
         this.getScrollBar().setHeight(106);
         this.getScrollBar().setTop(51);
 
-        this.searchFieldInputs = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, OFFSET_X), this.guiTop + 25, 65, 12);
+        this.searchFieldInputs = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, OFFSET_X), this.guiTop + 25, 85, 12);
         this.searchFieldInputs.setEnableBackgroundDrawing(false);
         this.searchFieldInputs.setMaxStringLength(25);
         this.searchFieldInputs.setTextColor(0xFFFFFF);
         this.searchFieldInputs.setVisible(true);
         this.searchFieldInputs.setFocused(false);
 
-        this.searchFieldOutputs = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, OFFSET_X), this.guiTop + 38, 65, 12);
+        this.searchFieldOutputs = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, OFFSET_X), this.guiTop + 38, 85, 12);
         this.searchFieldOutputs.setEnableBackgroundDrawing(false);
         this.searchFieldOutputs.setMaxStringLength(25);
         this.searchFieldOutputs.setTextColor(0xFFFFFF);
         this.searchFieldOutputs.setVisible(true);
-        this.searchFieldOutputs.setFocused(true);
+        this.searchFieldOutputs.setFocused(false);
+
+        this.searchFieldNames = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, OFFSET_X) + 99, this.guiTop + 38, 70, 12);
+        this.searchFieldNames.setEnableBackgroundDrawing(false);
+        this.searchFieldNames.setMaxStringLength(25);
+        this.searchFieldNames.setTextColor(0xFFFFFF);
+        this.searchFieldNames.setVisible(true);
+        this.searchFieldNames.setFocused(true);
 
         this.fontRenderer.drawString(this.getGuiDisplayName(GuiText.InterfaceTerminal.getLocal()), 8, 6, 4210752);
         this.fontRenderer.drawString(GuiText.inventory.getLocal(), OFFSET_X + 2, this.ySize - 96 + 3, 4210752);
@@ -187,10 +194,10 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
         final int currentScroll = this.getScrollBar().getCurrentScroll();
 
-        this.guiButtonAssemblersOnly = new GuiImgButton(guiLeft + 123, guiTop + 25, Settings.ACTIONS, onlyMolecularAssemblers ? ActionItems.MOLECULAR_ASSEMBLERS_ON : ActionItems.MOLECULAR_ASSEMBLERS_OFF);
+        this.guiButtonAssemblersOnly = new GuiImgButton(guiLeft + 123, guiTop + 20, Settings.ACTIONS, onlyMolecularAssemblers ? ActionItems.MOLECULAR_ASSEMBLERS_ON : ActionItems.MOLECULAR_ASSEMBLERS_OFF);
         this.buttonList.add(guiButtonAssemblersOnly);
 
-        guiButtonHideFull = new GuiImgButton(guiLeft + 141, guiTop + 25, Settings.ACTIONS, onlyInterfacesWithFreeSlots ? ActionItems.TOGGLE_SHOW_FULL_INTERFACES_OFF : ActionItems.TOGGLE_SHOW_FULL_INTERFACES_ON);
+        guiButtonHideFull = new GuiImgButton(guiLeft + 141, guiTop + 20, Settings.ACTIONS, AEConfig.instance().showOnlyInterfacesWithFreeSlotsInterfaceTerminal ? ActionItems.TOGGLE_SHOW_FULL_INTERFACES_OFF : ActionItems.TOGGLE_SHOW_FULL_INTERFACES_ON);
         this.buttonList.add(guiButtonHideFull);
 
         this.buttonList.add(this.terminalStyleBox = new GuiImgButton(this.guiLeft - 18, guiTop + 24 + jeiOffset, Settings.TERMINAL_STYLE, AEConfig.instance()
@@ -251,6 +258,8 @@ public class GuiInterfaceTerminal extends AEBaseGui {
             drawTooltip(Mouse.getEventX() * this.width / this.mc.displayWidth - offsetX, mouseY - guiTop, ButtonToolTips.SearchFieldInputs.getLocal());
         } else if (searchFieldOutputs.isMouseIn(mouseX, mouseY)) {
             drawTooltip(Mouse.getEventX() * this.width / this.mc.displayWidth - offsetX, mouseY - guiTop, ButtonToolTips.SearchFieldOutputs.getLocal());
+        } else if (searchFieldNames.isMouseIn(mouseX, mouseY)) {
+            drawTooltip(Mouse.getEventX() * this.width / this.mc.displayWidth - offsetX, mouseY - guiTop, ButtonToolTips.SearchFieldNames.getLocal());
         }
 
     }
@@ -268,6 +277,14 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
         if (btn == 1 && this.searchFieldOutputs.isMouseIn(xCoord, yCoord)) {
             this.searchFieldOutputs.setText("");
+            this.refreshList();
+        }
+
+        this.searchFieldNames.mouseClicked(xCoord, yCoord, btn);
+
+        if (btn == 1 && this.searchFieldNames.isMouseIn(xCoord, yCoord)) {
+            onlyMolecularAssemblers = false;
+            this.searchFieldNames.setText("");
             this.refreshList();
         }
 
@@ -314,12 +331,13 @@ public class GuiInterfaceTerminal extends AEBaseGui {
             }
         }
         if (btn == guiButtonHideFull) {
-            onlyInterfacesWithFreeSlots = !onlyInterfacesWithFreeSlots;
+            AEConfig.instance().showOnlyInterfacesWithFreeSlotsInterfaceTerminal = !AEConfig.instance().showOnlyInterfacesWithFreeSlotsInterfaceTerminal;
             this.refreshList();
         }
 
         if (btn == guiButtonAssemblersOnly) {
             onlyMolecularAssemblers = !onlyMolecularAssemblers;
+            searchFieldNames.setText(onlyMolecularAssemblers ? MOLECULAR_ASSEMBLER : "");
             this.refreshList();
         }
     }
@@ -386,20 +404,27 @@ public class GuiInterfaceTerminal extends AEBaseGui {
         if (this.searchFieldOutputs != null) {
             this.searchFieldOutputs.drawTextBox();
         }
+
+        if (this.searchFieldNames != null) {
+            this.searchFieldNames.drawTextBox();
+        }
     }
 
     @Override
     protected void keyTyped(final char character, final int key) throws IOException {
         if (!this.checkHotbarKeys(key)) {
-            if (character == ' ' && this.searchFieldInputs.getText().isEmpty() && this.searchFieldInputs.isFocused()) {
-                return;
+            if (character == ' ') {
+                if ((this.searchFieldInputs.getText().isEmpty() && this.searchFieldInputs.isFocused())
+                        || (this.searchFieldOutputs.getText().isEmpty() && this.searchFieldOutputs.isFocused())
+                        || (this.searchFieldNames.getText().isEmpty() && this.searchFieldNames.isFocused())) {
+                    return;
+                }
             }
 
-            if (character == ' ' && this.searchFieldOutputs.getText().isEmpty() && this.searchFieldOutputs.isFocused()) {
-                return;
-            }
-
-            if (this.searchFieldInputs.textboxKeyTyped(character, key) || this.searchFieldOutputs.textboxKeyTyped(character, key)) {
+            if (this.searchFieldInputs.textboxKeyTyped(character, key)
+                    || this.searchFieldOutputs.textboxKeyTyped(character, key)
+                    || this.searchFieldNames.textboxKeyTyped(character, key)) {
+                onlyMolecularAssemblers = searchFieldNames.getText().toLowerCase().equals(MOLECULAR_ASSEMBLER);
                 this.refreshList();
             } else {
                 super.keyTyped(character, key);
@@ -457,8 +482,10 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
         final String searchFieldInputs = this.searchFieldInputs.getText().toLowerCase();
         final String searchFieldOutputs = this.searchFieldOutputs.getText().toLowerCase();
+        final String searchFieldNames = this.searchFieldNames.getText().toLowerCase();
 
-        final Set<Object> cachedSearch = this.getCacheForSearchTerm("IN:" + searchFieldInputs + " OUT:" + searchFieldOutputs + onlyInterfacesWithFreeSlots + onlyMolecularAssemblers);
+        final Set<Object> cachedSearch = this.getCacheForSearchTerm("IN:" + searchFieldInputs + " OUT:" + searchFieldOutputs
+                + "NAME:" + searchFieldNames + AEConfig.instance().showOnlyInterfacesWithFreeSlotsInterfaceTerminal);
         final boolean rebuild = cachedSearch.isEmpty();
 
         for (final ClientDCInternalInv entry : this.byId.values()) {
@@ -469,11 +496,11 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
             // Shortcut to skip any filter if search term is ""/empty
 
-            boolean found = (searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty() && !onlyInterfacesWithFreeSlots);
+            boolean found = searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty();
             boolean interfaceHasFreeSlots = false;
 
             // Search if the current inventory holds a pattern containing the search term.
-            if (!found) {
+            if (!found || AEConfig.instance().showOnlyInterfacesWithFreeSlotsInterfaceTerminal) {
                 int slot = 0;
                 for (final ItemStack itemStack : entry.getInventory()) {
                     if (slot > 8 + numUpgradesMap.get(entry) * 9) {
@@ -503,19 +530,10 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                 }
             }
             String name = entry.getName().toLowerCase();
-            if (onlyMolecularAssemblers) {
-                if (searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty()) {
-                    found = name.equals(MOLECULAR_ASSEMBLER);
-                } else {
-                    found &= name.equals(MOLECULAR_ASSEMBLER);
-                }
-            } else {
-                found |= name.contains(searchFieldInputs) && name.contains(searchFieldOutputs);
-            }
 
-            if (found) {
+            if (found && name.contains(searchFieldNames)) {
                 this.matchedInterfaces.add(entry);
-                if (!onlyInterfacesWithFreeSlots) {
+                if (!AEConfig.instance().showOnlyInterfacesWithFreeSlotsInterfaceTerminal) {
                     this.byName.put(entry.getName(), entry);
                     cachedSearch.add(entry);
                 } else if (interfaceHasFreeSlots) {

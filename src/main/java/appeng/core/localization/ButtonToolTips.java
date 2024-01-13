@@ -160,6 +160,7 @@ public enum ButtonToolTips {
     HighlightInterfaceDesc,
     SearchFieldInputs,
     SearchFieldOutputs,
+    SearchFieldNames,
 
     // Used in the tooltips of the items in the terminal, when moused over
     ItemsStored,
