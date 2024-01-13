@@ -50,6 +50,7 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.Loader;
 import org.lwjgl.input.Mouse;
 
@@ -567,15 +568,15 @@ public class GuiInterfaceTerminal extends AEBaseGui {
             return searchTerm.matches(GuiText.InvalidPattern.getLocal());
         }
 
-        NBTTagList tag = new NBTTagList();
-
+        final NBTTagList tag;
         if (pass == 0) {
-            tag = encodedValue.getTagList("in", 10);
+            tag = encodedValue.getTagList("in", Constants.NBT.TAG_COMPOUND);
         } else {
-            tag = encodedValue.getTagList("out", 10);
+            tag = encodedValue.getTagList("out", Constants.NBT.TAG_COMPOUND);
         }
 
         boolean foundMatchingItemStack = false;
+        final String[] splitTerm = searchTerm.split(" ");
 
         for (int i = 0; i < tag.tagCount(); i++) {
             final ItemStack parsedItemStack = new ItemStack(tag.getCompoundTagAt(i));
@@ -584,7 +585,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                         .getItemDisplayName(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(parsedItemStack))
                         .toLowerCase();
 
-                for (String term : searchTerm.split(" ")) {
+                for (String term : splitTerm) {
                     if (term.length() > 1 && (term.startsWith("-") || term.startsWith("!"))) {
                         term = term.substring(1);
                         if (displayName.contains(term)) {
@@ -592,8 +593,6 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                         }
                     } else if (displayName.contains(term)) {
                         foundMatchingItemStack = true;
-                    } else {
-                        return false;
                     }
                 }
             }
