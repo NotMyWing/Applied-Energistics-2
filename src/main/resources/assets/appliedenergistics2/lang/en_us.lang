@@ -90,6 +90,8 @@ chat.appliedenergistics2.ResetSettings=New device configuration created and copi
 chat.appliedenergistics2.AmmoDepleted=Ammo Depleted.
 chat.appliedenergistics2.isNowLocked=Monitor is now Locked.
 chat.appliedenergistics2.isNowUnlocked=Monitor is now Unlocked.
+chat.appliedenergistics2.InterfaceInOtherDimParam=Interface located at dimension: %d [ %s ] and cannot be highlighted
+chat.appliedenergistics2.InterfaceInOtherDim=Interface is located in another dimension and cannot be highlighted
 
 // Creative Tabs
 itemGroup.appliedenergistics2=Applied Energistics 2
@@ -372,12 +374,15 @@ gui.tooltips.appliedenergistics2.DecreaseByOne=Decrease one
 gui.tooltips.appliedenergistics2.DecreaseByOneDesc=Will try to add decrease the items set in the crafting slots by one DOES NOT MAINTAIN INGREDIENT RATIO
 gui.tooltips.appliedenergistics2.MaxCount=Maximize slot count
 gui.tooltips.appliedenergistics2.MaxCountDesc=Will maximize the output maintaing the input ratio of the items set in the crafting slots
-gui.tooltips.appliedenergistics2.FreeMolecularSlotShortcut=Show Crafting interfaces with free slots
-gui.tooltips.appliedenergistics2.FreeMolecularSlotShortcutDesc=Shortcut that toggles interfaces with free slots and searches for molecular assemblers
+gui.tooltips.appliedenergistics2.MolecularAssemblerOn=Show Crafting interfaces only
+gui.tooltips.appliedenergistics2.MolecularAssemblerOff=Show all interface types
+gui.tooltips.appliedenergistics2.MolecularAssemblerDesc=Shortcut that toggles interfaces on molecular assemblers
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces=Toggles showing interfaces with full slots
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc=Showing all interfaces
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc=Showing only interfaces with free slots
 gui.tooltips.appliedenergistics2.HighlightInterface=Highlight interface
+gui.tooltips.appliedenergistics2.SearchFieldInputs=Inputs OR names
+gui.tooltips.appliedenergistics2.SearchFieldOutputs=Outputs OR names
 gui.tooltips.appliedenergistics2.PartialTransfer=Move stored items into the crafting grid
 gui.tooltips.appliedenergistics2.MissingItem=§cMissing item
 gui.tooltips.appliedenergistics2.CraftableItem=§9Craftable item

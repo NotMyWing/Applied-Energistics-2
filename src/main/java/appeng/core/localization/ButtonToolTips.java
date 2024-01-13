@@ -150,13 +150,16 @@ public enum ButtonToolTips {
     DecreaseByOneDesc,
     MaxCount,
     MaxCountDesc,
-    FreeMolecularSlotShortcut,
-    FreeMolecularSlotShortcutDesc,
+    MolecularAssemblerOn,
+    MolecularAssemblerOff,
+    MolecularAssemblerDesc,
     ToggleShowFullInterfaces,
     ToggleShowFullInterfacesOnDesc,
     ToggleShowFullInterfacesOffDesc,
     HighlightInterface,
     HighlightInterfaceDesc,
+    SearchFieldInputs,
+    SearchFieldOutputs,
 
     // Used in the tooltips of the items in the terminal, when moused over
     ItemsStored,

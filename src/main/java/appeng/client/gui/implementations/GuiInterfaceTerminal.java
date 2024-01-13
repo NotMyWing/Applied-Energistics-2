@@ -33,7 +33,9 @@ import appeng.client.me.SlotDisconnected;
 import appeng.container.implementations.ContainerInterfaceTerminal;
 import appeng.container.slot.AppEngSlot;
 import appeng.core.AEConfig;
+import appeng.core.localization.ButtonToolTips;
 import appeng.core.localization.GuiText;
+import appeng.core.localization.PlayerMessages;
 import appeng.helpers.DualityInterface;
 import appeng.parts.reporting.PartInterfaceTerminal;
 import appeng.util.BlockPosUtils;
@@ -48,7 +50,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.Loader;
@@ -96,8 +97,11 @@ public class GuiInterfaceTerminal extends AEBaseGui {
     private MEGuiTextField searchFieldOutputs;
     private MEGuiTextField searchFieldInputs;
     private final PartInterfaceTerminal partInterfaceTerminal;
-    private GuiButton guiButtonHide;
-    private GuiButton guiButtonNextAssembler;
+
+    private GuiButton guiButtonHideFull;
+    private GuiButton guiButtonAssemblersOnly;
+    private boolean toggleMolecularAssemblers = false;
+    private static String MOLECULAR_ASSEMBLER = "molecular assembler";
     private GuiImgButton terminalStyleBox;
 
     private final HashMap<ClientDCInternalInv, Integer> dimHashMap = new HashMap<>();
@@ -193,11 +197,11 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
         final int currentScroll = this.getScrollBar().getCurrentScroll();
 
-        this.guiButtonNextAssembler = new GuiImgButton(guiLeft + 123, guiTop + 25, Settings.ACTIONS, ActionItems.FREE_MOLECULAR_SLOT_SHORTCUT);
-        this.buttonList.add(guiButtonNextAssembler);
+        this.guiButtonAssemblersOnly = new GuiImgButton(guiLeft + 123, guiTop + 25, Settings.ACTIONS, toggleMolecularAssemblers ? ActionItems.MOLECULAR_ASSEMBLERS_ON : ActionItems.MOLECULAR_ASSEMBLERS_OFF);
+        this.buttonList.add(guiButtonAssemblersOnly);
 
-        guiButtonHide = new GuiImgButton(guiLeft + 141, guiTop + 25, Settings.ACTIONS, this.partInterfaceTerminal.onlyInterfacesWithFreeSlots ? ActionItems.TOGGLE_SHOW_FULL_INTERFACES_OFF : ActionItems.TOGGLE_SHOW_FULL_INTERFACES_ON);
-        this.buttonList.add(guiButtonHide);
+        guiButtonHideFull = new GuiImgButton(guiLeft + 141, guiTop + 25, Settings.ACTIONS, this.partInterfaceTerminal.onlyInterfacesWithFreeSlots ? ActionItems.TOGGLE_SHOW_FULL_INTERFACES_OFF : ActionItems.TOGGLE_SHOW_FULL_INTERFACES_ON);
+        this.buttonList.add(guiButtonHideFull);
 
         this.buttonList.add(this.terminalStyleBox = new GuiImgButton(this.guiLeft - 18, guiTop + 24 + jeiOffset, Settings.TERMINAL_STYLE, AEConfig.instance()
                 .getConfigManager()
@@ -213,7 +217,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
             }
         }
 
-        int offset = 52;
+        int offset = 51;
         int linesDraw = 0;
         for (int x = 0; x < rows && linesDraw < rows && currentScroll + x < this.lines.size(); x++) {
             final Object lineObj = this.lines.get(currentScroll + x);
@@ -254,9 +258,9 @@ public class GuiInterfaceTerminal extends AEBaseGui {
         }
 
         if (searchFieldInputs.isMouseIn(mouseX, mouseY)) {
-            drawTooltip(Mouse.getEventX() * this.width / this.mc.displayWidth - offsetX, mouseY - guiTop, "Inputs OR names");
+            drawTooltip(Mouse.getEventX() * this.width / this.mc.displayWidth - offsetX, mouseY - guiTop, ButtonToolTips.SearchFieldInputs.getLocal());
         } else if (searchFieldOutputs.isMouseIn(mouseX, mouseY)) {
-            drawTooltip(Mouse.getEventX() * this.width / this.mc.displayWidth - offsetX, mouseY - guiTop, "Outputs OR names");
+            drawTooltip(Mouse.getEventX() * this.width / this.mc.displayWidth - offsetX, mouseY - guiTop, ButtonToolTips.SearchFieldOutputs.getLocal());
         }
 
     }
@@ -289,13 +293,13 @@ public class GuiInterfaceTerminal extends AEBaseGui {
             int interfaceDim = dimHashMap.get(guiButtonHashMap.get(this.selectedButton));
             if (playerDim != interfaceDim) {
                 try {
-                    mc.player.sendStatusMessage(new TextComponentString("Interface located at dimension: " + interfaceDim + " [" + DimensionManager.getWorld(interfaceDim).provider.getDimensionType().getName() + "] and cant be highlighted"), false);
+                    mc.player.sendStatusMessage(PlayerMessages.InterfaceInOtherDimParam.get(interfaceDim, DimensionManager.getWorld(interfaceDim).provider.getDimensionType().getName()), false);
                 } catch (Exception e) {
-                    mc.player.sendStatusMessage(new TextComponentString("Interface is located in another dimension and cannot be highlighted"), false);
+                    mc.player.sendStatusMessage(PlayerMessages.InterfaceInOtherDim.get(), false);
                 }
             } else {
                 hilightBlock(blockPos, System.currentTimeMillis() + 500 * BlockPosUtils.getDistance(blockPos, blockPos2), playerDim);
-                mc.player.sendStatusMessage(new TextComponentString("The interface is now highlighted at " + "X: " + blockPos.getX() + " Y: " + blockPos.getY() + " Z: " + blockPos.getZ()), false);
+                mc.player.sendStatusMessage(PlayerMessages.InterfaceHighlighted.get(blockPos.getX(), blockPos.getY(), blockPos.getZ()), false);
             }
             mc.player.closeScreen();
         }
@@ -319,23 +323,14 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                 }
             }
         }
-        if (btn == guiButtonHide) {
+        if (btn == guiButtonHideFull) {
             partInterfaceTerminal.onlyInterfacesWithFreeSlots = !partInterfaceTerminal.onlyInterfacesWithFreeSlots;
             this.refreshList();
         }
 
-        if (btn == guiButtonNextAssembler) {
-            // Set Search to "Molecular Assembler" and set "Only Free Interface"
-            boolean currentOnlyInterfacesWithFreeSlots = this.partInterfaceTerminal.onlyInterfacesWithFreeSlots;
-            String currentSearchText = this.searchFieldOutputs.getText();
-
-            this.partInterfaceTerminal.onlyInterfacesWithFreeSlots = true;
-            this.searchFieldOutputs.setText("Molecular Assembler");
-
+        if (btn == guiButtonAssemblersOnly) {
+            toggleMolecularAssemblers = !toggleMolecularAssemblers;
             this.refreshList();
-
-            this.partInterfaceTerminal.onlyInterfacesWithFreeSlots = currentOnlyInterfacesWithFreeSlots;
-            this.searchFieldOutputs.setText(currentSearchText);
         }
     }
 
@@ -454,6 +449,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
             this.refreshList = false;
             // invalid caches on refresh
             this.cachedSearches.clear();
+            toggleMolecularAssemblers = false;
             this.refreshList();
         }
     }
@@ -472,7 +468,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
         final String searchFieldInputs = this.searchFieldInputs.getText().toLowerCase();
         final String searchFieldOutputs = this.searchFieldOutputs.getText().toLowerCase();
 
-        final Set<Object> cachedSearch = this.getCacheForSearchTerm("IN:" + searchFieldInputs + " OUT:" + searchFieldOutputs + partInterfaceTerminal.onlyInterfacesWithFreeSlots);
+        final Set<Object> cachedSearch = this.getCacheForSearchTerm("IN:" + searchFieldInputs + " OUT:" + searchFieldOutputs + partInterfaceTerminal.onlyInterfacesWithFreeSlots + this.toggleMolecularAssemblers);
         final boolean rebuild = cachedSearch.isEmpty();
 
         for (final ClientDCInternalInv entry : this.byId.values()) {
@@ -516,14 +512,23 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                     slot++;
                 }
             }
-            // if found, filter skipped or machine name matching the search term, add it
-            if ((searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty()) ||
-                    !searchFieldInputs.isEmpty() && entry.getName().toLowerCase().contains(searchFieldInputs) ||
-                    (!searchFieldOutputs.isEmpty() && entry.getName().toLowerCase().contains(searchFieldOutputs))) {
-                this.matchedInterfaces.add(entry);
-                found = true;
+            String name = entry.getName().toLowerCase();
+            if (toggleMolecularAssemblers) {
+                found &= name.equals(MOLECULAR_ASSEMBLER);
+            } else {
+                found |= name.contains(searchFieldInputs) && name.contains(searchFieldOutputs);
             }
+
+            // if found, filter skipped or machine name matching the search term, add it
+            // todo
+            //if ((searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty()) ||
+            //        !searchFieldInputs.isEmpty() && entry.getName().toLowerCase().contains(searchFieldInputs) ||
+            //        (!searchFieldOutputs.isEmpty() && entry.getName().toLowerCase().contains(searchFieldOutputs))) {
+            //    this.matchedInterfaces.add(entry);
+            //    found = true;
+            //}
             if (found) {
+                this.matchedInterfaces.add(entry);
                 if (!partInterfaceTerminal.onlyInterfacesWithFreeSlots) {
                     this.byName.put(entry.getName(), entry);
                     cachedSearch.add(entry);
