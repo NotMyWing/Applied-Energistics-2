@@ -42,9 +42,6 @@ public class PartInterfaceTerminal extends AbstractPartDisplay {
     public static final IPartModel MODELS_OFF = new PartModel(MODEL_BASE, MODEL_OFF, MODEL_STATUS_OFF);
     public static final IPartModel MODELS_ON = new PartModel(MODEL_BASE, MODEL_ON, MODEL_STATUS_ON);
     public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, MODEL_ON, MODEL_STATUS_HAS_CHANNEL);
-    public String in = "";
-    public String out = "";
-    public boolean onlyInterfacesWithFreeSlots = false;
 
     public PartInterfaceTerminal(final ItemStack is) {
         super(is);
@@ -63,10 +60,5 @@ public class PartInterfaceTerminal extends AbstractPartDisplay {
     @Override
     public IPartModel getStaticModels() {
         return this.selectModel(MODELS_OFF, MODELS_ON, MODELS_HAS_CHANNEL);
-    }
-
-    public void saveSearchStrings(String in, String out) {
-        this.in = in;
-        this.out = out;
     }
 }

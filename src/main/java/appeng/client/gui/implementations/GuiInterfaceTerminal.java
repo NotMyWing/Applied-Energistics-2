@@ -74,8 +74,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
     private int rows = 6;
 
-    // TODO: copied from GuiMEMonitorable. It looks not changed, maybe unneeded?
-    private final int offsetX = 21;
+    private static final int OFFSET_X = 21;
     private int maxRows = Integer.MAX_VALUE;
 
     protected int jeiOffset = Loader.isModLoaded("jei") ? 24 : 0;
@@ -93,16 +92,17 @@ public class GuiInterfaceTerminal extends AEBaseGui {
     private final Set<ClientDCInternalInv> matchedInterfaces = new HashSet<>();
     private final Map<String, Set<Object>> cachedSearches = new WeakHashMap<>();
 
-    private boolean refreshList = false;
     private MEGuiTextField searchFieldOutputs;
     private MEGuiTextField searchFieldInputs;
-    private final PartInterfaceTerminal partInterfaceTerminal;
 
     private GuiButton guiButtonHideFull;
     private GuiButton guiButtonAssemblersOnly;
-    private boolean toggleMolecularAssemblers = false;
-    private static String MOLECULAR_ASSEMBLER = "molecular assembler";
+    private boolean refreshList = false;
+    private boolean onlyInterfacesWithFreeSlots = false;
+    private boolean onlyMolecularAssemblers = false;
     private GuiImgButton terminalStyleBox;
+
+    private static String MOLECULAR_ASSEMBLER = "molecular assembler";
 
     private final HashMap<ClientDCInternalInv, Integer> dimHashMap = new HashMap<>();
     private int drawnRows = 0;
@@ -110,7 +110,6 @@ public class GuiInterfaceTerminal extends AEBaseGui {
     public GuiInterfaceTerminal(final InventoryPlayer inventoryPlayer, final PartInterfaceTerminal te) {
         super(new ContainerInterfaceTerminal(inventoryPlayer, te));
 
-        this.partInterfaceTerminal = te;
         final GuiScrollbar scrollbar = new GuiScrollbar();
         this.setScrollBar(scrollbar);
         this.xSize = 208;
@@ -148,25 +147,22 @@ public class GuiInterfaceTerminal extends AEBaseGui {
         this.getScrollBar().setHeight(106);
         this.getScrollBar().setTop(51);
 
-        this.searchFieldInputs = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, this.offsetX), this.guiTop + 25, 65, 12);
+        this.searchFieldInputs = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, OFFSET_X), this.guiTop + 25, 65, 12);
         this.searchFieldInputs.setEnableBackgroundDrawing(false);
         this.searchFieldInputs.setMaxStringLength(25);
         this.searchFieldInputs.setTextColor(0xFFFFFF);
         this.searchFieldInputs.setVisible(true);
         this.searchFieldInputs.setFocused(false);
 
-        this.searchFieldOutputs = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, this.offsetX), this.guiTop + 38, 65, 12);
+        this.searchFieldOutputs = new MEGuiTextField(this.fontRenderer, this.guiLeft + Math.max(32, OFFSET_X), this.guiTop + 38, 65, 12);
         this.searchFieldOutputs.setEnableBackgroundDrawing(false);
         this.searchFieldOutputs.setMaxStringLength(25);
         this.searchFieldOutputs.setTextColor(0xFFFFFF);
         this.searchFieldOutputs.setVisible(true);
         this.searchFieldOutputs.setFocused(true);
 
-        this.searchFieldInputs.setText(partInterfaceTerminal.in);
-        this.searchFieldOutputs.setText(partInterfaceTerminal.out);
-
         this.fontRenderer.drawString(this.getGuiDisplayName(GuiText.InterfaceTerminal.getLocal()), 8, 6, 4210752);
-        this.fontRenderer.drawString(GuiText.inventory.getLocal(), this.offsetX + 2, this.ySize - 96 + 3, 4210752);
+        this.fontRenderer.drawString(GuiText.inventory.getLocal(), OFFSET_X + 2, this.ySize - 96 + 3, 4210752);
 
     }
 
@@ -175,12 +171,6 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
         s.yPos = s.getY() + this.ySize - 112;
         s.xPos = s.getX() + 14;
-    }
-
-    @Override
-    public void onGuiClosed() {
-        partInterfaceTerminal.saveSearchStrings(this.searchFieldInputs.getText().toLowerCase(), this.searchFieldOutputs.getText().toLowerCase());
-        super.onGuiClosed();
     }
 
     @Override
@@ -197,10 +187,10 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
         final int currentScroll = this.getScrollBar().getCurrentScroll();
 
-        this.guiButtonAssemblersOnly = new GuiImgButton(guiLeft + 123, guiTop + 25, Settings.ACTIONS, toggleMolecularAssemblers ? ActionItems.MOLECULAR_ASSEMBLERS_ON : ActionItems.MOLECULAR_ASSEMBLERS_OFF);
+        this.guiButtonAssemblersOnly = new GuiImgButton(guiLeft + 123, guiTop + 25, Settings.ACTIONS, onlyMolecularAssemblers ? ActionItems.MOLECULAR_ASSEMBLERS_ON : ActionItems.MOLECULAR_ASSEMBLERS_OFF);
         this.buttonList.add(guiButtonAssemblersOnly);
 
-        guiButtonHideFull = new GuiImgButton(guiLeft + 141, guiTop + 25, Settings.ACTIONS, this.partInterfaceTerminal.onlyInterfacesWithFreeSlots ? ActionItems.TOGGLE_SHOW_FULL_INTERFACES_OFF : ActionItems.TOGGLE_SHOW_FULL_INTERFACES_ON);
+        guiButtonHideFull = new GuiImgButton(guiLeft + 141, guiTop + 25, Settings.ACTIONS, onlyInterfacesWithFreeSlots ? ActionItems.TOGGLE_SHOW_FULL_INTERFACES_OFF : ActionItems.TOGGLE_SHOW_FULL_INTERFACES_ON);
         this.buttonList.add(guiButtonHideFull);
 
         this.buttonList.add(this.terminalStyleBox = new GuiImgButton(this.guiLeft - 18, guiTop + 24 + jeiOffset, Settings.TERMINAL_STYLE, AEConfig.instance()
@@ -251,7 +241,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                 while (name.length() > 2 && this.fontRenderer.getStringWidth(name) > 155) {
                     name = name.substring(0, name.length() - 1);
                 }
-                this.fontRenderer.drawString(name, this.offsetX + 2, 5 + offset, 4210752);
+                this.fontRenderer.drawString(name, OFFSET_X + 2, 5 + offset, 4210752);
                 linesDraw++;
                 offset += 18;
             }
@@ -324,12 +314,12 @@ public class GuiInterfaceTerminal extends AEBaseGui {
             }
         }
         if (btn == guiButtonHideFull) {
-            partInterfaceTerminal.onlyInterfacesWithFreeSlots = !partInterfaceTerminal.onlyInterfacesWithFreeSlots;
+            onlyInterfacesWithFreeSlots = !onlyInterfacesWithFreeSlots;
             this.refreshList();
         }
 
         if (btn == guiButtonAssemblersOnly) {
-            toggleMolecularAssemblers = !toggleMolecularAssemblers;
+            onlyMolecularAssemblers = !onlyMolecularAssemblers;
             this.refreshList();
         }
     }
@@ -449,7 +439,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
             this.refreshList = false;
             // invalid caches on refresh
             this.cachedSearches.clear();
-            toggleMolecularAssemblers = false;
+            onlyMolecularAssemblers = false;
             this.refreshList();
         }
     }
@@ -468,7 +458,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
         final String searchFieldInputs = this.searchFieldInputs.getText().toLowerCase();
         final String searchFieldOutputs = this.searchFieldOutputs.getText().toLowerCase();
 
-        final Set<Object> cachedSearch = this.getCacheForSearchTerm("IN:" + searchFieldInputs + " OUT:" + searchFieldOutputs + partInterfaceTerminal.onlyInterfacesWithFreeSlots + this.toggleMolecularAssemblers);
+        final Set<Object> cachedSearch = this.getCacheForSearchTerm("IN:" + searchFieldInputs + " OUT:" + searchFieldOutputs + onlyInterfacesWithFreeSlots + onlyMolecularAssemblers);
         final boolean rebuild = cachedSearch.isEmpty();
 
         for (final ClientDCInternalInv entry : this.byId.values()) {
@@ -479,7 +469,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
 
             // Shortcut to skip any filter if search term is ""/empty
 
-            boolean found = (searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty() && !partInterfaceTerminal.onlyInterfacesWithFreeSlots);
+            boolean found = (searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty() && !onlyInterfacesWithFreeSlots);
             boolean interfaceHasFreeSlots = false;
 
             // Search if the current inventory holds a pattern containing the search term.
@@ -513,23 +503,19 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                 }
             }
             String name = entry.getName().toLowerCase();
-            if (toggleMolecularAssemblers) {
-                found &= name.equals(MOLECULAR_ASSEMBLER);
+            if (onlyMolecularAssemblers) {
+                if (searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty()) {
+                    found = name.equals(MOLECULAR_ASSEMBLER);
+                } else {
+                    found &= name.equals(MOLECULAR_ASSEMBLER);
+                }
             } else {
                 found |= name.contains(searchFieldInputs) && name.contains(searchFieldOutputs);
             }
 
-            // if found, filter skipped or machine name matching the search term, add it
-            // todo
-            //if ((searchFieldInputs.isEmpty() && searchFieldOutputs.isEmpty()) ||
-            //        !searchFieldInputs.isEmpty() && entry.getName().toLowerCase().contains(searchFieldInputs) ||
-            //        (!searchFieldOutputs.isEmpty() && entry.getName().toLowerCase().contains(searchFieldOutputs))) {
-            //    this.matchedInterfaces.add(entry);
-            //    found = true;
-            //}
             if (found) {
                 this.matchedInterfaces.add(entry);
-                if (!partInterfaceTerminal.onlyInterfacesWithFreeSlots) {
+                if (!onlyInterfacesWithFreeSlots) {
                     this.byName.put(entry.getName(), entry);
                     cachedSearch.add(entry);
                 } else if (interfaceHasFreeSlots) {
