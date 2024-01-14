@@ -437,6 +437,10 @@ public class PartFluidStorageBus extends PartUpgradeable implements IGridTickabl
                     }
                 }
 
+                if (this.getInstalledUpgrades(Upgrades.STICKY) > 0) {
+                    this.handler.setSticky(true);
+                }
+
                 if (this.getInstalledUpgrades(Upgrades.FUZZY) > 0) {
                     this.handler.setPartitionList(new FuzzyPriorityList<IAEFluidStack>(priorityList, (FuzzyMode) this.getConfigManager().getSetting(Settings.FUZZY_MODE)));
                 } else {
