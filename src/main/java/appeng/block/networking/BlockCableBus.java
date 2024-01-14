@@ -29,8 +29,10 @@ import appeng.block.AEBaseTileBlock;
 import appeng.client.UnlistedProperty;
 import appeng.client.render.cablebus.CableBusBakedModel;
 import appeng.client.render.cablebus.CableBusRenderState;
+import appeng.client.render.cablebus.FacadeRenderState;
 import appeng.core.AppEng;
 import appeng.core.sync.network.NetworkHandler;
+import appeng.core.sync.packets.PacketCableBusLandingParticle;
 import appeng.core.sync.packets.PacketClick;
 import appeng.helpers.AEGlassMaterial;
 import appeng.integration.abstraction.IAEFacade;
@@ -70,10 +72,12 @@ import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -296,6 +300,90 @@ public class BlockCableBus extends AEBaseTileBlock implements IAEFacade {
         }
 
         return true;
+    }
+
+    @Override
+    public boolean addRunningEffects(IBlockState state, World world, BlockPos pos, Entity entity) {
+        if (world.isRemote) {
+            addRunningParticle(world, pos, entity);
+        }
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void addRunningParticle(World world, BlockPos pos, Entity entity) {
+        final ICableBusContainer cb = this.cb(world, pos);
+        final IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(this.getDefaultState());
+
+        if (!(model instanceof CableBusBakedModel cableBusModel)) {
+            return;
+        }
+
+        final CableBusRenderState renderState = cb.getRenderState();
+        final TextureAtlasSprite texture = getSpriteForParticle(renderState, cableBusModel);
+        if (texture != null) {
+            final double d0 = entity.posX + (world.rand.nextFloat() - 0.5f) * entity.width;
+            final double d1 = entity.getEntityBoundingBox().minY + 0.1f;
+            final double d2 = entity.posZ + (world.rand.nextFloat() - 0.5f) * entity.width;
+
+            final ParticleDigging particle = new DestroyFX(world, d0, d1, d2, -entity.motionX * 4.0f, 1.5f, -entity.motionZ * 4.0f, this.getDefaultState()).setBlockPos(pos);
+            particle.setParticleTexture(texture);
+            Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+        }
+    }
+
+    @Override
+    public boolean addLandingEffects(IBlockState state, WorldServer world, BlockPos pos, IBlockState iblockstate, EntityLivingBase entity, int numberOfParticles) {
+        // for reasons only notch can explain, this method is only called on the server, so we have to sync
+        // a packet to all tracking players for landing particle effects
+        if (!world.isRemote) {
+            final PacketCableBusLandingParticle packet = new PacketCableBusLandingParticle(pos, entity, numberOfParticles);
+            final NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 32);
+            NetworkHandler.instance().sendToAllTracking(packet, point);
+        }
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void addLandingParticle(BlockPos pos, double entityX, double entityY, double entityZ, int numberOfParticles) {
+        final World world = Minecraft.getMinecraft().world;
+        final ICableBusContainer cb = this.cb(world, pos);
+        final IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(this.getDefaultState());
+
+        if (!(model instanceof CableBusBakedModel cableBusModel)) {
+            return;
+        }
+
+        final TextureAtlasSprite texture = getSpriteForParticle(cb.getRenderState(), cableBusModel);
+        if (texture != null) {
+            final Vec3d startVec = new Vec3d(entityX, entityY, entityZ);
+            final Vec3d endVec = startVec.add(0.0f, -4.0f, 0.0f);
+            RayTraceResult result = world.rayTraceBlocks(startVec, endVec, true, false, true);
+            final double speed = 0.15f;
+
+            if (result != null && result.typeOfHit == Type.BLOCK && numberOfParticles != 0) {
+                for (int i = 0; i < numberOfParticles; i++) {
+                    final double d0 = world.rand.nextGaussian() * speed;
+                    final double d1 = world.rand.nextGaussian() * speed;
+                    final double d2 = world.rand.nextGaussian() * speed;
+
+                    final ParticleDigging particle = new DestroyFX(world, entityX, entityY, entityZ, d0, d1, d2, this.getDefaultState()).setBlockPos(pos);
+                    particle.setParticleTexture(texture);
+                    Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+                }
+            }
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    private TextureAtlasSprite getSpriteForParticle(CableBusRenderState renderState, CableBusBakedModel cableBusModel) {
+        final FacadeRenderState frs = renderState.getFacades().get(EnumFacing.UP);
+        if (frs != null) {
+            final IBlockState state = frs.getSourceBlock();
+            final IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
+            return model.getParticleTexture();
+        }
+        return Platform.pickRandom(cableBusModel.getParticleTextures(renderState));
     }
 
     @Override
