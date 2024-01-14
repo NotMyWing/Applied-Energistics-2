@@ -258,7 +258,7 @@ public abstract class AEBaseGui extends GuiContainer {
         }
     }
 
-    private void drawTooltip(ITooltip tooltip, int mouseX, int mouseY) {
+    protected void drawTooltip(ITooltip tooltip, int mouseX, int mouseY) {
         final int x = tooltip.xPos(); // ((GuiImgButton) c).x;
         int y = tooltip.yPos(); // ((GuiImgButton) c).y;
 

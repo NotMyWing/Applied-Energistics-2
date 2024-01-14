@@ -127,9 +127,6 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private int normalChannelCapacity = 8;
     private int denseChannelCapacity = 32;
 
-    // client stuff
-    public boolean showOnlyInterfacesWithFreeSlotsInterfaceTerminal = false;
-
     private AEConfig(final File configFile) {
         super(configFile);
         this.configFile = configFile;
@@ -262,7 +259,6 @@ public final class AEConfig extends Configuration implements IConfigurableObject
         this.useColoredCraftingStatus = this.get("Client", "useColoredCraftingStatus", true).getBoolean(true);
         this.showCraftableTooltip = this.get("Client", "showCraftableTooltip", true, "Whether to add \"Craftable\" to item tooltips when they can be crafted automatically.").getBoolean(true);
         this.showPlacementPreview = this.get("Client", "showPlacementPreview", true, "Whether to show a preview of part and facade placement.").getBoolean(true);
-        this.showOnlyInterfacesWithFreeSlotsInterfaceTerminal = this.get("Client", "showOnlyInterfacesWithFreeSlotsInterfaceTerminal", false).getBoolean(false);
 
         // load buttons..
         for (int btnNum = 0; btnNum < 4; btnNum++) {
