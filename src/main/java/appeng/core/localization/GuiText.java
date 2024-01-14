@@ -195,6 +195,7 @@ public enum GuiText {
     Partitioned,
     Precise,
     Fuzzy,
+    Sticky,
 
     // Used in a terminal to indicate that an item is craftable
     SmallFontCraft,

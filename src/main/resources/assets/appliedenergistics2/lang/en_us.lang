@@ -253,6 +253,7 @@ gui.appliedenergistics2.Renamer=Custom Name: (Enter to set)
 gui.appliedenergistics2.Nothing=Nothing
 gui.appliedenergistics2.CraftingToastDone=Crafting Done!
 gui.appliedenergistics2.CraftingToastCancelled=Crafting Cancelled!
+gui.appliedenergistics2.Sticky=Sticky
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=Store Items
@@ -524,6 +525,7 @@ item.appliedenergistics2.material.silicon_print.name=Printed Silicon
 item.appliedenergistics2.material.name_press.name=Inscriber Name Press
 item.appliedenergistics2.material.sky_dust.name=Sky Stone Dust
 item.appliedenergistics2.material.card_crafting.name=Crafting Card
+item.appliedenergistics2.material.card_sticky.name=Sticky Card
 
 item.appliedenergistics2.multi_part.annihilation_plane.name=ME Annihilation Plane
 item.appliedenergistics2.multi_part.fluid_annihilation_plane.name=ME Fluid Annihilation Plane

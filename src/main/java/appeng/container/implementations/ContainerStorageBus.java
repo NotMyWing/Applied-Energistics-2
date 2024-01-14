@@ -50,6 +50,9 @@ public class ContainerStorageBus extends ContainerUpgradeable {
     @GuiSync(4)
     public StorageFilter storageFilter = StorageFilter.EXTRACTABLE_ONLY;
 
+    @GuiSync(7)
+    public YesNo stickyMode = YesNo.NO;
+
     public ContainerStorageBus(final InventoryPlayer ip, final PartStorageBus te) {
         super(ip, te);
         this.storageBus = te;
@@ -111,6 +114,7 @@ public class ContainerStorageBus extends ContainerUpgradeable {
             this.setFuzzyMode((FuzzyMode) this.getUpgradeable().getConfigManager().getSetting(Settings.FUZZY_MODE));
             this.setReadWriteMode((AccessRestriction) this.getUpgradeable().getConfigManager().getSetting(Settings.ACCESS));
             this.setStorageFilter((StorageFilter) this.getUpgradeable().getConfigManager().getSetting(Settings.STORAGE_FILTER));
+            this.setStickyMode((YesNo) this.getUpgradeable().getConfigManager().getSetting(Settings.STICKY_MODE));
         }
 
         this.standardDetectAndSendChanges();
@@ -167,5 +171,13 @@ public class ContainerStorageBus extends ContainerUpgradeable {
 
     private void setStorageFilter(final StorageFilter storageFilter) {
         this.storageFilter = storageFilter;
+    }
+
+    public YesNo getStickyMode() {
+        return this.stickyMode;
+    }
+
+    private void setStickyMode(final YesNo stickyMode) {
+        this.stickyMode = stickyMode;
     }
 }

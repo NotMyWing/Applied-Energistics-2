@@ -1,0 +1,31 @@
+{
+  "conditions": [
+    {
+      "type": "forge:and",
+      "values": [
+        {
+          "type": "appliedenergistics2:material_exists",
+          "material": "material.card_sticky"
+        },
+        {
+          "type": "appliedenergistics2:material_exists",
+          "material": "material.basic_card"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "type": "appliedenergistics2:part",
+    "part": "material.card_sticky"
+  },
+  "type": "appliedenergistics2:part_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:slime_ball"
+    },
+    {
+      "type": "appliedenergistics2:part",
+      "part": "material.basic_card"
+    }
+  ]
+}

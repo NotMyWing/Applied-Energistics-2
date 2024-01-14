@@ -60,6 +60,10 @@ public class ApiClientHelper implements IClientHelper {
                 lines.add("[" + GuiText.Partitioned.getLocal() + "]" + " - " + list + ' ' + GuiText.Precise.getLocal());
             }
 
+            if (handler.isSticky()) {
+                lines.add(GuiText.Sticky.getLocal());
+            }
+
             if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
                 IItemHandler inv = cellInventory.getConfigInventory();
                 cellInventory.getAvailableItems((IItemList) itemList);
