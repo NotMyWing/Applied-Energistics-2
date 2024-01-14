@@ -79,6 +79,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
     private static final String MOLECULAR_ASSEMBLER = "molecular assembler";
 
     private final boolean jeiEnabled;
+    private final int jeiButtonPadding;
 
     private final HashMap<Long, ClientDCInternalInv> byId = new HashMap<>();
     private final HashMultimap<String, ClientDCInternalInv> byName = HashMultimap.create();
@@ -116,6 +117,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
         this.xSize = 208;
         this.ySize = 255;
         this.jeiEnabled = Loader.isModLoaded("jei");
+        this.jeiButtonPadding = jeiEnabled ? 22 : 0;
 
         searchFieldInputs = createTextField(86, 12, ButtonToolTips.SearchFieldInputs.getLocal());
         searchFieldOutputs = createTextField(86, 12, ButtonToolTips.SearchFieldOutputs.getLocal());
@@ -172,14 +174,14 @@ public class GuiInterfaceTerminal extends AEBaseGui {
         searchFieldNames.x = guiLeft + 32 + 99;
         searchFieldNames.y = guiTop + 38;
 
-        guiButtonAssemblersOnly.x = guiLeft + 32 + 99;
-        guiButtonAssemblersOnly.y = guiTop + 20;
-        guiButtonHideFull.x = guiButtonAssemblersOnly.x + 18;
-        guiButtonHideFull.y = guiTop + 20;
-        guiButtonBrokenRecipes.x = guiButtonHideFull.x + 18;
-        guiButtonBrokenRecipes.y = guiTop + 20;
         terminalStyleBox.x = guiLeft - 18;
-        terminalStyleBox.y = guiTop + 8;
+        terminalStyleBox.y = guiTop + 8 + jeiButtonPadding;
+        guiButtonBrokenRecipes.x = guiLeft - 18;
+        guiButtonBrokenRecipes.y = terminalStyleBox.y + 20;
+        guiButtonHideFull.x = guiLeft - 18;
+        guiButtonHideFull.y = guiButtonBrokenRecipes.y + 20;
+        guiButtonAssemblersOnly.x = guiLeft - 18;
+        guiButtonAssemblersOnly.y = guiButtonHideFull.y + 20;
 
         this.setScrollBar();
         this.repositionSlots();
@@ -244,6 +246,7 @@ public class GuiInterfaceTerminal extends AEBaseGui {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         buttonList.clear();
+        guiButtonHashMap.clear();
         inventorySlots.inventorySlots.removeIf(slot -> slot instanceof SlotDisconnected);
 
         guiButtonAssemblersOnly.set(onlyMolecularAssemblers ? ActionItems.MOLECULAR_ASSEMBLERS_ON : ActionItems.MOLECULAR_ASSEMBLERS_OFF);
@@ -400,6 +403,10 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                         || (this.searchFieldNames.getText().isEmpty() && this.searchFieldNames.isFocused())) {
                     return;
                 }
+            } else if (character == '\t') {
+                if (handleTab()) {
+                    return;
+                }
             }
 
             if (this.searchFieldInputs.textboxKeyTyped(character, key)
@@ -410,6 +417,27 @@ public class GuiInterfaceTerminal extends AEBaseGui {
                 super.keyTyped(character, key);
             }
         }
+    }
+
+    /** Cycle to the next search bar if tab is pressed, going in reverse if shift is held. */
+    private boolean handleTab() {
+        if (searchFieldInputs.isFocused()) {
+            searchFieldInputs.setFocused(false);
+            if (isShiftKeyDown()) searchFieldNames.setFocused(true);
+            else searchFieldOutputs.setFocused(true);
+            return true;
+        } else if (searchFieldOutputs.isFocused()) {
+            searchFieldOutputs.setFocused(false);
+            if (isShiftKeyDown()) searchFieldInputs.setFocused(true);
+            else searchFieldNames.setFocused(true);
+            return true;
+        } else if (searchFieldNames.isFocused()) {
+            searchFieldNames.setFocused(false);
+            if (isShiftKeyDown()) searchFieldOutputs.setFocused(true);
+            else searchFieldInputs.setFocused(true);
+            return true;
+        }
+        return false;
     }
 
     public void postUpdate(final NBTTagCompound in) {
