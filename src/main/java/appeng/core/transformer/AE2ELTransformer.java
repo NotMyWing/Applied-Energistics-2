@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import net.minecraft.launchwrapper.IClassTransformer;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.common.Loader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -203,7 +203,7 @@ public class AE2ELTransformer implements IClassTransformer {
         protected String getCommonSuperClass(final String type1, final String type2) {
             Class<?> c, d;
             // clueless
-            ClassLoader classLoader = MinecraftServer.class.getClassLoader();
+            ClassLoader classLoader = Launch.classLoader;
             try {
                 c = Class.forName(type1.replace('/', '.'), false, classLoader);
                 d = Class.forName(type2.replace('/', '.'), false, classLoader);
