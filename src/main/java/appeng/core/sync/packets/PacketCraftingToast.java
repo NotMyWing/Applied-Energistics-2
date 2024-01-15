@@ -11,6 +11,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
 
@@ -39,9 +41,13 @@ public class PacketCraftingToast extends AppEngPacket {
 	@Override
 	public void clientPacketData(INetworkInfo network, AppEngPacket packet, EntityPlayer player) {
 		if (AEConfig.instance().isFeatureEnabled(AEFeature.CRAFTING_TOASTS)) {
-			Minecraft.getMinecraft()
-			         .getToastGui().add(new CraftingStatusToast(stack.asItemStackRepresentation(), cancelled));
+			doCraftingToast();
 		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	private void doCraftingToast() {
+		Minecraft.getMinecraft().getToastGui().add(new CraftingStatusToast(stack.asItemStackRepresentation(), cancelled));
 	}
 
 	@Override
