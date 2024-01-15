@@ -92,6 +92,7 @@ chat.appliedenergistics2.isNowLocked=Monitor is now Locked.
 chat.appliedenergistics2.isNowUnlocked=Monitor is now Unlocked.
 chat.appliedenergistics2.InterfaceInOtherDimParam=Interface located at dimension: %d [ %s ] and cannot be highlighted
 chat.appliedenergistics2.InterfaceInOtherDim=Interface is located in another dimension and cannot be highlighted
+chat.appliedenergistics2.InterfaceHighlighted=The interface is now highlighted at X: %s Y: %s Z: %s
 
 // Creative Tabs
 itemGroup.appliedenergistics2=Applied Energistics 2
