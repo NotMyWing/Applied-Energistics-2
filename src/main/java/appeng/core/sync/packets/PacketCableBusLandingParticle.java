@@ -11,6 +11,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PacketCableBusLandingParticle extends AppEngPacket {
 
@@ -42,6 +44,7 @@ public class PacketCableBusLandingParticle extends AppEngPacket {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void clientPacketData(INetworkInfo network, AppEngPacket packet, EntityPlayer player) {
         final World world = Minecraft.getMinecraft().world;
         final IBlockState state = world.getBlockState(pos);
