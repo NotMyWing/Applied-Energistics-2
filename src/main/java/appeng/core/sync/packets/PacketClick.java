@@ -22,10 +22,12 @@ package appeng.core.sync.packets;
 import appeng.block.networking.BlockCableBus;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
+import appeng.items.tools.ToolNetworkTool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -96,6 +98,11 @@ public class PacketClick extends AppEngPacket {
             final Block block = player.world.getBlockState(pos).getBlock();
             if (block instanceof BlockCableBus) {
                 ((BlockCableBus) block).onBlockClickPacket(player.world, pos, player, this.hand, new Vec3d(this.hitX, this.hitY, this.hitZ));
+            }
+        } else {
+            final ItemStack is = player.inventory.getCurrentItem();
+            if (!is.isEmpty() && is.getItem() instanceof ToolNetworkTool tnt) {
+                tnt.serverSideToolLogic(is, player, hand, player.world, pos, side, hitX, hitY, hitZ);
             }
         }
     }
