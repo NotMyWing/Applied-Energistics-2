@@ -40,15 +40,12 @@ public class DriveWatcher<T extends IAEStack<T>> extends MEInventoryHandler<T> {
     private final ICellHandler handler;
     private final TileDrive drive;
     private final IActionSource source;
-    private final ICellInventoryHandler<T> cellInventory;
-
     public DriveWatcher(final ICellInventoryHandler<T> i, final ItemStack is, final ICellHandler han, final TileDrive drive) {
         super(i, i.getChannel());
         this.is = is;
         this.handler = han;
         this.drive = drive;
         this.source = new MachineSource(drive);
-        this.cellInventory = i;
     }
 
     public int getStatus() {
@@ -105,6 +102,10 @@ public class DriveWatcher<T extends IAEStack<T>> extends MEInventoryHandler<T> {
 
     @Override
     public boolean isSticky() {
-        return this.cellInventory.isSticky();
+        if (this.getInternal() instanceof ICellInventoryHandler<?> cellInventoryHandler) {
+            return cellInventoryHandler.isSticky();
+        }
+
+        return super.isSticky();
     }
 }
