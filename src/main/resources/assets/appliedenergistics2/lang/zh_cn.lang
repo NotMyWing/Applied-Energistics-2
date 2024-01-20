@@ -253,6 +253,7 @@ gui.appliedenergistics2.Renamer=自定义名称（按下Enter以设定）
 gui.appliedenergistics2.Nothing=无
 gui.appliedenergistics2.CraftingToastDone=合成已完成！
 gui.appliedenergistics2.CraftingToastCancelled=合成已取消！
+gui.appliedenergistics2.Sticky=粘滞
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=存储物品
@@ -524,6 +525,7 @@ item.appliedenergistics2.material.silicon_print.name=硅板
 item.appliedenergistics2.material.name_press.name=名称压印模板
 item.appliedenergistics2.material.sky_dust.name=陨石粉
 item.appliedenergistics2.material.card_crafting.name=合成卡
+item.appliedenergistics2.material.card_sticky.name=粘滞卡
 
 item.appliedenergistics2.multi_part.annihilation_plane.name=ME破坏面板
 item.appliedenergistics2.multi_part.fluid_annihilation_plane.name=ME流体破坏面板
