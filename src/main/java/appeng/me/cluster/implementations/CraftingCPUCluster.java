@@ -41,12 +41,12 @@ import appeng.api.util.WorldCoord;
 import appeng.container.ContainerNull;
 import appeng.core.AEConfig;
 import appeng.core.AELog;
+import appeng.core.AppEng;
 import appeng.core.features.AEFeature;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketCraftingToast;
 import appeng.crafting.*;
 import appeng.helpers.PatternHelper;
-import appeng.helpers.PlayerHelper;
 import appeng.me.cache.CraftingGridCache;
 import appeng.me.cluster.IAECluster;
 import appeng.me.helpers.MachineSource;
@@ -57,6 +57,7 @@ import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -395,10 +396,10 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
         if (this.finalOutput == null) return;
         if (!AEConfig.instance().isFeatureEnabled(AEFeature.CRAFTING_TOASTS)) return;
 
-        var player = PlayerHelper.getPlayerByUUID(this.requestingPlayerUUID);
-        if (player != null) {
+        var player = AppEng.proxy.getPlayerByUUID(this.requestingPlayerUUID);
+        if (player instanceof EntityPlayerMP playerMP) {
             try {
-                NetworkHandler.instance().sendTo(new PacketCraftingToast(this.finalOutput, cancelled), player);
+                NetworkHandler.instance().sendTo(new PacketCraftingToast(this.finalOutput, cancelled), playerMP);
             } catch (IOException ignored) {}
         }
     }

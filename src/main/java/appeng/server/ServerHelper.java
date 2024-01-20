@@ -42,6 +42,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 
 public class ServerHelper extends CommonHelper {
@@ -166,5 +167,18 @@ public class ServerHelper extends CommonHelper {
     @Override
     public boolean isActionKey(ActionKey key, int pressedKeyCode) {
         return false;
+    }
+
+    @Override
+    public EntityPlayer getPlayerByUUID(UUID uuid) {
+        if (!Platform.isClient()) {
+            final MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+
+            if (server != null) {
+                return server.getPlayerList().getPlayerByUUID(uuid);
+            }
+        }
+
+        return null;
     }
 }
