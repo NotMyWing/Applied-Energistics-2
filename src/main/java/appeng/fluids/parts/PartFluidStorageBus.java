@@ -80,6 +80,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -220,11 +221,13 @@ public class PartFluidStorageBus extends PartUpgradeable implements IGridTickabl
     @Override
     public void postChange(final IBaseMonitor<IAEFluidStack> monitor, final Iterable<IAEFluidStack> change, final IActionSource source) {
         if (this.getProxy().isActive()) {
+            var filteredChanges = this.filterChanges(change);
+
             AccessRestriction currentAccess = (AccessRestriction) ((ConfigManager) this.getConfigManager()).getSetting(Settings.ACCESS);
             if (readOncePass) {
                 readOncePass = false;
                 try {
-                    this.getProxy().getStorage().postAlterationOfStoredItems(AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class), change, this.source);
+                    this.getProxy().getStorage().postAlterationOfStoredItems(AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class), filteredChanges, this.source);
                 } catch (final GridAccessException e) {
                     // :(
                 }
@@ -234,7 +237,7 @@ public class PartFluidStorageBus extends PartUpgradeable implements IGridTickabl
                 return;
             }
             try {
-                this.getProxy().getStorage().postAlterationOfStoredItems(AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class), change, source);
+                this.getProxy().getStorage().postAlterationOfStoredItems(AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class), filteredChanges, source);
             } catch (final GridAccessException e) {
                 // :(
             }
@@ -426,6 +429,7 @@ public class PartFluidStorageBus extends PartUpgradeable implements IGridTickabl
                 this.handler.setBaseAccess((AccessRestriction) this.getConfigManager().getSetting(Settings.ACCESS));
                 this.handler.setWhitelist(this.getInstalledUpgrades(Upgrades.INVERTER) > 0 ? IncludeExclude.BLACKLIST : IncludeExclude.WHITELIST);
                 this.handler.setPriority(this.getPriority());
+                this.handler.setStorageFilter((StorageFilter) this.getConfigManager().getSetting(Settings.STORAGE_FILTER));
 
                 final IItemList<IAEFluidStack> priorityList = AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class).createList();
 
@@ -536,5 +540,27 @@ public class PartFluidStorageBus extends PartUpgradeable implements IGridTickabl
     @Override
     public GuiBridge getGuiBridge() {
         return GuiBridge.GUI_STORAGEBUS_FLUID;
+    }
+
+    // TODO: 1/28/2024 Unify both methods.
+    /**
+     * Filters the changes to only include items that pass the storage filter.
+     * Optimally, this should be handled by the underlying monitor.
+     *
+     * @see appeng.parts.misc.PartStorageBus#filterChanges
+     */
+    protected Iterable<IAEFluidStack> filterChanges(Iterable<IAEFluidStack> change) {
+        var storageFilter = this.getConfigManager().getSetting(Settings.STORAGE_FILTER);
+        if (storageFilter == StorageFilter.EXTRACTABLE_ONLY) {
+            var filteredList = new ArrayList<IAEFluidStack>();
+            for (final IAEFluidStack stack : change) {
+                if (this.handler.passesBlackOrWhitelist(stack)) {
+                    filteredList.add(stack);
+                }
+            }
+
+            return filteredList;
+        }
+        return change;
     }
 }
