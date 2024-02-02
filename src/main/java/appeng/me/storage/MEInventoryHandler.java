@@ -117,7 +117,7 @@ public class MEInventoryHandler<T extends IAEStack<T>> implements IMEInventoryHa
             if (this.storageFilter == StorageFilter.EXTRACTABLE_ONLY) {
                 var stackList = this.internal.getAvailableItems(this.getChannel().createList());
                 for (final T t : stackList) {
-                    if (this.canExtract(t)) {
+                    if (this.shouldItemBeAvailable(t)) {
                         out.add(t);
                     }
                 }
@@ -196,6 +196,10 @@ public class MEInventoryHandler<T extends IAEStack<T>> implements IMEInventoryHa
 
     protected boolean canExtract(T request) {
         return this.hasReadAccess;
+    }
+
+    private boolean shouldItemBeAvailable(T t) {
+        return this.hasReadAccess && this.passesBlackOrWhitelist(t);
     }
 
     public boolean passesBlackOrWhitelist(T input) {

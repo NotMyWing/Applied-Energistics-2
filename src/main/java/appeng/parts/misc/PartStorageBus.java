@@ -196,7 +196,7 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
         return super.getInventoryByName(name);
     }
 
-    private void resetCache(final boolean fullReset) {
+    protected void resetCache(final boolean fullReset) {
         if (this.getHost() == null || this.getHost().getTile() == null || this.getHost().getTile().getWorld() == null || this.getHost().getTile().getWorld().isRemote) {
             return;
         }
@@ -319,7 +319,7 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
         return TickRateModulation.SLEEP;
     }
 
-    private void resetCache() {
+    protected void resetCache() {
         final boolean fullReset = this.resetCacheLogic == 2;
         this.resetCacheLogic = 0;
 

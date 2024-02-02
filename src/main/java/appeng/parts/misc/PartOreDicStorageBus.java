@@ -165,9 +165,7 @@ public class PartOreDicStorageBus extends PartStorageBus {
             this.oreExp = oreMatch;
 
             this.priorityList = new OreDictPriorityList<>(OreHelper.INSTANCE.getMatchingOre(oreExp), oreExp);
-            if (this.handler != null) {
-                handler.setPartitionList(this.priorityList);
-            }
+            this.resetCache(true);
             this.getHost().markForSave();
         }
     }
