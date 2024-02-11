@@ -467,6 +467,7 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
             }
 
             final boolean mouseInGui = this.isPointInRegion(0, 0, this.xSize, this.ySize, this.currentMouseX, this.currentMouseY);
+            final boolean wasSearchFieldFocused = this.searchField.isFocused();
 
             if (this.isAutoFocus && !this.searchField.isFocused() && mouseInGui) {
                 this.searchField.setFocused(true);
@@ -478,6 +479,10 @@ public class GuiMEMonitorable extends AEBaseMEGui implements ISortSource, IConfi
                 // tell forge the key event is handled and should not be sent out
                 this.keyHandled = mouseInGui;
             } else {
+                if (!wasSearchFieldFocused) {
+                    // prevent unhandled keys (like shift) from focusing the search field
+                    searchField.setFocused(false);
+                }
                 super.keyTyped(character, key);
             }
         }
