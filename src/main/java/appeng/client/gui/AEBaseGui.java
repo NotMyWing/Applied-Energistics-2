@@ -72,7 +72,7 @@ import net.minecraftforge.fml.common.Optional;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import yalter.mousetweaks.api.MouseTweaksIgnore;
+import yalter.mousetweaks.api.IMTModGuiContainer2;
 
 import java.awt.*;
 import java.io.IOException;
@@ -85,9 +85,8 @@ import java.util.concurrent.TimeUnit;
 import static appeng.integration.modules.jei.JEIPlugin.aeGuiHandler;
 import static appeng.integration.modules.jei.JEIPlugin.runtime;
 
-
-@MouseTweaksIgnore
-public abstract class AEBaseGui extends GuiContainer {
+@Optional.Interface(iface = "yalter.mousetweaks.api.IMTModGuiContainer2", modid = "mousetweaks")
+public abstract class AEBaseGui extends GuiContainer implements IMTModGuiContainer2 {
     private final List<InternalSlotME> meSlots = new ArrayList<>();
     // drag y
     private final Set<Slot> drag_click = new HashSet<>();
@@ -987,5 +986,47 @@ public abstract class AEBaseGui extends GuiContainer {
 
     protected List<InternalSlotME> getMeSlots() {
         return this.meSlots;
+    }
+
+    @Override
+    @Optional.Method(modid = "mousetweaks")
+    public boolean MT_isMouseTweaksDisabled() {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "mousetweaks")
+    public boolean MT_isWheelTweakDisabled() {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "mousetweaks")
+    public Container MT_getContainer() {
+        return this.inventorySlots;
+    }
+
+    @Override
+    @Optional.Method(modid = "mousetweaks")
+    public Slot MT_getSlotUnderMouse() {
+        return getSlotUnderMouse();
+    }
+
+    @Override
+    @Optional.Method(modid = "mousetweaks")
+    public boolean MT_isCraftingOutput(Slot slot) {
+        return slot instanceof SlotOutput || slot instanceof AppEngCraftingSlot;
+    }
+
+    @Override
+    @Optional.Method(modid = "mousetweaks")
+    public boolean MT_isIgnored(Slot slot) {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "mousetweaks")
+    public boolean MT_disableRMBDraggingFunctionality() {
+        return true;
     }
 }
