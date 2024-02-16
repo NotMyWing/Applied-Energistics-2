@@ -50,7 +50,6 @@ public class SlotFake extends AppEngSlot implements IJEITargetSlot {
         if (!is.isEmpty()) {
             is = is.copy();
         }
-
         super.putStack(is);
     }
 
@@ -58,4 +57,10 @@ public class SlotFake extends AppEngSlot implements IJEITargetSlot {
     public boolean canTakeStack(final EntityPlayer par1EntityPlayer) {
         return false;
     }
+
+    @Override
+    public boolean needAccept() {
+        return this.getStack().isEmpty();
+    }
+
 }

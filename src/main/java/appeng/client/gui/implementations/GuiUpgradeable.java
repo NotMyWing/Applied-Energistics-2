@@ -47,6 +47,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
@@ -54,7 +55,7 @@ import java.util.*;
 
 
 public class GuiUpgradeable extends AEBaseGui implements IJEIGhostIngredients {
-    private final Map<Target<?>, Object> mapTargetSlot = new HashMap<>();
+    protected final Map<Target<?>, Object> mapTargetSlot = new HashMap<>();
     protected final ContainerUpgradeable cvb;
     protected final IUpgradeableHost bc;
 
@@ -218,24 +219,25 @@ public class GuiUpgradeable extends AEBaseGui implements IJEIGhostIngredients {
         List<Target<?>> targets = new ArrayList<>();
 
         List<IJEITargetSlot> slots = new ArrayList<>();
-        if (this.inventorySlots.inventorySlots.size() > 0) {
+        if (!this.inventorySlots.inventorySlots.isEmpty()) {
             for (Slot slot : this.inventorySlots.inventorySlots) {
                 if (slot instanceof SlotFake && (!itemStack.isEmpty() || this instanceof GuiCellWorkbench && fluidStack != null)) {
                     slots.add((IJEITargetSlot) slot);
                 }
             }
         }
-        if (this.getGuiSlots().size() > 0) {
+        if (!this.getGuiSlots().isEmpty()) {
             for (GuiCustomSlot slot : this.getGuiSlots()) {
                 if (slot instanceof GuiFluidSlot && fluidStack != null) {
                     slots.add((IJEITargetSlot) slot);
                 }
             }
         }
-        for (Object slot : slots) {
+        for (IJEITargetSlot slot : slots) {
             ItemStack finalItemStack = itemStack;
             FluidStack finalFluidStack = fluidStack;
-            Target<Object> targetItem = new Target<Object>() {
+            Target<Object> targetItem = new Target<>() {
+                @Nonnull
                 @Override
                 public Rectangle getArea() {
                     if (slot instanceof SlotFake && ((SlotFake) slot).isSlotEnabled()) {
@@ -247,20 +249,20 @@ public class GuiUpgradeable extends AEBaseGui implements IJEIGhostIngredients {
                 }
 
                 @Override
-                public void accept(Object ingredient) {
+                public void accept(@Nonnull Object ingredient) {
                     PacketInventoryAction p = null;
                     try {
                         if (slot instanceof SlotFake && ((SlotFake) slot).isSlotEnabled()) {
                             if (finalItemStack.isEmpty() && finalFluidStack != null) {
-                                p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, (IJEITargetSlot) slot, AEItemStack.fromItemStack(FluidUtil.getFilledBucket(finalFluidStack)));
+                                p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, slot, AEItemStack.fromItemStack(FluidUtil.getFilledBucket(finalFluidStack)));
                             } else if (!finalItemStack.isEmpty()) {
-                                p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, (IJEITargetSlot) slot, AEItemStack.fromItemStack(finalItemStack));
+                                p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, slot, AEItemStack.fromItemStack(finalItemStack));
                             }
                         } else {
                             if (finalFluidStack == null) {
                                 return;
                             }
-                            p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, (IJEITargetSlot) slot, AEItemStack.fromItemStack(AEFluidStack.fromFluidStack(finalFluidStack).asItemStackRepresentation()));
+                            p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, slot, AEItemStack.fromItemStack(AEFluidStack.fromFluidStack(finalFluidStack).asItemStackRepresentation()));
                         }
                         NetworkHandler.instance().sendToServer(p);
 
