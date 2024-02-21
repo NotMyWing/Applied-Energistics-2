@@ -53,6 +53,7 @@ import appeng.core.features.AEFeature;
 import appeng.core.stats.Stats;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.GuiHostType;
+import appeng.core.sync.GuiWrapper;
 import appeng.fluids.util.AEFluidStack;
 import appeng.hooks.TickHandler;
 import appeng.integration.Integrations;
@@ -323,6 +324,20 @@ public class Platform {
             return;
         }
 
+        if (type.getExternalGui() != null) {
+            GuiWrapper.IExternalGui obj = type.getExternalGui();
+            GuiWrapper.Opener opener = GuiWrapper.INSTANCE.getOpener(obj.getID());
+            if (opener == null) {
+                AELog.warn("External Gui with ID: %s is missing a opener.", obj.getID());
+            } else {
+                World world = tile == null ? p.world : tile.getWorld();
+                BlockPos pos = tile == null ? null : tile.getPos();
+                EnumFacing face = side == null ? null : side.getFacing();
+                opener.open(obj, new GuiWrapper.GuiContext(world, p, pos, face, null));
+            }
+            return;
+        }
+
         int x = 0;
         int y = 0;
         int z = Integer.MIN_VALUE;
@@ -357,6 +372,20 @@ public class Platform {
 
     public static void openGUI(@Nonnull final EntityPlayer p, int slot, @Nonnull final GuiBridge type, boolean isBauble) {
         if (isClient()) {
+            return;
+        }
+
+        if (type.getExternalGui() != null) {
+            GuiWrapper.IExternalGui obj = type.getExternalGui();
+            GuiWrapper.Opener opener = GuiWrapper.INSTANCE.getOpener(obj.getID());
+            if (opener == null) {
+                AELog.warn("External Gui with ID: %s is missing a opener.", obj.getID());
+            } else {
+                NBTTagCompound extra = new NBTTagCompound();
+                extra.setInteger("slot", slot);
+                extra.setBoolean("isBauble", isBauble);
+                opener.open(obj, new GuiWrapper.GuiContext(p.world, p, null, null, extra));
+            }
             return;
         }
 
