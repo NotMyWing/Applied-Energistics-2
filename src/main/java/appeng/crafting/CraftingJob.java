@@ -202,7 +202,6 @@ public class CraftingJob implements Runnable, ICraftingJob {
             synchronized (this.monitor) {
                 if (this.tickSpreadingWatch.elapsed(TimeUnit.MICROSECONDS) > this.time) {
                     this.running = false;
-                    this.craftingTreeWatch.stop();
                     this.tickSpreadingWatch.stop();
                     this.monitor.notify();
                 }
