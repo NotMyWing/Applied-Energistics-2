@@ -25,12 +25,14 @@ import appeng.block.AEBaseTileBlock;
 import appeng.core.sync.GuiBridge;
 import appeng.tile.misc.TileInterface;
 import appeng.util.Platform;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -91,6 +93,14 @@ public class BlockInterface extends AEBaseTileBlock {
     protected void customRotateBlock(final IOrientable rotatable, final EnumFacing axis) {
         if (rotatable instanceof TileInterface) {
             ((TileInterface) rotatable).setSide(axis);
+        }
+    }
+
+    @Override
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        if (tileEntity != null) {
+            //TODO Add redstone logical
         }
     }
 }

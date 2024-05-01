@@ -157,6 +157,12 @@ public class GuiImgButton extends GuiButton implements ITooltip {
             this.registerApp(16 * 15, Settings.SCHEDULING_MODE, SchedulingMode.DEFAULT, ButtonToolTips.SchedulingMode, ButtonToolTips.SchedulingModeDefault);
             this.registerApp(16 * 15 + 1, Settings.SCHEDULING_MODE, SchedulingMode.ROUNDROBIN, ButtonToolTips.SchedulingMode, ButtonToolTips.SchedulingModeRoundRobin);
             this.registerApp(16 * 15 + 2, Settings.SCHEDULING_MODE, SchedulingMode.RANDOM, ButtonToolTips.SchedulingMode, ButtonToolTips.SchedulingModeRandom);
+
+            this.registerApp(10,Settings.UNLOCK,LockCraftingMode.NONE,ButtonToolTips.LockCraftingMode, ButtonToolTips.LockCraftingModeNone);
+            this.registerApp(9,Settings.UNLOCK,LockCraftingMode.LOCK_UNTIL_RESULT,ButtonToolTips.LockCraftingMode, ButtonToolTips.LockCraftingUntilResultReturned);
+            this.registerApp(0, Settings.UNLOCK, LockCraftingMode.LOCK_WHILE_LOW, ButtonToolTips.LockCraftingMode, ButtonToolTips.LockCraftingWhileRedstoneLow);
+            this.registerApp(1, Settings.UNLOCK, LockCraftingMode.LOCK_WHILE_HIGH, ButtonToolTips.LockCraftingMode, ButtonToolTips.LockCraftingWhileRedstoneHigh);
+            this.registerApp(2, Settings.UNLOCK, LockCraftingMode.LOCK_UNTIL_PULSE, ButtonToolTips.LockCraftingMode, ButtonToolTips.LockCraftingUntilRedstonePulse);
         }
     }
 

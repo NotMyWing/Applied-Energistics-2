@@ -19,10 +19,7 @@
 package appeng.container.implementations;
 
 
-import appeng.api.config.SecurityPermissions;
-import appeng.api.config.Settings;
-import appeng.api.config.Upgrades;
-import appeng.api.config.YesNo;
+import appeng.api.config.*;
 import appeng.api.util.IConfigManager;
 import appeng.container.guisync.GuiSync;
 import appeng.container.slot.*;
@@ -40,6 +37,9 @@ public class ContainerInterface extends ContainerUpgradeable implements IOptiona
     public YesNo bMode = YesNo.NO;
 
     @GuiSync(4)
+    public LockCraftingMode lMode = LockCraftingMode.NONE;
+
+    @GuiSync(5)
     public YesNo iTermMode = YesNo.YES;
 
     @GuiSync(7)
@@ -107,8 +107,13 @@ public class ContainerInterface extends ContainerUpgradeable implements IOptiona
     @Override
     protected void loadSettingsFromHost(final IConfigManager cm) {
         this.setBlockingMode((YesNo) cm.getSetting(Settings.BLOCK));
+        this.setUnlockMode((LockCraftingMode) cm.getSetting(Settings.UNLOCK));
         this.setInterfaceTerminalMode((YesNo) cm.getSetting(Settings.INTERFACE_TERMINAL));
     }
+
+    public LockCraftingMode getUnlockMode() {return this.lMode;}
+
+    public void setUnlockMode(final LockCraftingMode mode) {this.lMode = mode;}
 
     public YesNo getBlockingMode() {
         return this.bMode;

@@ -57,6 +57,8 @@ public enum Settings
 
 	IO_DIRECTION( EnumSet.of( RelativeDirection.LEFT, RelativeDirection.RIGHT ) ),
 
+	UNLOCK(EnumSet.allOf(LockCraftingMode.class)),
+
 	BLOCK( EnumSet.of( YesNo.YES, YesNo.NO ) ),
 
 	OPERATION_MODE( EnumSet.allOf( OperationMode.class ) ),

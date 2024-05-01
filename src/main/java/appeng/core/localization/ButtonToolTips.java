@@ -98,6 +98,13 @@ public enum ButtonToolTips {
     Blocking,
     NonBlocking,
 
+    LockCraftingMode,
+    LockCraftingModeNone,
+    LockCraftingUntilRedstonePulse,
+    LockCraftingWhileRedstoneHigh,
+    LockCraftingWhileRedstoneLow,
+    LockCraftingUntilResultReturned,
+
     LevelType,
     LevelType_Energy,
     LevelType_Item,

@@ -19,6 +19,7 @@
 package appeng.client.gui.implementations;
 
 
+import appeng.api.config.LockCraftingMode;
 import appeng.api.config.Settings;
 import appeng.api.config.YesNo;
 import appeng.client.gui.widgets.GuiImgButton;
@@ -41,6 +42,7 @@ import java.io.IOException;
 public class GuiInterface extends GuiUpgradeable {
 
     private GuiTabButton priority;
+    private GuiImgButton UnlockMode;
     private GuiImgButton BlockMode;
     private GuiToggleButton interfaceMode;
 
@@ -57,7 +59,10 @@ public class GuiInterface extends GuiUpgradeable {
         this.BlockMode = new GuiImgButton(this.guiLeft - 18, this.guiTop + 8, Settings.BLOCK, YesNo.NO);
         this.buttonList.add(this.BlockMode);
 
-        this.interfaceMode = new GuiToggleButton(this.guiLeft - 18, this.guiTop + 26, 84, 85, GuiText.InterfaceTerminal.getLocal(), GuiText.InterfaceTerminalHint.getLocal());
+        this.UnlockMode = new GuiImgButton(this.guiLeft - 18,this.guiTop + 26 ,Settings.UNLOCK, LockCraftingMode.NONE);
+        this.buttonList.add(this.UnlockMode);
+
+        this.interfaceMode = new GuiToggleButton(this.guiLeft - 18, this.guiTop + 44, 84, 85, GuiText.InterfaceTerminal.getLocal(), GuiText.InterfaceTerminalHint.getLocal());
         this.buttonList.add(this.interfaceMode);
     }
 
@@ -65,6 +70,10 @@ public class GuiInterface extends GuiUpgradeable {
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         if (this.BlockMode != null) {
             this.BlockMode.set(((ContainerInterface) this.cvb).getBlockingMode());
+        }
+
+        if (this.UnlockMode != null) {
+            this.UnlockMode.set(((ContainerInterface) this.cvb).getUnlockMode());
         }
 
         if (this.interfaceMode != null) {
@@ -105,6 +114,10 @@ public class GuiInterface extends GuiUpgradeable {
 
         if (btn == this.BlockMode) {
             NetworkHandler.instance().sendToServer(new PacketConfigButton(this.BlockMode.getSetting(), backwards));
+        }
+
+        if (btn == this.UnlockMode) {
+            NetworkHandler.instance.sendToServer(new PacketConfigButton(this.UnlockMode.getSetting(), backwards));
         }
     }
 
