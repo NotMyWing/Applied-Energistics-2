@@ -173,6 +173,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         if (this.isWorking == slot) {
             return;
         }
+
         if (inv == this.config && (!removed.isEmpty() || !added.isEmpty())) {
             boolean cfg = hasConfig();
             this.readConfig();
@@ -183,6 +184,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         } else if (inv == this.patterns && (!removed.isEmpty() || !added.isEmpty())) {
             this.updateCraftingList();
         } else if (inv == this.storage && slot >= 0) {
+            onStackReturnedToNetwork(AEItemStack.fromItemStack(added));
             final boolean had = this.hasWorkToDo();
 
             this.updatePlan(slot);
@@ -1129,7 +1131,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             }
             case LOCK_UNTIL_RESULT -> {
                 unlockEvent = UnlockCraftingEvent.RESULT;
-                unlockStack = Arrays.stream(pattern.getOutputs()).findFirst().orElse(null);
+                unlockStack = pattern.getPrimaryOutput();
                 saveChanges();
             }
         }
@@ -1351,7 +1353,6 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             } else {
                 final IAEItemStack is = AEItemStack.fromItemStack(adaptor.addItems(acquired.createItemStack()));
                 this.updatePlan(slot);
-                onStackReturnedToNetwork(acquired);
                 return is;
             }
         }
@@ -1487,6 +1488,14 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         saveChanges(); // In any case, this needs to be changed since the state is now outdated
     }
 
+    /**
+     * @return Null if {@linkplain #getCraftingLockedReason()} is not {@link LockCraftingMode#LOCK_UNTIL_RESULT}.
+     */
+    @org.jetbrains.annotations.Nullable
+    public IAEItemStack getUnlockStack() {
+        return unlockStack;
+    }
+
     private void onStackReturnedToNetwork(IAEItemStack stack) {
         if (unlockEvent != UnlockCraftingEvent.RESULT) {
             return; // If we're not waiting for the result, we don't care
@@ -1497,7 +1506,6 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             AELog.error("MEInterface was waiting for RESULT, but no result was set");
             unlockEvent = null;
         } else if (unlockStack.getItem().equals(stack.getItem())) {
-            AELog.info("return stack equal to " + unlockStack);
             var remainingAmount = unlockStack.getStackSize() - stack.getStackSize();
             if (remainingAmount <= 0) {
                 unlockEvent = null;
@@ -1559,7 +1567,6 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             final boolean isInterface = context.isPresent();
 
             if (isInterface) {
-                onStackReturnedToNetwork(input);
                 return input;
             }
 

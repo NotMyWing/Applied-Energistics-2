@@ -78,6 +78,14 @@ public interface ICraftingPatternDetails
 	IAEItemStack[] getCondensedOutputs();
 
 	/**
+	 * The primary output of this pattern. The pattern will only be used to craft the primary output; the others are
+	 * just byproducts.
+	 */
+	default IAEItemStack getPrimaryOutput() {
+		return getOutputs()[0];
+	}
+
+	/**
 	 * @return a list of the outputs, will include nulls.
 	 */
 	IAEItemStack[] getOutputs();
