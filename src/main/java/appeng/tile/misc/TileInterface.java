@@ -274,6 +274,10 @@ public class TileInterface extends AENetworkInvTile implements IGridTickable, II
         return this.duality.injectCraftedItems(link, items, mode);
     }
 
+    public void updateRedstoneState(){
+        this.duality.updateRedstoneState();
+    }
+
     @Override
     public void jobStateChange(final ICraftingLink link) {
         this.duality.jobStateChange(link);

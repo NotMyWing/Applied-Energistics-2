@@ -98,9 +98,9 @@ public class BlockInterface extends AEBaseTileBlock {
 
     @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        TileEntity tileEntity = this.getTileEntity(worldIn, pos);
         if (tileEntity != null) {
-            //TODO Add redstone logical
+            ((TileInterface) tileEntity).updateRedstoneState();
         }
     }
 }

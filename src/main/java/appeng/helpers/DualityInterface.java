@@ -50,6 +50,7 @@ import appeng.api.util.AEPartLocation;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
 import appeng.capabilities.Capabilities;
+import appeng.core.AELog;
 import appeng.core.settings.TickRates;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
@@ -64,10 +65,7 @@ import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.AppEngInternalOversizedInventory;
 import appeng.tile.networking.TileCableBus;
-import appeng.util.ConfigManager;
-import appeng.util.IConfigManagerHost;
-import appeng.util.InventoryAdaptor;
-import appeng.util.Platform;
+import appeng.util.*;
 import appeng.util.inv.*;
 import appeng.util.item.AEItemStack;
 import com.google.common.collect.ImmutableSet;
@@ -98,6 +96,8 @@ import net.minecraftforge.items.wrapper.RangedWrapper;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static appeng.api.config.LockCraftingMode.LOCK_UNTIL_PULSE;
+import static appeng.api.config.LockCraftingMode.LOCK_UNTIL_RESULT;
 import static appeng.helpers.ItemStackHelper.*;
 
 
@@ -131,6 +131,13 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
     private EnumMap<EnumFacing, List<ItemStack>> waitingToSendFacing = new EnumMap<>(EnumFacing.class);
     private boolean resetConfigCache = true;
     private IMEMonitor<IAEItemStack> configCachedHandler;
+
+    private YesNo redstoneState = YesNo.UNDECIDED;
+
+    @Nullable
+    private UnlockCraftingEvent unlockEvent;
+    @Nullable
+    private IAEItemStack unlockStack;
 
     public DualityInterface(final AENetworkProxy networkProxy, final IInterfaceHost ih) {
         this.gridProxy = networkProxy;
@@ -205,6 +212,18 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         this.craftingTracker.writeToNBT(data);
         data.setInteger("priority", this.priority);
 
+        if (unlockEvent == UnlockCraftingEvent.PULSE) {
+            data.setByte("unlockEvent", (byte) 1);
+        } else if (unlockEvent == UnlockCraftingEvent.RESULT) {
+            if (unlockStack != null) {
+                data.setByte("unlockEvent", (byte) 2);
+                NBTTagCompound unlockStackTag = new NBTTagCompound();
+                unlockStack.writeToNBT(unlockStackTag);
+                data.setTag("unlockStack", unlockStackTag);
+            } else {
+                AELog.error("Saving MEInterface {}, locked waiting for stack, but stack is null!", iHost);
+            }
+        }
         final NBTTagList waitingToSend = new NBTTagList();
         if (this.waitingToSend != null) {
             for (final ItemStack is : this.waitingToSend) {
@@ -284,6 +303,27 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         this.cm.readFromNBT(data);
         this.readConfig();
         this.updateCraftingList();
+
+        var unlockEventType = data.getByte("unlockEvent");
+
+        this.unlockEvent = switch (unlockEventType) {
+            case 0 -> null;
+            case 1 -> UnlockCraftingEvent.PULSE;
+            case 2 -> UnlockCraftingEvent.RESULT;
+            default -> {
+                AELog.error("Unknown unlock event type {} in NBT for MEInterface: {}", unlockEventType, data);
+                yield null;
+            }
+        };
+
+        if (this.unlockEvent == UnlockCraftingEvent.RESULT) {
+            this.unlockStack = AEItemStack.fromNBT(data.getCompoundTag("unlockStack"));
+            if (this.unlockStack == null) {
+                AELog.error("Could not load unlock stack for MEInterface from NBT: {}", data);
+            }
+        } else {
+            this.unlockStack = null;
+        }
     }
 
     private void addToSendList(final ItemStack is) {
@@ -910,6 +950,11 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         if (this.getInstalledUpgrades(Upgrades.CRAFTING) == 0) {
             this.cancelCrafting();
         }
+
+        if (newValue == LockCraftingMode.NONE) {
+            resetCraftingLock();
+        }
+
         this.iHost.saveChanges();
     }
 
@@ -948,6 +993,10 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
 
         final TileEntity tile = this.iHost.getTileEntity();
         final World w = tile.getWorld();
+
+        if (getCraftingLockedReason() != LockCraftingMode.NONE) {
+            return false;
+        }
 
         if (this.visitedFaces.isEmpty()) {
             this.visitedFaces = this.iHost.getTargets();
@@ -992,6 +1041,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                                             addToSendListFacing(is, s);
                                         }
                                     }
+                                    onPushPatternSuccess(patternDetails);
                                     pushItemsOut(s);
                                     return true;
                                 }
@@ -1009,6 +1059,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                 if (cm.acceptsPlans()) {
                     visitedFaces.remove(s);
                     if (cm.pushPattern(patternDetails, table, s.getOpposite())) {
+                        onPushPatternSuccess(patternDetails);
                         return true;
                     }
                     continue;
@@ -1049,6 +1100,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                             addToSendListFacing(is, s);
                         }
                     }
+                    onPushPatternSuccess(patternDetails);
                     pushItemsOut(s);
                     return true;
                 }
@@ -1056,6 +1108,57 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             visitedFaces.remove(s);
         }
         return false;
+    }
+
+    public void resetCraftingLock() {
+        if (unlockEvent != null) {
+            unlockEvent = null;
+            unlockStack = null;
+            saveChanges();
+        }
+    }
+
+    private void onPushPatternSuccess(ICraftingPatternDetails pattern) {
+        resetCraftingLock();
+
+        LockCraftingMode lockMode = (LockCraftingMode) cm.getSetting(Settings.UNLOCK);
+        switch (lockMode) {
+            case LOCK_UNTIL_PULSE -> {
+                unlockEvent = UnlockCraftingEvent.PULSE;
+                saveChanges();
+            }
+            case LOCK_UNTIL_RESULT -> {
+                unlockEvent = UnlockCraftingEvent.RESULT;
+                unlockStack = Arrays.stream(pattern.getOutputs()).findFirst().orElse(null);
+                saveChanges();
+            }
+        }
+    }
+
+    /**
+     * Gets if the crafting lock is in effect and why.
+     *
+     * @return null if the lock isn't in effect
+     */
+    public LockCraftingMode getCraftingLockedReason() {
+        var lockMode = cm.getSetting(Settings.UNLOCK);
+        if (lockMode == LockCraftingMode.LOCK_WHILE_LOW && !getRedstoneState()) {
+            // Crafting locked by redstone signal
+            return LockCraftingMode.LOCK_WHILE_LOW;
+        } else if (lockMode == LockCraftingMode.LOCK_WHILE_HIGH && getRedstoneState()) {
+            return LockCraftingMode.LOCK_WHILE_HIGH;
+        } else if (unlockEvent != null) {
+            // Crafting locked by waiting for unlock event
+            switch (unlockEvent) {
+                case PULSE -> {
+                    return LOCK_UNTIL_PULSE;
+                }
+                case RESULT -> {
+                    return LOCK_UNTIL_RESULT;
+                }
+            }
+        }
+        return LockCraftingMode.NONE;
     }
 
     @Override
@@ -1248,6 +1351,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             } else {
                 final IAEItemStack is = AEItemStack.fromItemStack(adaptor.addItems(acquired.createItemStack()));
                 this.updatePlan(slot);
+                onStackReturnedToNetwork(acquired);
                 return is;
             }
         }
@@ -1372,6 +1476,48 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         return null;
     }
 
+    public void updateRedstoneState() {
+        // If we're waitingh for a pulse, update immediately
+        if (unlockEvent == UnlockCraftingEvent.PULSE && getRedstoneState()) {
+            unlockEvent = null; // Unlocked!
+        } else {
+            // Otherwise, just reset back to undecided
+            redstoneState = YesNo.UNDECIDED;
+        }
+        saveChanges(); // In any case, this needs to be changed since the state is now outdated
+    }
+
+    private void onStackReturnedToNetwork(IAEItemStack stack) {
+        if (unlockEvent != UnlockCraftingEvent.RESULT) {
+            return; // If we're not waiting for the result, we don't care
+        }
+
+        if (unlockStack == null) {
+            // Actually an error state...
+            AELog.error("MEInterface was waiting for RESULT, but no result was set");
+            unlockEvent = null;
+        } else if (unlockStack.getItem().equals(stack.getItem())) {
+            AELog.info("return stack equal to " + unlockStack);
+            var remainingAmount = unlockStack.getStackSize() - stack.getStackSize();
+            if (remainingAmount <= 0) {
+                unlockEvent = null;
+                unlockStack = null;
+            } else {
+                unlockStack = AEItemStack.fromItemStack(new ItemStack(unlockStack.getItem(), (int) remainingAmount));
+            }
+        }
+    }
+
+    private boolean getRedstoneState() {
+        if (redstoneState == YesNo.UNDECIDED) {
+            var entity = this.iHost.getTileEntity();
+            redstoneState = entity.getWorld().getRedstonePowerFromNeighbors(entity.getPos()) > 0
+                    ? YesNo.YES
+                    : YesNo.NO;
+        }
+        return redstoneState == YesNo.YES;
+    }
+
     private class InterfaceRequestSource extends MachineSource {
         private final InterfaceRequestContext context;
 
@@ -1413,6 +1559,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             final boolean isInterface = context.isPresent();
 
             if (isInterface) {
+                onStackReturnedToNetwork(input);
                 return input;
             }
 

@@ -54,6 +54,7 @@ import appeng.items.parts.PartModels;
 import appeng.parts.PartBasicState;
 import appeng.parts.PartModel;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.tile.misc.TileInterface;
 import appeng.util.Platform;
 import appeng.util.SettingsFrom;
 import appeng.util.inv.IAEAppEngInventory;
@@ -68,7 +69,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
@@ -259,6 +262,14 @@ public class PartInterface extends PartBasicState implements IGridTickable, ISto
             return MODELS_ON;
         } else {
             return MODELS_OFF;
+        }
+    }
+
+    @Override
+    public void onNeighborChanged(IBlockAccess w, BlockPos pos, BlockPos neighbor) {
+        TileEntity tileEntity = getTileEntity();
+        if (tileEntity instanceof TileInterface) {
+            ((TileInterface) tileEntity).updateRedstoneState();
         }
     }
 
