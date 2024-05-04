@@ -48,6 +48,7 @@ import appeng.api.util.IConfigManager;
 import appeng.capabilities.Capabilities;
 import appeng.core.settings.TickRates;
 import appeng.fluids.util.AEFluidInventory;
+import appeng.fluids.util.AEFluidStack;
 import appeng.fluids.util.IAEFluidInventory;
 import appeng.fluids.util.IAEFluidTank;
 import appeng.helpers.ICustomNameObject;
@@ -473,7 +474,12 @@ public class DualityFluidInterface implements IGridTickable, IStorageMonitorable
     }
 
     @Override
-    public void onFluidInventoryChanged(final IAEFluidTank inventory, final int slot) {
+    public void onFluidInventoryChanged(IAEFluidTank inv, int slot) {
+        onFluidInventoryChanged(inv, slot, null, null, null);
+    }
+
+    @Override
+    public void onFluidInventoryChanged(final IAEFluidTank inventory, final int slot, InvOperation operation, FluidStack added, FluidStack removed) {
         if (this.isWorking == slot) {
             return;
         }
@@ -486,6 +492,9 @@ public class DualityFluidInterface implements IGridTickable, IStorageMonitorable
                 this.notifyNeighbors();
             }
         } else if (inventory == this.tanks) {
+            if (added != null) {
+                iHost.onStackReturnNetwork(AEFluidStack.fromFluidStack(added));
+            }
             this.saveChanges();
 
             final boolean had = this.hasWorkToDo();

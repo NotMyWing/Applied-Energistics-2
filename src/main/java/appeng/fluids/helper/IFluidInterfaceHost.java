@@ -21,9 +21,11 @@ package appeng.fluids.helper;
 
 import appeng.api.implementations.IUpgradeableHost;
 import appeng.api.networking.security.IActionHost;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.me.helpers.IGridProxyable;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.EnumSet;
 
@@ -36,4 +38,7 @@ public interface IFluidInterfaceHost extends IActionHost, IGridProxyable, IUpgra
     TileEntity getTileEntity();
 
     void saveChanges();
+
+    default void onStackReturnNetwork(IAEFluidStack stack) {
+    }
 }

@@ -36,6 +36,7 @@ import appeng.parts.PartModel;
 import appeng.parts.automation.PartUpgradeable;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
+import appeng.util.inv.InvOperation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -46,6 +47,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import java.util.Random;

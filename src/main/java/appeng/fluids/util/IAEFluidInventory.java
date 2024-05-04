@@ -19,7 +19,13 @@
 package appeng.fluids.util;
 
 
+import appeng.util.inv.InvOperation;
+import net.minecraftforge.fluids.FluidStack;
+
 @FunctionalInterface
 public interface IAEFluidInventory {
     void onFluidInventoryChanged(final IAEFluidTank inv, final int slot);
+
+    default void onFluidInventoryChanged(final IAEFluidTank inv, final int slot, InvOperation operation, FluidStack added, FluidStack removed) {
+    }
 }

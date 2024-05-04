@@ -4,6 +4,7 @@ package appeng.fluids.util;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.core.AELog;
 import appeng.util.Platform;
+import appeng.util.inv.InvOperation;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -37,24 +38,27 @@ public class AEFluidInventory implements IAEFluidTank {
             if (Objects.equals(this.fluids[slot], fluid)) {
                 if (fluid != null && fluid.getStackSize() != this.fluids[slot].getStackSize()) {
                     this.fluids[slot].setStackSize(fluid.getStackSize());
-                    this.onContentChanged(slot);
+                    this.onContentChanged(slot, InvOperation.SET, fluid.getFluidStack(), null);
                 }
             } else {
+
                 if (fluid == null) {
+                    IAEFluidStack removeStack = this.fluids[slot].copy();
                     this.fluids[slot] = null;
+                    this.onContentChanged(slot, InvOperation.SET, null, removeStack.getFluidStack());
                 } else {
+                    IAEFluidStack removeStack = this.fluids[slot];
                     this.fluids[slot] = fluid.copy();
                     this.fluids[slot].setStackSize(fluid.getStackSize());
+                    this.onContentChanged(slot, InvOperation.SET, fluid.getFluidStack(), removeStack == null ? null : removeStack.getFluidStack());
                 }
-
-                this.onContentChanged(slot);
             }
         }
     }
 
-    private void onContentChanged(final int slot) {
+    private void onContentChanged(final int slot, InvOperation operation, FluidStack added, FluidStack removed) {
         if (this.handler != null && Platform.isServer()) {
-            this.handler.onFluidInventoryChanged(this, slot);
+            this.handler.onFluidInventoryChanged(this, slot, operation, added, removed);
         }
     }
 
@@ -107,7 +111,7 @@ public class AEFluidInventory implements IAEFluidTank {
                 this.setFluidInSlot(slot, AEFluidStack.fromFluidStack(resource).setStackSize(amountToStore));
             } else {
                 fluid.setStackSize(fluid.getStackSize() + amountToStore);
-                this.onContentChanged(slot);
+                this.onContentChanged(slot, InvOperation.INSERT, resource, null);
             }
         }
 
@@ -139,7 +143,7 @@ public class AEFluidInventory implements IAEFluidTank {
             if (fluid.getStackSize() <= 0) {
                 this.fluids[slot] = null;
             }
-            this.onContentChanged(slot);
+            this.onContentChanged(slot, InvOperation.EXTRACT, null, new FluidStack(fluid.getFluid(), drained));
         }
         return stack;
     }

@@ -29,6 +29,7 @@ import appeng.me.storage.MEInventoryHandler;
 import appeng.parts.automation.PartAbstractFormationPlane;
 import appeng.parts.automation.PlaneModels;
 import appeng.util.Platform;
+import appeng.util.inv.InvOperation;
 import appeng.util.prioritylist.PrecisePriorityList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;

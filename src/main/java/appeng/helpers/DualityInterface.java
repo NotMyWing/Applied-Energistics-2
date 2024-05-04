@@ -185,7 +185,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             this.updateCraftingList();
         } else if (inv == this.storage && slot >= 0) {
             if (added != ItemStack.EMPTY){
-                onStackReturnedToNetwork(AEItemStack.fromItemStack(added));
+                iHost.onStackReturnNetwork(AEItemStack.fromItemStack(added));
             }
             final boolean had = this.hasWorkToDo();
 
@@ -1498,7 +1498,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         return unlockStack;
     }
 
-    private void onStackReturnedToNetwork(IAEItemStack stack) {
+    public void onStackReturnedToNetwork(IAEItemStack stack) {
         if (unlockEvent != UnlockCraftingEvent.RESULT) {
             return; // If we're not waiting for the result, we don't care
         }

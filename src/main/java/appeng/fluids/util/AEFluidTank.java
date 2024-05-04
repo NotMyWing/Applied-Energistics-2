@@ -21,6 +21,7 @@ package appeng.fluids.util;
 
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.util.Platform;
+import appeng.util.inv.InvOperation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fluids.FluidTank;
 

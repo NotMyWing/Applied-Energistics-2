@@ -222,6 +222,11 @@ public class TileInterface extends AENetworkInvTile implements IGridTickable, II
     }
 
     @Override
+    public void onStackReturnNetwork(IAEItemStack stack) {
+        this.duality.onStackReturnedToNetwork(stack);
+    }
+
+    @Override
     public DualityInterface getInterfaceDuality() {
         return this.duality;
     }
