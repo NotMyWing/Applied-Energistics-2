@@ -90,7 +90,7 @@ public class ContainerCraftConfirm extends AEBaseContainer {
     public boolean noCPU = true;
     @GuiSync(7)
     public String myName = "";
-    private GuiCraftConfirm guiCraftConfirm;
+    private Object guiCraftConfirm;
 
     public ContainerCraftConfirm(final InventoryPlayer ip, final ITerminalHost te) {
         super(ip, te);
@@ -438,10 +438,10 @@ public class ContainerCraftConfirm extends AEBaseContainer {
     }
 
     public void postUpdate(final List<IAEItemStack> list, final byte ref) {
-        this.guiCraftConfirm.postUpdate(list, ref);
+        ((GuiCraftConfirm) this.guiCraftConfirm).postUpdate(list, ref);
     }
 
-    public void setGui(GuiCraftConfirm guiCraftConfirm) {
+    public void setGui(Object guiCraftConfirm) {
         this.guiCraftConfirm = guiCraftConfirm;
     }
 }
