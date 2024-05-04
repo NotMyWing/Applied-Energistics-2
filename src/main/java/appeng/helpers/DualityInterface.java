@@ -1513,7 +1513,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                 unlockEvent = null;
                 unlockStack = null;
             } else {
-                unlockStack = AEItemStack.fromItemStack(new ItemStack(unlockStack.getItem(), (int) remainingAmount));
+                unlockStack.setStackSize(remainingAmount);
             }
         }
     }
