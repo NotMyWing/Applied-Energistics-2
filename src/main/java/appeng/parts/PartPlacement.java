@@ -72,6 +72,10 @@ public class PartPlacement {
         }
     }
 
+    public static EnumActionResult place(final ItemStack held, final BlockPos pos, EnumFacing side, final EntityPlayer player, final EnumHand hand, final World world, PlaceType pass, final int depth) {
+        return place(held, pos, side, player, hand, world);
+    }
+
     public static IPart placePart(@Nullable EntityPlayer player, World world, ItemStack partItem, BlockPos pos, EnumFacing side, EnumHand hand) {
         IPartHost host = AEApi.instance().partHelper().getOrPlacePartHost(world, pos, false, player);
         if (host == null) {
@@ -126,5 +130,9 @@ public class PartPlacement {
 
     @Desugar
     public record Placement(BlockPos pos, EnumFacing side) {
+    }
+
+    public enum PlaceType {
+        PLACE_ITEM, INTERACT_FIRST_PASS, INTERACT_SECOND_PASS
     }
 }
