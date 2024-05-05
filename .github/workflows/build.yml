@@ -1,4 +1,4 @@
-name: Minecraft Mod Build
+name: Build
 
 on: [push]
 
@@ -11,6 +11,11 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '20'
-        distribution: 'adopt' # 这里选择了AdoptOpenJDK，您也可以选择其他OpenJDK发行版。
+        distribution: 'adopt' # 您可以选择其他OpenJDK发行版。
     - name: Build with Gradle
       run: ./gradlew build # 确保您的gradlew脚本是可执行的
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: mod-artifact
+        path: build/libs/*.jar # 请确保这个路径匹配您的构建产物的位置
