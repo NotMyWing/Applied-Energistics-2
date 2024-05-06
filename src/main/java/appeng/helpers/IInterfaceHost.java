@@ -39,5 +39,7 @@ public interface IInterfaceHost extends ICraftingProvider, IUpgradeableHost, ICr
 
     void saveChanges();
 
-    default void onStackReturnNetwork(IAEItemStack stack) {}
+    default void onStackReturnNetwork(IAEItemStack stack) {
+        getInterfaceDuality().onStackReturnedToNetwork(stack);
+    }
 }
