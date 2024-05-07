@@ -97,6 +97,7 @@ public enum GuiText {
     RedstoneTunnel,
     EUTunnel,
     FluidTunnel,
+    FluidTerminal,
     OCTunnel,
     LightTunnel,
     FETunnel,

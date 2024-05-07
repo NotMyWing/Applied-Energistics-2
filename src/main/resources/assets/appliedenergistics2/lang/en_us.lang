@@ -254,6 +254,7 @@ gui.appliedenergistics2.Nothing=Nothing
 gui.appliedenergistics2.CraftingToastDone=Crafting Done!
 gui.appliedenergistics2.CraftingToastCancelled=Crafting Cancelled!
 gui.appliedenergistics2.Sticky=Sticky
+gui.appliedenergistics2.FluidTerminal=Fluid Terminal
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=Store Items

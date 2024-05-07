@@ -254,6 +254,7 @@ gui.appliedenergistics2.Nothing=无
 gui.appliedenergistics2.CraftingToastDone=合成已完成！
 gui.appliedenergistics2.CraftingToastCancelled=合成已取消！
 gui.appliedenergistics2.Sticky=粘滞
+gui.appliedenergistics2.FluidTerminal=流体终端
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=存储物品
