@@ -21,6 +21,7 @@ package appeng.parts;
 import appeng.api.AEApi;
 import appeng.api.parts.*;
 import appeng.api.util.AEPartLocation;
+import appeng.facade.IFacadeItem;
 import com.github.bsideup.jabel.Desugar;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -40,7 +41,7 @@ import javax.annotation.Nullable;
 public class PartPlacement {
 
     public static EnumActionResult place(final ItemStack held, final BlockPos pos, EnumFacing side, final EntityPlayer player, final EnumHand hand, final World world) {
-        if (!(held.getItem() instanceof IPartItem<?>)) {
+        if (!(held.getItem() instanceof IPartItem<?> || !(held.getItem() instanceof IFacadeItem))) {
             return EnumActionResult.PASS;
         }
 
@@ -72,10 +73,31 @@ public class PartPlacement {
         }
     }
 
+    public EnumActionResult place(final ItemStack held, final BlockPos pos, EnumFacing side, final EntityPlayer player, final EnumHand hand, final World world, PlaceType pass, final int depth) {
+        return place(held, pos, side, player, hand, world);
+    }
+
+    private static IFacadePart isFacade(final ItemStack held, final AEPartLocation side) {
+        if (held.getItem() instanceof IFacadeItem) {
+            return ((IFacadeItem) held.getItem()).createPartFromItemStack(held, side);
+        }
+
+        return null;
+    }
+
     public static IPart placePart(@Nullable EntityPlayer player, World world, ItemStack partItem, BlockPos pos, EnumFacing side, EnumHand hand) {
         IPartHost host = AEApi.instance().partHelper().getOrPlacePartHost(world, pos, false, player);
         if (host == null) {
             return null;
+        }
+
+        IFacadePart fp = isFacade(partItem, AEPartLocation.fromFacing(side));
+        if (fp != null){
+            if (canPlacePartOnBlock(player,world,partItem,pos,side)) {
+                host.getFacadeContainer().addFacade(fp);
+                host.markForSave();
+                host.markForUpdate();
+            }
         }
 
         AEPartLocation location = host.addPart(partItem, AEPartLocation.fromFacing(side), player, hand);
@@ -86,6 +108,7 @@ public class PartPlacement {
             }
             return null;
         }
+
 
         IBlockState multiPartState = AEApi.instance().definitions().blocks().multiPart().maybeBlock().get().getDefaultState();
         SoundType soundType = multiPartState.getBlock().getSoundType(multiPartState, world, pos, null);
@@ -126,5 +149,9 @@ public class PartPlacement {
 
     @Desugar
     public record Placement(BlockPos pos, EnumFacing side) {
+    }
+
+    public enum PlaceType {
+        PLACE_ITEM, INTERACT_FIRST_PASS, INTERACT_SECOND_PASS
     }
 }
