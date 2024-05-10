@@ -40,9 +40,9 @@ class InscriberRecipeWrapper implements IRecipeWrapper {
     @Override
     public void getIngredients(IIngredients ingredients) {
         List<List<ItemStack>> inputSlots = new ArrayList<>(3);
-        inputSlots.add(this.recipe.getTopOptional());
+        inputSlots.add(this.recipe.getTopInputs());
         inputSlots.add(this.recipe.getInputs());
-        inputSlots.add(this.recipe.getBottomOptional());
+        inputSlots.add(this.recipe.getBottomInputs());
         ingredients.setInputLists(VanillaTypes.ITEM, inputSlots);
         ingredients.setOutput(VanillaTypes.ITEM, this.recipe.getOutput());
     }

@@ -75,8 +75,8 @@ public final class InscriberRegistry implements IInscriberRegistry {
         Preconditions.checkNotNull(recipe, "Tried to add (null) as inscriber recipe to the registry.");
 
         if (this.recipes.add(recipe)) {
-            this.optionals.addAll(recipe.getTopOptional());
-            this.optionals.addAll(recipe.getBottomOptional());
+            this.optionals.addAll(recipe.getTopInputs());
+            this.optionals.addAll(recipe.getBottomInputs());
             this.inputs.addAll(recipe.getInputs());
 
             return true;

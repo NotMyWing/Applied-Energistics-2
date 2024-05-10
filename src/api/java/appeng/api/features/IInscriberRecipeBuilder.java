@@ -23,6 +23,7 @@ import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Collections;
 
 
 /**
@@ -103,4 +104,14 @@ public interface IInscriberRecipeBuilder
 	 */
 	@Nonnull
 	IInscriberRecipe build();
+
+	@Deprecated
+	default IInscriberRecipeBuilder withTopOptional(@Nonnull ItemStack topOptional){
+		return withTopOptional(Collections.singleton(topOptional));
+	}
+
+	@Deprecated
+	default IInscriberRecipeBuilder withBottomOptional(@Nonnull ItemStack bottomOptional){
+		return withBottomOptional(Collections.singleton(bottomOptional));
+	}
 }

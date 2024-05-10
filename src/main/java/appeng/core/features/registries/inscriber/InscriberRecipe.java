@@ -78,13 +78,13 @@ public class InscriberRecipe implements IInscriberRecipe {
 
     @Nonnull
     @Override
-    public final List<ItemStack> getTopOptional() {
+    public final List<ItemStack> getTopInputs() {
         return this.maybeTop;
     }
 
     @Nonnull
     @Override
-    public final List<ItemStack> getBottomOptional() {
+    public final List<ItemStack> getBottomInputs() {
         return this.maybeBot;
     }
 
@@ -111,10 +111,10 @@ public class InscriberRecipe implements IInscriberRecipe {
         if (!this.output.equals(that.getOutput())) {
             return false;
         }
-        if (!this.maybeTop.equals(that.getTopOptional())) {
+        if (!this.maybeTop.equals(that.getTopInputs())) {
             return false;
         }
-        if (!this.maybeBot.equals(that.getBottomOptional())) {
+        if (!this.maybeBot.equals(that.getBottomInputs())) {
             return false;
         }
         return this.type == that.getProcessType();

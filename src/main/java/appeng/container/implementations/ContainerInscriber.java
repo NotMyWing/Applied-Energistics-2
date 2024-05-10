@@ -116,19 +116,19 @@ public class ContainerInscriber extends ContainerUpgradeable implements IProgres
 
             boolean matches = false;
             for (final IInscriberRecipe recipe : AEApi.instance().registries().inscriber().getRecipes()) {
-                // 检查plateA是否与配方的顶部组件列表中的任意一个匹配
-                final boolean matchA = top.isEmpty() && recipe.getTopOptional().isEmpty() ||
-                        recipe.getTopOptional().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(top, topItem)) &&
-                                (bot.isEmpty() && recipe.getBottomOptional().isEmpty() ||
-                                        recipe.getBottomOptional().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(bot, bottomItem)));
+                // Check if plateA matches any item in the list of top components of the recipe
+                final boolean matchA = top.isEmpty() && recipe.getTopInputs().isEmpty() ||
+                        recipe.getTopInputs().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(top, topItem)) &&
+                                (bot.isEmpty() && recipe.getBottomInputs().isEmpty() ||
+                                        recipe.getBottomInputs().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(bot, bottomItem)));
 
-                // 检查plateB是否与配方的顶部组件列表中的任意一个匹配
-                final boolean matchB = bot.isEmpty() && recipe.getTopOptional().isEmpty() ||
-                        recipe.getTopOptional().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(bot, topItem)) &&
-                                (top.isEmpty() && recipe.getBottomOptional().isEmpty() ||
-                                        recipe.getBottomOptional().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(top, bottomItem)));
+                // Check if plateB matches any item in the list of top components of the recipe
+                final boolean matchB = bot.isEmpty() && recipe.getTopInputs().isEmpty() ||
+                        recipe.getTopInputs().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(bot, topItem)) &&
+                                (top.isEmpty() && recipe.getBottomInputs().isEmpty() ||
+                                        recipe.getBottomInputs().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(top, bottomItem)));
 
-
+                // If either matchA or matchB is true, iterate through the recipe's inputs
                 if (matchA || matchB) {
                     matches = true;
                     for (final ItemStack option : recipe.getInputs()) {
@@ -157,20 +157,20 @@ public class ContainerInscriber extends ContainerUpgradeable implements IProgres
             for (final IInscriberRecipe recipe : AEApi.instance().registries().inscriber().getRecipes()) {
                 boolean isValid = false;
                 // Check if otherSlot matches any item in the top component list
-                boolean matchTop = recipe.getTopOptional().stream()
+                boolean matchTop = recipe.getTopInputs().stream()
                         .anyMatch(topItem -> Platform.itemComparisons().isSameItem(otherSlot, topItem));
 
                 // Check if otherSlot matches any item in the bottom component list
-                boolean matchBottom = recipe.getBottomOptional().stream()
+                boolean matchBottom = recipe.getBottomInputs().stream()
                         .anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(otherSlot, bottomItem));
 
                 if (matchTop) {
                     // If otherSlot matches a top component, check if 'is' matches any item in the bottom component list
-                    isValid = recipe.getBottomOptional().stream()
+                    isValid = recipe.getBottomInputs().stream()
                             .anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(is, bottomItem));
                 } else if (matchBottom) {
                     // If otherSlot matches a bottom component, check if 'is' matches any item in the top component list
-                    isValid = recipe.getTopOptional().stream()
+                    isValid = recipe.getTopInputs().stream()
                             .anyMatch(topItem -> Platform.itemComparisons().isSameItem(is, topItem));
                 }
 

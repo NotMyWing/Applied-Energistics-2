@@ -283,16 +283,16 @@ public class TileInscriber extends AENetworkPowerTile implements IGridTickable, 
         for (final IInscriberRecipe recipe : AEApi.instance().registries().inscriber().getRecipes()) {
 
             // Check if plateA matches any item in the list of top components of the recipe
-            final boolean matchA = plateA.isEmpty() && recipe.getTopOptional().isEmpty() ||
-                    recipe.getTopOptional().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(plateA, topItem)) &&
-                            (plateB.isEmpty() && recipe.getBottomOptional().isEmpty() ||
-                                    recipe.getBottomOptional().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(plateB, bottomItem)));
+            final boolean matchA = plateA.isEmpty() && recipe.getTopInputs().isEmpty() ||
+                    recipe.getTopInputs().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(plateA, topItem)) &&
+                            (plateB.isEmpty() && recipe.getBottomInputs().isEmpty() ||
+                                    recipe.getBottomInputs().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(plateB, bottomItem)));
 
             // Check if plateB matches any item in the list of top components of the recipe
-            final boolean matchB = plateB.isEmpty() && recipe.getTopOptional().isEmpty() ||
-                    recipe.getTopOptional().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(plateB, topItem)) &&
-                            (plateA.isEmpty() && recipe.getBottomOptional().isEmpty() ||
-                                    recipe.getBottomOptional().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(plateA, bottomItem)));
+            final boolean matchB = plateB.isEmpty() && recipe.getTopInputs().isEmpty() ||
+                    recipe.getTopInputs().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(plateB, topItem)) &&
+                            (plateA.isEmpty() && recipe.getBottomInputs().isEmpty() ||
+                                    recipe.getBottomInputs().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(plateA, bottomItem)));
 
             // If either matchA or matchB is true, iterate through the recipe's inputs
             if (matchA || matchB) {
