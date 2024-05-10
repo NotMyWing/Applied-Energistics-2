@@ -21,6 +21,7 @@ package appeng.integration.modules.jei;
 
 import appeng.api.features.IInscriberRecipe;
 import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.item.ItemStack;
 
@@ -43,8 +44,7 @@ class InscriberRecipeWrapper implements IRecipeWrapper {
         inputSlots.add(Collections.singletonList(this.recipe.getTopOptional().orElse(ItemStack.EMPTY)));
         inputSlots.add(this.recipe.getInputs());
         inputSlots.add(Collections.singletonList(this.recipe.getBottomOptional().orElse(ItemStack.EMPTY)));
-        ingredients.setInputLists(ItemStack.class, inputSlots);
-
-        ingredients.setOutput(ItemStack.class, this.recipe.getOutput());
+        ingredients.setInputLists(VanillaTypes.ITEM, inputSlots);
+        ingredients.setOutput(VanillaTypes.ITEM, this.recipe.getOutput());
     }
 }
