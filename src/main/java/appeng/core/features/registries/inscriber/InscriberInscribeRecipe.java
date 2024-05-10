@@ -25,6 +25,7 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -35,7 +36,7 @@ import java.util.Collection;
  * @since rv2
  */
 public class InscriberInscribeRecipe extends InscriberRecipe {
-    InscriberInscribeRecipe(@Nonnull final Collection<ItemStack> inputs, @Nonnull final ItemStack output, @Nullable final ItemStack top, @Nullable final ItemStack bot) {
+    InscriberInscribeRecipe(@Nonnull final Collection<ItemStack> inputs, @Nonnull final ItemStack output, @Nullable final List<ItemStack> top, @Nullable final List<ItemStack> bot) {
         super(inputs, output, top, bot, InscriberProcessType.INSCRIBE);
     }
 }

@@ -31,9 +31,7 @@ import net.minecraft.item.ItemStack;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -49,25 +47,15 @@ public class InscriberRecipes {
             return;
         }
 
-        Collection<ItemStack> topList = CTModule.toStacks(top).orElse(Collections.singleton(ItemStack.EMPTY));
-        Collection<ItemStack> bottomList = CTModule.toStacks(bottom).orElse(Collections.singleton(ItemStack.EMPTY));
-
-        for (ItemStack topStack : topList) {
-            for (ItemStack bottomStack : bottomList) {
-                final IInscriberRecipeBuilder builder = AEApi.instance().registries().inscriber().builder();
-                builder.withProcessType(inscribe ? InscriberProcessType.INSCRIBE : InscriberProcessType.PRESS)
-                        .withOutput(CTModule.toStack(output))
-                        .withInputs(inStacks.get());
-
-                if (!topStack.isEmpty()) {
-                    builder.withTopOptional(topStack);
-                }
-                if (!bottomStack.isEmpty()) {
-                    builder.withBottomOptional(bottomStack);
-                }
-                CTModule.MODIFICATIONS.add(new Add(builder.build()));
-            }
-        }
+        List<ItemStack> topList = new ArrayList<>(CTModule.toStacks(top).orElse(Collections.singleton(ItemStack.EMPTY)));
+        List<ItemStack> bottomList = new ArrayList<>(CTModule.toStacks(bottom).orElse(Collections.singleton(ItemStack.EMPTY)));
+        final IInscriberRecipeBuilder builder = AEApi.instance().registries().inscriber().builder();
+        builder.withProcessType(inscribe ? InscriberProcessType.INSCRIBE : InscriberProcessType.PRESS).
+                withTopOptional(topList).
+                withBottomOptional(bottomList).
+                withOutput(CTModule.toStack(output))
+                .withInputs(inStacks.get());
+        CTModule.MODIFICATIONS.add(new Add(builder.build()));
     }
 
     @ZenMethod

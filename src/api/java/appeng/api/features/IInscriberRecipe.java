@@ -19,12 +19,10 @@
 package appeng.api.features;
 
 
-import java.util.List;
-import java.util.Optional;
+import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.item.ItemStack;
+import java.util.List;
 
 
 /**
@@ -63,7 +61,7 @@ public interface IInscriberRecipe
 	 * @return item which is used top
 	 */
 	@Nonnull
-	Optional<ItemStack> getTopOptional();
+	List<ItemStack> getTopOptional();
 
 	/**
 	 * gets the bottom optional
@@ -71,7 +69,7 @@ public interface IInscriberRecipe
 	 * @return item which is used bottom
 	 */
 	@Nonnull
-	Optional<ItemStack> getBottomOptional();
+	List<ItemStack> getBottomOptional();
 
 	/**
 	 * type of inscriber process

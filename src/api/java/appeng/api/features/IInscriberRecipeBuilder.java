@@ -19,11 +19,10 @@
 package appeng.api.features;
 
 
-import java.util.Collection;
+import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
-
-import net.minecraft.item.ItemStack;
+import java.util.Collection;
 
 
 /**
@@ -66,7 +65,7 @@ public interface IInscriberRecipeBuilder
 	 * @return currently used builder
 	 */
 	@Nonnull
-	IInscriberRecipeBuilder withTopOptional( @Nonnull ItemStack topOptional );
+	IInscriberRecipeBuilder withTopOptional(@Nonnull Collection<ItemStack> topOptional );
 
 	/**
 	 * Creates an inscriber recipe with bot.
@@ -77,7 +76,7 @@ public interface IInscriberRecipeBuilder
 	 * @return currently used builder
 	 */
 	@Nonnull
-	IInscriberRecipeBuilder withBottomOptional( @Nonnull ItemStack bottomOptional );
+	IInscriberRecipeBuilder withBottomOptional( @Nonnull Collection<ItemStack> bottomOptional );
 
 	/**
 	 * Creates an inscriber recipe with type.

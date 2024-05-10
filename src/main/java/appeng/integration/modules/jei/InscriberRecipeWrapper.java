@@ -26,7 +26,6 @@ import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -41,9 +40,9 @@ class InscriberRecipeWrapper implements IRecipeWrapper {
     @Override
     public void getIngredients(IIngredients ingredients) {
         List<List<ItemStack>> inputSlots = new ArrayList<>(3);
-        inputSlots.add(Collections.singletonList(this.recipe.getTopOptional().orElse(ItemStack.EMPTY)));
+        inputSlots.add(this.recipe.getTopOptional());
         inputSlots.add(this.recipe.getInputs());
-        inputSlots.add(Collections.singletonList(this.recipe.getBottomOptional().orElse(ItemStack.EMPTY)));
+        inputSlots.add(this.recipe.getBottomOptional());
         ingredients.setInputLists(VanillaTypes.ITEM, inputSlots);
         ingredients.setOutput(VanillaTypes.ITEM, this.recipe.getOutput());
     }
