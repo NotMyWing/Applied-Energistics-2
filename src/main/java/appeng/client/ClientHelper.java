@@ -54,6 +54,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
@@ -82,6 +83,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import static appeng.client.KeyBindings.WCT;
 import static appeng.client.KeyBindings.WFT;
@@ -371,5 +373,17 @@ public class ClientHelper extends ServerHelper {
     @Override
     public boolean isActionKey(ActionKey key, int pressedKeyCode) {
         return this.bindings.get(key).isActiveAndMatches(pressedKeyCode);
+    }
+
+    @Override
+    public EntityPlayer getPlayerByUUID(UUID uuid) {
+        if (Platform.isClient()) {
+            if (Minecraft.getMinecraft().player.getUniqueID().equals(uuid)) {
+                return Minecraft.getMinecraft().player;
+            }
+            return null;
+        } else {
+            return super.getPlayerByUUID(uuid);
+        }
     }
 }

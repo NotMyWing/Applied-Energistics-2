@@ -1,10 +1,14 @@
 package appeng.client.gui;
 
 import appeng.api.storage.data.IAEItemStack;
-import appeng.client.gui.implementations.*;
+import appeng.client.gui.implementations.GuiCraftAmount;
+import appeng.client.gui.implementations.GuiCraftConfirm;
+import appeng.client.gui.implementations.GuiCraftingCPU;
+import appeng.client.gui.implementations.GuiExpandedProcessingPatternTerm;
+import appeng.client.gui.implementations.GuiPatternTerm;
+import appeng.client.gui.implementations.GuiUpgradeable;
 import appeng.container.interfaces.IJEIGhostIngredients;
-import appeng.container.slot.SlotFake;
-import appeng.fluids.client.gui.widgets.GuiFluidSlot;
+import appeng.container.slot.IJEITargetSlot;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.client.gui.GuiScreen;
@@ -78,12 +82,12 @@ public class AEGuiHandler implements IAdvancedGuiHandler<AEBaseGui>, IGhostIngre
         return (guiSloty * 3) + guiSlotx + (currentScroll * 3);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     @Nonnull
     public <I> List<Target<I>> getTargets(@Nonnull AEBaseGui gui, @Nonnull I ingredient, boolean doStart) {
         ArrayList<Target<I>> targets = new ArrayList<>();
-        if (gui instanceof IJEIGhostIngredients) {
-            IJEIGhostIngredients g = (IJEIGhostIngredients) gui;
+        if (gui instanceof IJEIGhostIngredients g) {
             List<Target<?>> phantomTargets = g.getPhantomTargets(ingredient);
             targets.addAll((List<Target<I>>) (Object) phantomTargets);
         }
@@ -91,13 +95,8 @@ public class AEGuiHandler implements IAdvancedGuiHandler<AEBaseGui>, IGhostIngre
             if (gui instanceof GuiUpgradeable || gui instanceof GuiPatternTerm || gui instanceof GuiExpandedProcessingPatternTerm) {
                 IJEIGhostIngredients ghostGui = ((IJEIGhostIngredients) gui);
                 for (Target<I> target : targets) {
-                    if (ghostGui.getFakeSlotTargetMap().get(target) instanceof SlotFake) {
-                        if (((SlotFake) ghostGui.getFakeSlotTargetMap().get(target)).getStack().isEmpty()) {
-                            target.accept(ingredient);
-                            break;
-                        }
-                    } else if (ghostGui.getFakeSlotTargetMap().get(target) instanceof GuiFluidSlot) {
-                        if (((GuiFluidSlot) ghostGui.getFakeSlotTargetMap().get(target)).getFluidStack() == null) {
+                    if (ghostGui.getFakeSlotTargetMap().get(target) instanceof IJEITargetSlot jeiSlot) {
+                        if (jeiSlot.needAccept()) {
                             target.accept(ingredient);
                             break;
                         }

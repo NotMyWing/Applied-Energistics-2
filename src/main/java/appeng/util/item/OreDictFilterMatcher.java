@@ -40,7 +40,7 @@ public class OreDictFilterMatcher {
             }
             if (c == '(') {
                 List<MatchRule> subRules = new ArrayList<>();
-                i = parseExpression(subRules, expression.substring(i + 1)) + i + 1;
+                i = parseExpression(subRules, expression.substring(i + 1)) + i;
                 rules.add(MatchRule.group(subRules, builder.toString()));
                 builder = new StringBuilder();
             } else {

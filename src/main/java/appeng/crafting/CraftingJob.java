@@ -131,7 +131,7 @@ public class CraftingJob implements Runnable, ICraftingJob {
                 craftingInventory.ignore(this.output);
 
                 this.availableCheck = new MECraftingInventory(this.original, false, false, false);
-                craftingTreeWatch.start();
+                craftingTreeWatch.reset().start();
                 this.getTree().request(craftingInventory, this.output.getStackSize(), this.actionSrc);
                 craftingTreeWatch.stop();
                 this.getTree().dive(this);
@@ -170,10 +170,8 @@ public class CraftingJob implements Runnable, ICraftingJob {
                     } else {
                         this.logCraftingJob("real, failed", craftingTreeWatch);
                     }
-                } catch (final CraftBranchFailure e1) {
+                } catch (final CraftBranchFailure | CraftingCalculationFailure e1) {
                     AELog.debug(e1);
-                } catch (final CraftingCalculationFailure f) {
-                    AELog.debug(f);
                 } catch (final InterruptedException e1) {
                     AELog.crafting("Crafting calculation canceled.");
                     this.finish();
@@ -202,8 +200,14 @@ public class CraftingJob implements Runnable, ICraftingJob {
             synchronized (this.monitor) {
                 if (this.tickSpreadingWatch.elapsed(TimeUnit.MICROSECONDS) > this.time) {
                     this.running = false;
-                    this.craftingTreeWatch.stop();
-                    this.tickSpreadingWatch.stop();
+                    if (this.craftingTreeWatch.isRunning()) {
+                        this.craftingTreeWatch.stop();
+                    }
+
+                    if (this.tickSpreadingWatch.isRunning()) {
+                        this.tickSpreadingWatch.stop();
+                    }
+
                     this.monitor.notify();
                 }
 

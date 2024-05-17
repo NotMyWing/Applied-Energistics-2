@@ -112,6 +112,10 @@ public class NetworkHandler {
         this.ec.sendToAllAround(message.getProxy(), point);
     }
 
+    public void sendToAllTracking(final AppEngPacket message, final NetworkRegistry.TargetPoint point) {
+        this.ec.sendToAllTracking(message.getProxy(), point);
+    }
+
     public void sendToDimension(final AppEngPacket message, final int dimensionId) {
         this.ec.sendToDimension(message.getProxy(), dimensionId);
     }

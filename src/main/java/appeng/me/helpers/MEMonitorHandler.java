@@ -160,4 +160,8 @@ public class MEMonitorHandler<T extends IAEStack<T>> implements IMEMonitor<T> {
         return this.getHandler().validForPass(i);
     }
 
+    @Override
+    public boolean isSticky() {
+        return this.internalHandler.isSticky();
+    }
 }

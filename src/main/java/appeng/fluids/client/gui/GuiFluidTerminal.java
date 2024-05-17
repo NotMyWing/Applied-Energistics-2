@@ -127,7 +127,7 @@ public class GuiFluidTerminal extends AEBaseMEGui implements ISortSource, IConfi
 
     @Override
     public void drawFG(int offsetX, int offsetY, int mouseX, int mouseY) {
-        this.fontRenderer.drawString(this.getGuiDisplayName("Fluid Terminal"), 8, 6, 4210752);
+        this.fontRenderer.drawString(GuiText.FluidTerminal.getLocal(), 8, 6, 4210752);
         this.fontRenderer.drawString(GuiText.inventory.getLocal(), 8, this.ySize - 96 + 3, 4210752);
     }
 

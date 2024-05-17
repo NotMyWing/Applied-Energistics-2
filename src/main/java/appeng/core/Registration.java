@@ -364,15 +364,19 @@ final class Registration {
         // Storage Cells
         Upgrades.FUZZY.registerItem(items.cell1k(), 1);
         Upgrades.INVERTER.registerItem(items.cell1k(), 1);
+        Upgrades.STICKY.registerItem(items.cell1k(), 1);
 
         Upgrades.FUZZY.registerItem(items.cell4k(), 1);
         Upgrades.INVERTER.registerItem(items.cell4k(), 1);
+        Upgrades.STICKY.registerItem(items.cell4k(), 1);
 
         Upgrades.FUZZY.registerItem(items.cell16k(), 1);
         Upgrades.INVERTER.registerItem(items.cell16k(), 1);
+        Upgrades.STICKY.registerItem(items.cell16k(), 1);
 
         Upgrades.FUZZY.registerItem(items.cell64k(), 1);
         Upgrades.INVERTER.registerItem(items.cell64k(), 1);
+        Upgrades.STICKY.registerItem(items.cell64k(), 1);
 
         Upgrades.FUZZY.registerItem(items.portableCell(), 1);
         Upgrades.INVERTER.registerItem(items.portableCell(), 1);
@@ -383,14 +387,29 @@ final class Registration {
         Upgrades.FUZZY.registerItem(AEApi.instance().definitions().materials().cardMagnet(), 1);
         Upgrades.INVERTER.registerItem(AEApi.instance().definitions().materials().cardMagnet(), 1);
 
+        // Fluid Cells
+        Upgrades.INVERTER.registerItem(items.fluidCell1k(), 1);
+        Upgrades.STICKY.registerItem(items.fluidCell1k(), 1);
+
+        Upgrades.INVERTER.registerItem(items.fluidCell4k(), 1);
+        Upgrades.STICKY.registerItem(items.fluidCell4k(), 1);
+
+        Upgrades.INVERTER.registerItem(items.fluidCell16k(), 1);
+        Upgrades.STICKY.registerItem(items.fluidCell16k(), 1);
+
+        Upgrades.INVERTER.registerItem(items.fluidCell64k(), 1);
+        Upgrades.STICKY.registerItem(items.fluidCell64k(), 1);
+
         // Storage Bus
         Upgrades.FUZZY.registerItem(parts.storageBus(), 1);
         Upgrades.INVERTER.registerItem(parts.storageBus(), 1);
         Upgrades.CAPACITY.registerItem(parts.storageBus(), 5);
+        Upgrades.STICKY.registerItem(parts.storageBus(), 1);
 
         // Storage Bus Fluids
         Upgrades.INVERTER.registerItem(parts.fluidStorageBus(), 1);
         Upgrades.CAPACITY.registerItem(parts.fluidStorageBus(), 5);
+        Upgrades.STICKY.registerItem(parts.fluidStorageBus(), 1);
 
         // Formation Plane
         Upgrades.FUZZY.registerItem(parts.formationPlane(), 1);

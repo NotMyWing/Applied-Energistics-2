@@ -80,6 +80,7 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -113,6 +114,7 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
         this.getConfigManager().registerSetting(Settings.ACCESS, AccessRestriction.READ_WRITE);
         this.getConfigManager().registerSetting(Settings.FUZZY_MODE, FuzzyMode.IGNORE_ALL);
         this.getConfigManager().registerSetting(Settings.STORAGE_FILTER, StorageFilter.EXTRACTABLE_ONLY);
+        this.getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
         this.mySrc = new MachineSource(this);
     }
 
@@ -194,7 +196,7 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
         return super.getInventoryByName(name);
     }
 
-    private void resetCache(final boolean fullReset) {
+    protected void resetCache(final boolean fullReset) {
         if (this.getHost() == null || this.getHost().getTile() == null || this.getHost().getTile().getWorld() == null || this.getHost().getTile().getWorld().isRemote) {
             return;
         }
@@ -220,11 +222,13 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
     @Override
     public void postChange(final IBaseMonitor<IAEItemStack> monitor, final Iterable<IAEItemStack> change, final IActionSource source) {
         if (this.getProxy().isActive()) {
+            var filteredChanges = this.filterChanges(change);
+
             AccessRestriction currentAccess = (AccessRestriction) ((ConfigManager) this.getConfigManager()).getSetting(Settings.ACCESS);
             if (readOncePass) {
                 readOncePass = false;
                 try {
-                    this.getProxy().getStorage().postAlterationOfStoredItems(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class), change, mySrc);
+                    this.getProxy().getStorage().postAlterationOfStoredItems(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class), filteredChanges, mySrc);
                 } catch (final GridAccessException e) {
                     // :(
                 }
@@ -234,7 +238,7 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
                 return;
             }
             try {
-                this.getProxy().getStorage().postAlterationOfStoredItems(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class), change, source);
+                this.getProxy().getStorage().postAlterationOfStoredItems(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class), filteredChanges, source);
             } catch (final GridAccessException e) {
                 // :(
             }
@@ -315,7 +319,7 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
         return TickRateModulation.SLEEP;
     }
 
-    private void resetCache() {
+    protected void resetCache() {
         final boolean fullReset = this.resetCacheLogic == 2;
         this.resetCacheLogic = 0;
 
@@ -456,6 +460,7 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
                 this.handler.setBaseAccess((AccessRestriction) this.getConfigManager().getSetting(Settings.ACCESS));
                 this.handler.setWhitelist(this.getInstalledUpgrades(Upgrades.INVERTER) > 0 ? IncludeExclude.BLACKLIST : IncludeExclude.WHITELIST);
                 this.handler.setPriority(this.priority);
+                this.handler.setStorageFilter((StorageFilter) this.getConfigManager().getSetting(Settings.STORAGE_FILTER));
 
                 final IItemList<IAEItemStack> priorityList = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createList();
 
@@ -465,6 +470,10 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
                     if (is != null) {
                         priorityList.add(is);
                     }
+                }
+
+                if (this.getInstalledUpgrades(Upgrades.STICKY) > 0) {
+                    this.handler.setSticky(true);
                 }
 
                 if (this.getInstalledUpgrades(Upgrades.FUZZY) > 0) {
@@ -565,5 +574,27 @@ public class PartStorageBus extends PartUpgradeable implements IGridTickable, IC
     @Override
     public GuiBridge getGuiBridge() {
         return GuiBridge.GUI_STORAGEBUS;
+    }
+
+    // TODO: 1/28/2024 Unify both methods.
+    /**
+     * Filters the changes to only include items that pass the storage filter.
+     * Optimally, this should be handled by the underlying monitor.
+     * 
+     * @see appeng.fluids.parts.PartFluidStorageBus#filterChanges
+     */
+    protected Iterable<IAEItemStack> filterChanges(Iterable<IAEItemStack> change) {
+        var storageFilter = this.getConfigManager().getSetting(Settings.STORAGE_FILTER);
+        if (storageFilter == StorageFilter.EXTRACTABLE_ONLY && handler != null) {
+            var filteredList = new ArrayList<IAEItemStack>();
+            for (final IAEItemStack stack : change) {
+                if (this.handler.passesBlackOrWhitelist(stack)) {
+                    filteredList.add(stack);
+                }
+            }
+
+            return filteredList;
+        }
+        return change;
     }
 }

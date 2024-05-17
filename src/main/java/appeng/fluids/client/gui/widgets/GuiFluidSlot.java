@@ -93,4 +93,10 @@ public class GuiFluidSlot extends GuiCustomSlot implements IJEITargetSlot {
         this.fluids.setFluidInSlot(this.slot, stack);
         NetworkHandler.instance().sendToServer(new PacketFluidSlot(Collections.singletonMap(this.getId(), this.getFluidStack())));
     }
+
+    @Override
+    public boolean needAccept() {
+        return this.getFluidStack() == null;
+    }
+
 }

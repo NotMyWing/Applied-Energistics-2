@@ -56,6 +56,7 @@ public class BasicCellInventoryHandler<T extends IAEStack<T>> extends MEInventor
 
             boolean hasInverter = false;
             boolean hasFuzzy = false;
+            boolean hasSticky = false;
 
             for (int x = 0; x < upgrades.getSlots(); x++) {
                 final ItemStack is = upgrades.getStackInSlot(x);
@@ -68,6 +69,9 @@ public class BasicCellInventoryHandler<T extends IAEStack<T>> extends MEInventor
                                 break;
                             case INVERTER:
                                 hasInverter = true;
+                                break;
+                            case STICKY:
+                                hasSticky = true;
                                 break;
                             default:
                         }
@@ -86,6 +90,10 @@ public class BasicCellInventoryHandler<T extends IAEStack<T>> extends MEInventor
             }
 
             this.setWhitelist(hasInverter ? IncludeExclude.BLACKLIST : IncludeExclude.WHITELIST);
+
+            if (hasSticky) {
+                setSticky(true);
+            }
 
             if (!priorityList.isEmpty()) {
                 if (hasFuzzy) {

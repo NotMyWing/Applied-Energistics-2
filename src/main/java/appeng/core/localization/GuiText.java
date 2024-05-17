@@ -97,6 +97,7 @@ public enum GuiText {
     RedstoneTunnel,
     EUTunnel,
     FluidTunnel,
+    FluidTerminal,
     OCTunnel,
     LightTunnel,
     FETunnel,
@@ -195,6 +196,7 @@ public enum GuiText {
     Partitioned,
     Precise,
     Fuzzy,
+    Sticky,
 
     // Used in a terminal to indicate that an item is craftable
     SmallFontCraft,

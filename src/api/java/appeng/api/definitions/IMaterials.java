@@ -100,6 +100,8 @@ public interface IMaterials {
 
     IItemDefinition cardCrafting();
 
+    IItemDefinition cardSticky();
+
     IItemDefinition enderDust();
 
     IItemDefinition flour();

@@ -25,6 +25,7 @@ import appeng.client.ActionKey;
 import appeng.client.EffectType;
 import appeng.core.sync.AppEngPacket;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -32,6 +33,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 
 public abstract class CommonHelper {
@@ -66,4 +68,5 @@ public abstract class CommonHelper {
 
     public abstract boolean isActionKey(@Nonnull final ActionKey key, int pressedKeyCode);
 
+    public abstract EntityPlayer getPlayerByUUID(UUID uuid);
 }

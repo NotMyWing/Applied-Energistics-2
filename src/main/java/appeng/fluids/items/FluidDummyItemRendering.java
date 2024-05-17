@@ -22,6 +22,7 @@ package appeng.fluids.items;
 import appeng.bootstrap.IItemRendering;
 import appeng.bootstrap.ItemRenderingCustomizer;
 import appeng.client.render.DummyFluidItemModel;
+import net.minecraftforge.fluids.FluidStack;
 
 
 /**
@@ -33,5 +34,9 @@ public class FluidDummyItemRendering extends ItemRenderingCustomizer {
     @Override
     public void customize(IItemRendering rendering) {
         rendering.builtInModel("models/item/dummy_fluid_item", new DummyFluidItemModel());
+        rendering.color(((s, i) -> {
+            FluidStack fluid = ((FluidDummyItem) s.getItem()).getFluidStack(s);
+            return fluid != null ? fluid.getFluid().getColor() : 0xFFFFFFFF;
+        }));
     }
 }

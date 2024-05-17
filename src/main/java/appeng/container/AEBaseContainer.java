@@ -399,7 +399,7 @@ public abstract class AEBaseContainer extends Container {
                                     return ItemStack.EMPTY; // don't insert duplicate encoded patterns to interfaces
                                 }
 
-                                int maxSize = Math.max(tis.getMaxStackSize(), d.getSlotStackLimit());
+                                int maxSize = Math.min(tis.getMaxStackSize(), d.getSlotStackLimit());
 
                                 int placeAble = maxSize - t.getCount();
 
@@ -435,7 +435,7 @@ public abstract class AEBaseContainer extends Container {
 
                     if (d.isItemValid(tis)) {
                         if (!d.getHasStack()) {
-                            int maxSize = Math.max(tis.getMaxStackSize(), d.getSlotStackLimit());
+                            int maxSize = Math.min(tis.getMaxStackSize(), d.getSlotStackLimit());
 
                             final ItemStack tmp = tis.copy();
                             if (tmp.getCount() > maxSize) {
@@ -964,26 +964,34 @@ public abstract class AEBaseContainer extends Container {
                 if (!draggedStack.isEmpty()) {
                     if (appEngSlot.isItemValid(draggedStack)) {
                         if (slotStack.getItem() == draggedStack.getItem() && slotStack.getMetadata() == draggedStack.getMetadata() && ItemStack.areItemStackTagsEqual(slotStack, draggedStack)) {
-                            var maxSize = Math.max(appEngSlot.getSlotStackLimit(), draggedStack.getMaxStackSize());
-                            var maxInsertable = Math.min(draggedStack.getCount(), maxSize - appEngSlot.getStack().getCount());
-                            var toInsert = Math.min(maxInsertable, dragType == 0 ? maxInsertable : 1);
+                            // Slot size or stack size, whichever is smaller.
+                            var maxSize = Math.min(appEngSlot.getSlotStackLimit(), draggedStack.getMaxStackSize());
 
-                            draggedStack.shrink(toInsert);
-                            slotStack.grow(toInsert);
+                            // The maximum number of items that can be inserted into the slot, non-negative.
+                            var maxInsertable = Math.min(draggedStack.getCount(),
+                                    Math.max(0, maxSize - appEngSlot.getStack().getCount()));
 
-                            slot.onSlotChanged();
-                            return ItemStack.EMPTY;
+                            if (maxInsertable != 0) {
+                                var toInsert = Math.min(maxInsertable, dragType == 0 ? maxInsertable : 1);
+
+                                draggedStack.shrink(toInsert);
+                                slotStack.grow(toInsert);
+
+                                slot.putStack(slot.getStack());
+                                return ItemStack.EMPTY;
+                            }
                         }
                     }
                 }
                 // Fixes taking and halving issues from oversized slots.
                 else if (dragType == 0 || dragType == 1) {
                     if (slot.canTakeStack(player) && !slotStack.isEmpty()) {
+                        var result = slotStack.copy();
                         var toTake = Math.min(slotStack.getCount(), slotStack.getMaxStackSize());
                         this.invPlayer.setItemStack(slot.decrStackSize(dragType == 0 ? toTake : (toTake + 1) / 2));
 
-                        slot.onTake(player, invPlayer.getItemStack());
-                        return ItemStack.EMPTY;
+                        slot.putStack(slot.getStack());
+                        return result;
                     }
                 }
 

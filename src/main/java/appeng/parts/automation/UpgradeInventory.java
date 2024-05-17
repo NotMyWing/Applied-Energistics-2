@@ -48,6 +48,7 @@ public abstract class UpgradeInventory extends AppEngInternalInventory implement
     private int patternExpansionUpgrades = 0;
     private int magnetUpgrades = 0;
     private int quantumUpgrades = 0;
+    private int stickyUpgrades = 0;
 
     public UpgradeInventory(final IAEAppEngInventory parent, final int s) {
         super(null, s, 1);
@@ -85,6 +86,8 @@ public abstract class UpgradeInventory extends AppEngInternalInventory implement
                 return this.magnetUpgrades;
             case QUANTUM_LINK:
                 return this.quantumUpgrades;
+            case STICKY:
+                return this.stickyUpgrades;
             default:
                 return 0;
         }
@@ -94,7 +97,7 @@ public abstract class UpgradeInventory extends AppEngInternalInventory implement
 
     private void updateUpgradeInfo() {
         this.cached = true;
-        this.patternExpansionUpgrades = this.inverterUpgrades = this.capacityUpgrades = this.redstoneUpgrades = this.speedUpgrades = this.fuzzyUpgrades = this.craftingUpgrades = magnetUpgrades = quantumUpgrades = 0;
+        this.patternExpansionUpgrades = this.inverterUpgrades = this.capacityUpgrades = this.redstoneUpgrades = this.speedUpgrades = this.fuzzyUpgrades = this.craftingUpgrades = magnetUpgrades = quantumUpgrades = stickyUpgrades = 0;
 
         for (final ItemStack is : this) {
             if (is == null || is.getItem() == Items.AIR || !(is.getItem() instanceof IUpgradeModule)) {
@@ -129,6 +132,10 @@ public abstract class UpgradeInventory extends AppEngInternalInventory implement
                     break;
                 case QUANTUM_LINK:
                     this.quantumUpgrades++;
+                    break;
+                case STICKY:
+                    this.stickyUpgrades++;
+                    break;
                 default:
                     break;
             }
@@ -143,6 +150,7 @@ public abstract class UpgradeInventory extends AppEngInternalInventory implement
         this.patternExpansionUpgrades = Math.min(this.patternExpansionUpgrades, this.getMaxInstalled(Upgrades.PATTERN_EXPANSION));
         this.magnetUpgrades = Math.min(this.magnetUpgrades, this.getMaxInstalled(Upgrades.MAGNET));
         this.quantumUpgrades = Math.min(this.quantumUpgrades, this.getMaxInstalled(Upgrades.QUANTUM_LINK));
+        this.stickyUpgrades = Math.min(this.stickyUpgrades, this.getMaxInstalled(Upgrades.STICKY));
     }
 
     @Override

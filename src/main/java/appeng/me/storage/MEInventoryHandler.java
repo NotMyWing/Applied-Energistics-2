@@ -22,6 +22,7 @@ package appeng.me.storage;
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
 import appeng.api.config.IncludeExclude;
+import appeng.api.config.StorageFilter;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEInventoryHandler;
@@ -38,11 +39,14 @@ public class MEInventoryHandler<T extends IAEStack<T>> implements IMEInventoryHa
     private int myPriority;
     private IncludeExclude myWhitelist;
     private AccessRestriction myAccess;
+    private StorageFilter storageFilter;
     private IPartitionList<T> myPartitionList;
 
     private AccessRestriction cachedAccessRestriction;
     private boolean hasReadAccess;
     private boolean hasWriteAccess;
+    private boolean isSticky;
+    private boolean gettingAvailableContent;
 
     public MEInventoryHandler(final IMEInventory<T> i, final IStorageChannel<T> channel) {
         if (i instanceof IMEInventoryHandler) {
@@ -76,7 +80,7 @@ public class MEInventoryHandler<T extends IAEStack<T>> implements IMEInventoryHa
         this.hasWriteAccess = this.cachedAccessRestriction.hasPermission(AccessRestriction.WRITE);
     }
 
-    IPartitionList<T> getPartitionList() {
+    public IPartitionList<T> getPartitionList() {
         return this.myPartitionList;
     }
 
@@ -95,7 +99,7 @@ public class MEInventoryHandler<T extends IAEStack<T>> implements IMEInventoryHa
 
     @Override
     public T extractItems(final T request, final Actionable type, final IActionSource src) {
-        if (!this.hasReadAccess) {
+        if (!this.canExtract(request)) {
             return null;
         }
 
@@ -104,11 +108,27 @@ public class MEInventoryHandler<T extends IAEStack<T>> implements IMEInventoryHa
 
     @Override
     public IItemList<T> getAvailableItems(final IItemList<T> out) {
-        if (!this.hasReadAccess) {
+        if (this.gettingAvailableContent || !this.hasReadAccess) {
             return out;
         }
 
-        return this.internal.getAvailableItems(out);
+        this.gettingAvailableContent = true;
+        try {
+            if (this.storageFilter == StorageFilter.EXTRACTABLE_ONLY) {
+                var stackList = this.internal.getAvailableItems(this.getChannel().createList());
+                for (final T t : stackList) {
+                    if (this.shouldItemBeAvailable(t)) {
+                        out.add(t);
+                    }
+                }
+            } else {
+                return this.internal.getAvailableItems(out);
+            }
+        } finally {
+            this.gettingAvailableContent = false;
+        }
+
+        return out;
     }
 
     @Override
@@ -135,13 +155,11 @@ public class MEInventoryHandler<T extends IAEStack<T>> implements IMEInventoryHa
             return false;
         }
 
-        if (this.myWhitelist == IncludeExclude.BLACKLIST && this.myPartitionList.isListed(input)) {
+        if (!this.passesBlackOrWhitelist(input)) {
             return false;
         }
-        if (this.myPartitionList.isEmpty() || this.myWhitelist == IncludeExclude.BLACKLIST) {
-            return this.internal.canAccept(input);
-        }
-        return this.myPartitionList.isListed(input) && this.internal.canAccept(input);
+
+        return this.internal.canAccept(input);
     }
 
     @Override
@@ -165,5 +183,41 @@ public class MEInventoryHandler<T extends IAEStack<T>> implements IMEInventoryHa
 
     public IMEInventory<T> getInternal() {
         return this.internal;
+    }
+
+    @Override
+    public boolean isSticky() {
+        return isSticky;
+    }
+
+    public void setSticky(boolean isSticky) {
+        this.isSticky = isSticky;
+    }
+
+    protected boolean canExtract(T request) {
+        return this.hasReadAccess;
+    }
+
+    private boolean shouldItemBeAvailable(T t) {
+        return this.hasReadAccess && this.passesBlackOrWhitelist(t);
+    }
+
+    public boolean passesBlackOrWhitelist(T input) {
+        if (this.myPartitionList.isEmpty()) {
+            return true;
+        }
+
+        return switch (this.myWhitelist) {
+            case WHITELIST -> this.myPartitionList.isListed(input);
+            case BLACKLIST -> !this.myPartitionList.isListed(input);
+        };
+    }
+
+    public StorageFilter getStorageFilter() {
+        return storageFilter;
+    }
+
+    public void setStorageFilter(StorageFilter storageFilter) {
+        this.storageFilter = storageFilter;
     }
 }
