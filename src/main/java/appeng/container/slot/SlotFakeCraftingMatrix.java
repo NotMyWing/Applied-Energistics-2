@@ -19,17 +19,60 @@
 package appeng.container.slot;
 
 
-import net.minecraftforge.items.IItemHandler;
+import appeng.api.AEApi;
+import appeng.api.storage.IStorageChannel;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.util.IExAEStack;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
+import net.minecraft.item.ItemStack;
 
 
 public class SlotFakeCraftingMatrix extends SlotFake {
 
-    public SlotFakeCraftingMatrix(final IItemHandler inv, final int idx, final int x, final int y) {
-        super(inv, idx, x, y);
+    private final AppEngInternalUnivInventory inv;
+
+    public SlotFakeCraftingMatrix(final AppEngInternalUnivInventory inv, final int idx, final int x, final int y) {
+        super(inv.asItemHandler(), idx, x, y);
+        this.inv = inv;
     }
 
     @Override
     public int getSlotStackLimit() {
         return Integer.MAX_VALUE;
     }
+
+    @Override
+    public ItemStack getDisplayStack() {
+        final IExAEStack<?> stack = this.inv.getStackInSlot(this.getSlotIndex());
+        if (stack == null) {
+            return ItemStack.EMPTY;
+        }
+
+        final ItemStack displayStack = stack.asItemStackRepresentation();
+        displayStack.setCount((int) Math.min(stack.getStackSize(), Integer.MAX_VALUE));
+        return displayStack;
+    }
+
+    @Override
+    public long getDisplayStackSize() {
+        final IExAEStack<?> stack = this.inv.getStackInSlot(this.getSlotIndex());
+        if (stack == null || !(stack.unwrap() instanceof IAEItemStack ais)) {
+            return 0L;
+        }
+        final ItemStack reprStack = ais.createItemStack();
+
+        for (final IStorageChannel<? extends IAEStack<?>> channel : AEApi.instance().storage().storageChannels()) {
+            if (channel instanceof IItemStorageChannel) {
+                continue;
+            }
+            final IAEStack<?> realStack = channel.createStack(reprStack);
+            if (realStack != null) {
+                return realStack.getStackSize();
+            }
+        }
+        return 0L;
+    }
+
 }

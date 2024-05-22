@@ -19,13 +19,23 @@
 package appeng.container.slot;
 
 
-import net.minecraftforge.items.IItemHandler;
+import appeng.api.AEApi;
+import appeng.api.storage.IStorageChannel;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.util.IExAEStack;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
+import net.minecraft.item.ItemStack;
 
 
 public class SlotPatternOutputs extends OptionalSlotFake {
 
-    public SlotPatternOutputs(final IItemHandler inv, final IOptionalSlotHost containerBus, final int idx, final int x, final int y, final int offX, final int offY, final int groupNum) {
-        super(inv, containerBus, idx, x, y, offX, offY, groupNum);
+    private final AppEngInternalUnivInventory inv;
+
+    public SlotPatternOutputs(final AppEngInternalUnivInventory inv, final IOptionalSlotHost containerBus, final int idx, final int x, final int y, final int offX, final int offY, final int groupNum) {
+        super(inv.asItemHandler(), containerBus, idx, x, y, offX, offY, groupNum);
+        this.inv = inv;
     }
 
     @Override
@@ -37,4 +47,31 @@ public class SlotPatternOutputs extends OptionalSlotFake {
     public boolean shouldDisplay() {
         return super.isSlotEnabled();
     }
+
+    @Override
+    public ItemStack getDisplayStack() {
+        final IExAEStack<?> stack = this.inv.getStackInSlot(this.getSlotIndex());
+        return stack != null ? stack.asItemStackRepresentation() : ItemStack.EMPTY;
+    }
+
+    @Override
+    public long getDisplayStackSize() {
+        final IExAEStack<?> stack = this.inv.getStackInSlot(this.getSlotIndex());
+        if (stack == null || !(stack.unwrap() instanceof IAEItemStack ais)) {
+            return 0L;
+        }
+        final ItemStack reprStack = ais.createItemStack();
+
+        for (final IStorageChannel<? extends IAEStack<?>> channel : AEApi.instance().storage().storageChannels()) {
+            if (channel instanceof IItemStorageChannel) {
+                continue;
+            }
+            final IAEStack<?> realStack = channel.createStack(reprStack);
+            if (realStack != null) {
+                return realStack.getStackSize();
+            }
+        }
+        return 0L;
+    }
+
 }

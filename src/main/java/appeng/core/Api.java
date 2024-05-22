@@ -39,7 +39,7 @@ public final class Api implements IAppEngApi {
 
     // private MovableTileRegistry MovableRegistry = new MovableTileRegistry();
     private final IRegistryContainer registryContainer;
-    private final IStorageHelper storageHelper;
+    private final ApiStorage storageHelper;
     private final IGridHelper networkHelper;
     private final ApiDefinitions definitions;
     private final IClientHelper client;
@@ -63,7 +63,7 @@ public final class Api implements IAppEngApi {
     }
 
     @Override
-    public IStorageHelper storage() {
+    public ApiStorage storage() {
         return this.storageHelper;
     }
 

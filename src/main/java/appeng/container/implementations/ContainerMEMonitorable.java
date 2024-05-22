@@ -51,6 +51,7 @@ import appeng.core.AELog;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketMEInventoryUpdate;
 import appeng.core.sync.packets.PacketValueConfig;
+import appeng.helpers.IViewFilterable;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.me.helpers.ChannelPowerSrc;
 import appeng.util.ConfigManager;
@@ -70,7 +71,7 @@ import java.nio.BufferOverflowException;
 import java.util.List;
 
 
-public class ContainerMEMonitorable extends AEBaseContainer implements IConfigManagerHost, IConfigurableObject, IMEMonitorHandlerReceiver<IAEItemStack> {
+public class ContainerMEMonitorable extends AEBaseContainer implements IConfigManagerHost, IConfigurableObject, IViewFilterable, IMEMonitorHandlerReceiver<IAEItemStack> {
 
     protected final SlotRestrictedInput[] cellView = new SlotRestrictedInput[5];
     private final IMEMonitor<IAEItemStack> monitor;
@@ -346,6 +347,7 @@ public class ContainerMEMonitorable extends AEBaseContainer implements IConfigMa
         return this.clientCM;
     }
 
+    @Override
     public ItemStack[] getViewCells() {
         final ItemStack[] list = new ItemStack[this.cellView.length];
 

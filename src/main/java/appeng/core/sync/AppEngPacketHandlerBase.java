@@ -38,9 +38,13 @@ public class AppEngPacketHandlerBase {
 
         PACKET_INVENTORY_ACTION(PacketInventoryAction.class),
 
+        PACKET_UNIV_GHOST_ITEM(PacketUnivGhostItem.class),
+
         PACKET_ME_INVENTORY_UPDATE(PacketMEInventoryUpdate.class),
 
         PACKET_ME_FLUID_INVENTORY_UPDATE(PacketMEFluidInventoryUpdate.class),
+
+        PACKET_UNIV_INVENTORY_UPDATE(PacketUnivInventoryUpdate.class),
 
         PACKET_CONFIG_BUTTON(PacketConfigButton.class),
 

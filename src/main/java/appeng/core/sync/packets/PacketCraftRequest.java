@@ -24,6 +24,8 @@ import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingGrid;
 import appeng.api.networking.crafting.ICraftingJob;
 import appeng.api.networking.security.IActionHost;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.util.IExAEStack;
 import appeng.container.ContainerOpenContext;
 import appeng.container.implementations.ContainerCraftAmount;
 import appeng.container.implementations.ContainerCraftConfirm;
@@ -38,6 +40,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.Future;
 
 
@@ -78,43 +81,54 @@ public class PacketCraftRequest extends AppEngPacket {
                 }
 
                 final IGrid g = gn.getGrid();
-                if (g == null || cca.getItemToCraft() == null) {
+                if (g == null) {
                     return;
                 }
 
-                cca.getItemToCraft().setStackSize(this.amount);
-
-                Future<ICraftingJob> futureJob = null;
-                try {
-                    final ICraftingGrid cg = g.getCache(ICraftingGrid.class);
-                    futureJob = cg.beginCraftingJob(cca.getWorld(), cca.getGrid(), cca.getActionSrc(), cca.getItemToCraft(), null);
-
-                    final ContainerOpenContext context = cca.getOpenContext();
-                    if (context != null) {
-                        final TileEntity te = context.getTile();
-                        if (te != null) {
-                            Platform.openGUI(player, te, cca.getOpenContext().getSide(), GuiBridge.GUI_CRAFTING_CONFIRM);
-                        } else {
-                            if (ah instanceof IInventorySlotAware) {
-                                IInventorySlotAware i = ((IInventorySlotAware) ah);
-                                Platform.openGUI(player, i.getInventorySlot(), GuiBridge.GUI_CRAFTING_CONFIRM, i.isBaubleSlot());
-                            }
-                        }
-
-                        if (player.openContainer instanceof ContainerCraftConfirm) {
-                            final ContainerCraftConfirm ccc = (ContainerCraftConfirm) player.openContainer;
-                            ccc.setAutoStart(this.heldShift);
-                            ccc.setJob(futureJob);
-                            cca.detectAndSendChanges();
-                        }
-                    }
-                } catch (final Throwable e) {
-                    if (futureJob != null) {
-                        futureJob.cancel(true);
-                    }
-                    AELog.debug(e);
+                final IExAEStack<?> toCraft = cca.getItemToCraft();
+                if (toCraft == null) {
+                    return;
                 }
+
+                beginCraftingJob(toCraft, cca, g, player, ah);
             }
         }
     }
+
+    private <T extends IAEStack<T>> void beginCraftingJob(@Nonnull final IExAEStack<T> target, final ContainerCraftAmount cca,
+                                                          final IGrid g, final EntityPlayer player, final IActionHost ah) {
+        target.setStackSize(this.amount);
+
+        Future<ICraftingJob> futureJob = null;
+        try {
+            final ICraftingGrid cg = g.getCache(ICraftingGrid.class);
+            futureJob = cg.beginCraftingJob(cca.getWorld(), cca.getGrid(), cca.getActionSrc(), target.unwrap(), null);
+
+            final ContainerOpenContext context = cca.getOpenContext();
+            if (context != null) {
+                final TileEntity te = context.getTile();
+                if (te != null) {
+                    Platform.openGUI(player, te, cca.getOpenContext().getSide(), GuiBridge.GUI_CRAFTING_CONFIRM);
+                } else {
+                    if (ah instanceof IInventorySlotAware) {
+                        IInventorySlotAware i = ((IInventorySlotAware) ah);
+                        Platform.openGUI(player, i.getInventorySlot(), GuiBridge.GUI_CRAFTING_CONFIRM, i.isBaubleSlot());
+                    }
+                }
+
+                if (player.openContainer instanceof ContainerCraftConfirm) {
+                    final ContainerCraftConfirm ccc = (ContainerCraftConfirm) player.openContainer;
+                    ccc.setAutoStart(this.heldShift);
+                    ccc.setJob(futureJob);
+                    cca.detectAndSendChanges();
+                }
+            }
+        } catch (final Throwable e) {
+            if (futureJob != null) {
+                futureJob.cancel(true);
+            }
+            AELog.debug(e);
+        }
+    }
+
 }

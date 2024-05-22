@@ -35,6 +35,7 @@ import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AECableType;
 import appeng.core.AELog;
 import appeng.core.AppEng;
@@ -213,7 +214,11 @@ public class PartExportBus extends PartSharedItemBus implements ICraftingRequest
     }
 
     @Override
-    public IAEItemStack injectCraftedItems(final ICraftingLink link, final IAEItemStack items, final Actionable mode) {
+    public <T extends IAEStack<T>> T injectCraftedItems(final ICraftingLink link, final T i, final Actionable mode) {
+        if (!(i instanceof IAEItemStack items)) {
+            return i;
+        }
+        
         final InventoryAdaptor d = this.getHandler();
 
         try {
@@ -237,17 +242,17 @@ public class PartExportBus extends PartSharedItemBus implements ICraftingRequest
                     }
 
                     if (remaining == inputStack) {
-                        return items;
+                        return i;
                     }
 
-                    return AEItemStack.fromItemStack(remaining);
+                    return (T) AEItemStack.fromItemStack(remaining);
                 }
             }
         } catch (final GridAccessException e) {
             AELog.debug(e);
         }
 
-        return items;
+        return i;
     }
 
     @Override

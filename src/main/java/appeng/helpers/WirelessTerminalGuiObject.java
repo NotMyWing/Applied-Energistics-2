@@ -45,6 +45,7 @@ import appeng.api.storage.data.IItemList;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.IConfigManager;
 import appeng.container.interfaces.IInventorySlotAware;
+import appeng.core.sync.GuiBridge;
 import appeng.me.cluster.IAECluster;
 import appeng.me.cluster.implementations.QuantumCluster;
 import appeng.parts.automation.StackUpgradeInventory;
@@ -61,7 +62,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 
 
-public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, IInventorySlotAware, IViewCellStorage, IAEAppEngInventory, IUpgradeableCellHost {
+public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, IInventorySlotAware, IViewCellStorage, IAEAppEngInventory, IUpgradeableCellHost, IGuiHost {
 
     private final ItemStack effectiveItem;
     private final IWirelessTermHandler wth;
@@ -383,4 +384,15 @@ public class WirelessTerminalGuiObject implements IPortableCell, IActionHost, II
         }
         return null;
     }
+
+    @Override
+    public GuiBridge getGui(EntityPlayer player) {
+        return (GuiBridge) AEApi.instance().registries().wireless().getWirelessTerminalHandler(this.effectiveItem).getGuiHandler(this.effectiveItem);
+    }
+
+    @Override
+    public ItemStack getItemStackRepresentation() {
+        return this.effectiveItem;
+    }
+
 }

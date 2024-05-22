@@ -24,8 +24,8 @@
 package appeng.api.networking.crafting;
 
 
-import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IItemList;
+import appeng.api.storage.data.IUnivItemList;
+import appeng.api.util.IExAEStack;
 
 
 public interface ICraftingJob
@@ -48,10 +48,10 @@ public interface ICraftingJob
 	 *
 	 * @param plan plan
 	 */
-	void populatePlan( IItemList<IAEItemStack> plan );
+	void populatePlan( IUnivItemList plan );
 
 	/**
 	 * @return the final output of the job.
 	 */
-	IAEItemStack getOutput();
+	IExAEStack<?> getOutput();
 }

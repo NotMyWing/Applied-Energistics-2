@@ -24,6 +24,7 @@ import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingRequester;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 
@@ -151,7 +152,7 @@ public class CraftingLink implements ICraftingLink {
         }
     }
 
-    public IAEItemStack injectItems(final IAEItemStack input, final Actionable mode) {
+    public <T extends IAEStack<T>> T injectItems(final T input, final Actionable mode) {
         if (this.tie == null || this.tie.getRequest() == null || this.tie.getRequest().getRequester() == null) {
             return input;
         }

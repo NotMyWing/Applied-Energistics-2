@@ -309,6 +309,8 @@ final class Registration {
         final IBlocks blocks = definitions.blocks();
         final IItems items = definitions.items();
 
+        Api.INSTANCE.storage().freeze();
+
         this.registerSpatialDimension();
 
         // default settings..

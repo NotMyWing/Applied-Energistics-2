@@ -23,28 +23,19 @@
 package appeng.client.gui.implementations;
 
 
-import appeng.api.AEApi;
-import appeng.api.definitions.IDefinitions;
-import appeng.api.definitions.IParts;
-import appeng.api.features.IWirelessTermHandler;
 import appeng.api.storage.ITerminalHost;
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerCraftingStatus;
 import appeng.container.implementations.CraftingCPUStatus;
 import appeng.core.AELog;
-import appeng.core.features.registries.WirelessRegistry;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
-import appeng.helpers.WirelessTerminalGuiObject;
-import appeng.parts.reporting.PartCraftingTerminal;
-import appeng.parts.reporting.PartExpandedProcessingPatternTerminal;
-import appeng.parts.reporting.PartPatternTerminal;
-import appeng.parts.reporting.PartTerminal;
+import appeng.helpers.IGuiHost;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -82,35 +73,9 @@ public class GuiCraftingStatus extends GuiCraftingCPU {
 
         this.status = (ContainerCraftingStatus) this.inventorySlots;
         final Object target = this.status.getTarget();
-        final IDefinitions definitions = AEApi.instance().definitions();
-        final IParts parts = definitions.parts();
-
-        if (target instanceof WirelessTerminalGuiObject) {
-            myIcon = ((WirelessTerminalGuiObject) target).getItemStack();
-            this.originalGui = (GuiBridge) AEApi.instance().registries().wireless().getWirelessTerminalHandler(myIcon).getGuiHandler(myIcon);
-        }
-
-        if (target instanceof PartTerminal) {
-            this.myIcon = parts.terminal().maybeStack(1).orElse(ItemStack.EMPTY);
-
-            this.originalGui = GuiBridge.GUI_ME;
-        }
-
-        if (target instanceof PartCraftingTerminal) {
-            this.myIcon = parts.craftingTerminal().maybeStack(1).orElse(ItemStack.EMPTY);
-
-            this.originalGui = GuiBridge.GUI_CRAFTING_TERMINAL;
-        }
-
-        if (target instanceof PartPatternTerminal) {
-            this.myIcon = parts.patternTerminal().maybeStack(1).orElse(ItemStack.EMPTY);
-
-            this.originalGui = GuiBridge.GUI_PATTERN_TERMINAL;
-        }
-
-        if (target instanceof PartExpandedProcessingPatternTerminal) {
-            myIcon = parts.expandedProcessingPatternTerminal().maybeStack(1).orElse(ItemStack.EMPTY);
-            this.originalGui = GuiBridge.GUI_EXPANDED_PROCESSING_PATTERN_TERMINAL;
+        if (target instanceof final IGuiHost gh) {
+            this.myIcon = gh.getItemStackRepresentation();
+            this.originalGui = gh.getGui(inventoryPlayer.player);
         }
     }
 
@@ -205,7 +170,7 @@ public class GuiCraftingStatus extends GuiCraftingCPU {
 
                 GL11.glPushMatrix();
                 GL11.glTranslatef(x + 3, y + 11, 0);
-                final IAEItemStack craftingStack = cpu.getCrafting();
+                final IExAEStack<?> craftingStack = cpu.getCrafting();
                 if (craftingStack != null) {
                     final int iconIndex = 16 * 11 + 2;
                     this.bindTexture("guis/states.png");
@@ -225,7 +190,7 @@ public class GuiCraftingStatus extends GuiCraftingCPU {
                     GL11.glPopMatrix();
                     GL11.glPushMatrix();
                     GL11.glTranslatef(x + CPU_TABLE_SLOT_WIDTH - 19, y + 3, 0);
-                    this.drawItem(0, 0, craftingStack.createItemStack());
+                    this.drawItem(0, 0, craftingStack.asItemStackRepresentation());
                 } else {
                     final int iconIndex = 16 * 4 + 3;
                     this.bindTexture("guis/states.png");
@@ -255,13 +220,13 @@ public class GuiCraftingStatus extends GuiCraftingCPU {
                 tooltip.append(hoveredCpu.getSerial());
                 tooltip.append('\n');
             }
-            IAEItemStack crafting = hoveredCpu.getCrafting();
+            IExAEStack<?> crafting = hoveredCpu.getCrafting();
             if (crafting != null && crafting.getStackSize() > 0) {
                 tooltip.append(GuiText.Crafting.getLocal());
                 tooltip.append(": ");
                 tooltip.append(crafting.getStackSize());
                 tooltip.append(' ');
-                tooltip.append(crafting.createItemStack().getDisplayName());
+                tooltip.append(crafting.asItemStackRepresentation().getDisplayName());
                 tooltip.append('\n');
                 tooltip.append(hoveredCpu.getRemainingItems());
                 tooltip.append(" / ");

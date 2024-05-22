@@ -32,92 +32,86 @@ import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.container.implementations.ContainerExpandedProcessingPatternTerm;
-import appeng.container.implementations.ContainerPatternEncoder;
-import appeng.container.implementations.ContainerPatternTerm;
+import appeng.api.util.IExAEStack;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
 import appeng.helpers.IContainerCraftingPacket;
+import appeng.helpers.IContainerPatternPacket;
 import appeng.items.storage.ItemViewCell;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
 import appeng.util.Platform;
 import appeng.util.helpers.ItemHandlerUtil;
 import appeng.util.inv.AdaptorItemHandler;
 import appeng.util.inv.WrapperInvItemHandler;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import appeng.util.prioritylist.IPartitionList;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.items.IItemHandler;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import static appeng.helpers.ItemStackHelper.stackFromNBT;
 
 
 public class PacketJEIRecipe extends AppEngPacket {
 
-    private List<ItemStack[]> recipe;
-    private List<ItemStack> output;
-    static ItemStack[] emptyArray = {ItemStack.EMPTY};
-
+    private List<List<IExAEStack<?>>> inputs;
+    private List<IExAEStack<?>> outputs;
 
     // automatic.
+    @SuppressWarnings("unchecked")
     public PacketJEIRecipe(final ByteBuf stream) throws IOException {
-        final ByteArrayInputStream bytes = this.getPacketByteArray(stream);
-        bytes.skip(stream.readerIndex());
-        final NBTTagCompound comp = CompressedStreamTools.readCompressed(bytes);
-        if (comp != null) {
-            this.recipe = new ArrayList<>();
-
-            for (int x = 0; x < comp.getKeySet().size(); x++) {
-                if (comp.hasKey("#" + x)) {
-                    final NBTTagList list = comp.getTagList("#" + x, 10);
-                    if (list.tagCount() > 0) {
-                        this.recipe.add(new ItemStack[list.tagCount()]);
-                        for (int y = 0; y < list.tagCount(); y++) {
-                            this.recipe.get(x)[y] = stackFromNBT(list.getCompoundTagAt(y));
-                        }
-                    } else {
-                        this.recipe.add(emptyArray);
-                    }
+        this.inputs = Arrays.asList(new List[stream.readByte()]);
+        for (int i = 0; i < this.inputs.size(); i++) {
+            final List<IExAEStack<?>> stacks = Arrays.asList(new IExAEStack<?>[stream.readByte()]);
+            for (int j = 0; j < stacks.size(); j++) {
+                if (stream.readBoolean()) {
+                    stacks.set(j, ExAEStack.fromPacket(stream));
+                } else {
+                    stacks.set(j, null);
                 }
             }
+            this.inputs.set(i, stacks);
+        }
 
-            if (comp.hasKey("outputs")) {
-                final NBTTagList outputList = comp.getTagList("outputs", 10);
-                this.output = new ArrayList<>();
-                for (int z = 0; z < outputList.tagCount(); z++) {
-                    this.output.add(stackFromNBT(outputList.getCompoundTagAt(z)));
+        this.outputs = Arrays.asList(new IExAEStack<?>[stream.readByte()]);
+        for (int i = 0; i < this.outputs.size(); i++) {
+            this.outputs.set(i, ExAEStack.fromPacket(stream));
+        }
+    }
+
+    // api
+    public PacketJEIRecipe(final List<List<IExAEStack<?>>> inputs, final List<IExAEStack<?>> outputs) throws IOException {
+        this.inputs = inputs;
+        this.outputs = outputs;
+
+        final ByteBuf data = Unpooled.buffer();
+
+        data.writeInt(this.getPacketID());
+
+        data.writeByte(inputs.size());
+        for (final List<IExAEStack<?>> stacks : inputs) {
+            data.writeByte(stacks.size());
+            for (final IExAEStack<?> stack : stacks) {
+                if (stack != null) {
+                    data.writeBoolean(true);
+                    stack.writeToPacket(data);
+                } else {
+                    data.writeBoolean(false);
                 }
             }
         }
 
-    }
-
-    // api
-    public PacketJEIRecipe(final NBTTagCompound recipe) throws IOException {
-        final ByteBuf data = Unpooled.buffer();
-
-        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        final DataOutputStream outputStream = new DataOutputStream(bytes);
-
-        data.writeInt(this.getPacketID());
-
-        CompressedStreamTools.writeCompressed(recipe, outputStream);
-        data.writeBytes(bytes.toByteArray());
+        data.writeByte(outputs.size());
+        for (final IExAEStack<?> stack : outputs) {
+            stack.writeToPacket(data);
+        }
 
         this.configureWrite(data);
     }
@@ -125,13 +119,14 @@ public class PacketJEIRecipe extends AppEngPacket {
     @Override
     public void serverPacketData(final INetworkInfo manager, final AppEngPacket packet, final EntityPlayer player) {
         final EntityPlayerMP pmp = (EntityPlayerMP) player;
-        final Container con = pmp.openContainer;
-
-        if (!(con instanceof IContainerCraftingPacket)) {
-            return;
+        if (pmp.openContainer instanceof final IContainerCraftingPacket cont) {
+            handleCraftingTable(cont, pmp);
+        } else if (pmp.openContainer instanceof final IContainerPatternPacket cont) {
+            handlePatternEncoder(cont);
         }
+    }
 
-        final IContainerCraftingPacket cct = (IContainerCraftingPacket) con;
+    private void handleCraftingTable(final IContainerCraftingPacket cct, final EntityPlayerMP pmp) {
         final IGridNode node = cct.getNetworkNode();
 
         if (node == null) {
@@ -150,30 +145,32 @@ public class PacketJEIRecipe extends AppEngPacket {
         final IItemHandler craftMatrix = cct.getInventoryByName("crafting");
         final IItemHandler playerInventory = cct.getInventoryByName("player");
 
-        if (inv != null && this.recipe != null && security != null) {
+        if (inv != null && security != null) {
             final IMEMonitor<IAEItemStack> storage = inv.getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class));
             final IPartitionList<IAEItemStack> filter = ItemViewCell.createFilter(cct.getViewCells());
 
             for (int x = 0; x < craftMatrix.getSlots(); x++) {
-                ItemStack currentItem = craftMatrix.getStackInSlot(x);
-
-                if (x >= this.recipe.size()) {
-                    currentItem = ItemStack.EMPTY;
+                if (x >= this.inputs.size()) {
+                    ItemHandlerUtil.setStackInSlot(craftMatrix, x, ItemStack.EMPTY);
+                    continue;
                 }
+
+                ItemStack currentItem = craftMatrix.getStackInSlot(x);
+                final List<IExAEStack<?>> input = this.inputs.get(x);
 
                 // prepare slots
                 if (!currentItem.isEmpty()) {
                     // already the correct item?
                     ItemStack newItem = this.canUseInSlot(x, currentItem);
 
-                    if (!cct.useRealItems() && this.recipe.get(x) != null) {
-                        if (this.recipe.get(x).length > 0) {
-                            currentItem.setCount(recipe.get(x)[0].getCount());
+                    if (!cct.useRealItems() && input != null) {
+                        if (!input.isEmpty()) {
+                            currentItem.setCount((int) Math.max(input.get(0).getStackSize(), Integer.MAX_VALUE));
                         }
                     }
 
                     // put away old item
-                    if (newItem != currentItem && security.hasPermission(player, SecurityPermissions.INJECT)) {
+                    if (newItem != currentItem && security.hasPermission(pmp, SecurityPermissions.INJECT)) {
                         final IAEItemStack in = AEItemStack.fromItemStack(currentItem);
                         final IAEItemStack out = cct.useRealItems() ? Platform.poweredInsert(energy, storage, in, cct.getActionSource()) : null;
                         if (out != null) {
@@ -184,90 +181,83 @@ public class PacketJEIRecipe extends AppEngPacket {
                     }
                 }
 
-                if (currentItem.isEmpty() && recipe.size() > x && recipe.get(x) != null) {
+                if (currentItem.isEmpty() && inputs.size() > x && input != null) {
                     // for each variant
-                    for (int y = 0; y < this.recipe.get(x).length && currentItem.isEmpty(); y++) {
-                        final IAEItemStack request = AEItemStack.fromItemStack(this.recipe.get(x)[y]);
-                        if (request != null) {
-                            // try ae
-                            if ((filter == null || filter.isListed(request)) && security.hasPermission(player, SecurityPermissions.EXTRACT)) {
-                                request.setStackSize(1);
-                                IAEItemStack out;
+                    for (int y = 0; y < input.size() && currentItem.isEmpty(); y++) {
+                        final IExAEStack<?> exRequest = input.get(y);
+                        if (exRequest == null || !(exRequest.unwrap() instanceof final IAEItemStack request)) {
+                            continue;
+                        }
 
-                                if (cct.useRealItems()) {
-                                    out = Platform.poweredExtraction(energy, storage, request, cct.getActionSource());
-                                    if (out == null) {
-                                        if (request.getItem().isDamageable() || Platform.isGTDamageableItem(request.getItem())) {
-                                            Collection<IAEItemStack> outList = inv.getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)).getStorageList().findFuzzy(request, FuzzyMode.IGNORE_ALL);
-                                            for (IAEItemStack is : outList) {
-                                                if (is.getStackSize() == 0) {
+                        final ItemStack reqIs = request.createItemStack();
+                        // try ae
+                        if ((filter == null || filter.isListed(request)) && security.hasPermission(pmp, SecurityPermissions.EXTRACT)) {
+                            request.setStackSize(1);
+                            IAEItemStack out;
+
+                            if (cct.useRealItems()) {
+                                out = Platform.poweredExtraction(energy, storage, request, cct.getActionSource());
+                                if (out == null) {
+                                    if (request.getItem().isDamageable() || Platform.isGTDamageableItem(request.getItem())) {
+                                        Collection<IAEItemStack> outList = inv.getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)).getStorageList().findFuzzy(request, FuzzyMode.IGNORE_ALL);
+                                        for (IAEItemStack is : outList) {
+                                            if (is.getStackSize() == 0) {
+                                                continue;
+                                            }
+                                            if (Platform.isGTDamageableItem(request.getItem())) {
+                                                if (!(is.getDefinition().getMetadata() == request.getDefinition().getMetadata())) {
                                                     continue;
                                                 }
-                                                if (Platform.isGTDamageableItem(request.getItem())) {
-                                                    if (!(is.getDefinition().getMetadata() == request.getDefinition().getMetadata())) {
-                                                        continue;
-                                                    }
-                                                }
-                                                out = Platform.poweredExtraction(energy, storage, is.copy().setStackSize(1), cct.getActionSource());
-                                                if (out != null) {
-                                                    break;
-                                                }
+                                            }
+                                            out = Platform.poweredExtraction(energy, storage, is.copy().setStackSize(1), cct.getActionSource());
+                                            if (out != null) {
+                                                break;
                                             }
                                         }
                                     }
-                                } else {
-                                    // Query the crafting grid if there is a pattern providing the item
-                                    if (!crafting.getCraftingFor(request, null, 0, null).isEmpty()) {
-                                        out = request;
-                                    } else {
-                                        // Fall back using an existing item
-                                        out = storage.extractItems(request, Actionable.SIMULATE, cct.getActionSource());
-                                    }
                                 }
-
-                                if (out != null) {
-                                    if (!cct.useRealItems()) {
-                                        out.setStackSize(recipe.get(x)[y].getCount());
-                                    }
-                                    currentItem = out.createItemStack();
+                            } else {
+                                // Query the crafting grid if there is a pattern providing the item
+                                if (!crafting.getCraftingFor(request, null, 0, null).isEmpty()) {
+                                    out = request;
+                                } else {
+                                    // Fall back using an existing item
+                                    out = storage.extractItems(request, Actionable.SIMULATE, cct.getActionSource());
                                 }
                             }
 
-                            // try inventory
-                            if (currentItem.isEmpty()) {
-                                AdaptorItemHandler ad = new AdaptorItemHandler(playerInventory);
-
-                                if (cct.useRealItems()) {
-                                    currentItem = ad.removeSimilarItems(1, this.recipe.get(x)[y], FuzzyMode.IGNORE_ALL, null);
-                                } else {
-                                    currentItem = ad.simulateSimilarRemove(recipe.get(x)[y].getCount(), this.recipe.get(x)[y], FuzzyMode.IGNORE_ALL, null);
+                            if (out != null) {
+                                if (!cct.useRealItems()) {
+                                    out.setStackSize(request.getStackSize());
                                 }
+                                currentItem = out.createItemStack();
+                            }
+                        }
+
+                        // try inventory
+                        if (currentItem.isEmpty()) {
+                            AdaptorItemHandler ad = new AdaptorItemHandler(playerInventory);
+
+                            if (cct.useRealItems()) {
+                                currentItem = ad.removeSimilarItems(1, reqIs, FuzzyMode.IGNORE_ALL, null);
+                            } else {
+                                currentItem = ad.simulateSimilarRemove(reqIs.getCount(), reqIs, FuzzyMode.IGNORE_ALL, null);
                             }
                         }
                     }
                     if (!cct.useRealItems()) {
-                        if (currentItem.isEmpty() && recipe.size() > x && this.recipe.get(x) != null) {
-                            currentItem = this.recipe.get(x)[0].copy();
+                        if (currentItem.isEmpty() && inputs.size() > x) {
+                            final IExAEStack<?> stack = input.get(0);
+                            if (stack != null && stack.unwrap() instanceof final IAEItemStack ais) {
+                                currentItem = ais.createItemStack();
+                            }
                         }
                     }
                 }
                 ItemHandlerUtil.setStackInSlot(craftMatrix, x, currentItem);
             }
 
-            con.onCraftMatrixChanged(new WrapperInvItemHandler(craftMatrix));
-
-            if (this.output != null && ((con instanceof ContainerPatternEncoder && !((ContainerPatternEncoder) con).isCraftingMode()))) {
-                IItemHandler outputSlots = cct.getInventoryByName("output");
-                for (int i = 0; i < outputSlots.getSlots(); ++i) {
-                    ItemHandlerUtil.setStackInSlot(outputSlots, i, ItemStack.EMPTY);
-                }
-                for (int i = 0; i < this.output.size() && i < outputSlots.getSlots(); ++i) {
-                    if (this.output.get(i) == null || this.output.get(i) == ItemStack.EMPTY) {
-                        continue;
-                    }
-                    ItemHandlerUtil.setStackInSlot(outputSlots, i, this.output.get(i));
-                }
-            }
+            pmp.openContainer.onCraftMatrixChanged(new WrapperInvItemHandler(craftMatrix));
         }
     }
 
@@ -277,14 +267,54 @@ public class PacketJEIRecipe extends AppEngPacket {
      * @return is if it can be used, else EMPTY
      */
     private ItemStack canUseInSlot(int slot, ItemStack is) {
-        if (this.recipe.get(slot) != null) {
-            for (ItemStack option : this.recipe.get(slot)) {
-                if (ItemStack.areItemStacksEqual(is, option)) {
+        if (this.inputs.get(slot) != null) {
+            for (IExAEStack<?> option : this.inputs.get(slot)) {
+                if (option != null && option.unwrap() instanceof final IAEItemStack ais && ais.isSameType(is)) {
                     return is;
                 }
             }
         }
         return ItemStack.EMPTY;
+    }
+
+    private void handlePatternEncoder(final IContainerPatternPacket cont) {
+        final AppEngInternalUnivInventory ic = cont.getCraftingInventory();
+        final AppEngInternalUnivInventory io = cont.getOutputInventory();
+
+        int i = 0;
+        for (final List<IExAEStack<?>> input : this.inputs) {
+            if (i >= ic.getSlots()) {
+                break;
+            }
+            if (input.isEmpty()) {
+                continue;
+            }
+            for (final IExAEStack<?> stack : input) {
+                if (stack != null) {
+                    ic.setStackInSlot(i, input.get(0));
+                    ++i;
+                    break;
+                }
+            }
+        }
+        for (; i < ic.getSlots(); i++) {
+            ic.setStackInSlot(i, (IExAEStack<?>) null);
+        }
+
+        i = 0;
+        for (final IExAEStack<?> stack : this.outputs) {
+            if (i >= io.getSlots()) {
+                break;
+            }
+            if (stack == null) {
+                continue;
+            }
+            io.setStackInSlot(i, stack);
+            ++i;
+        }
+        for (; i < io.getSlots(); i++) {
+            io.setStackInSlot(i, (IExAEStack<?>) null);
+        }
     }
 
 }

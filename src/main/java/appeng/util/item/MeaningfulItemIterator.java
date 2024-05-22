@@ -19,6 +19,7 @@
 package appeng.util.item;
 
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,7 +30,7 @@ import java.util.NoSuchElementException;
  * {@link IAEItemStack#isMeaningful()}. Items that are not meaningful are automatically removed from the collection as
  * it is being iterated.
  */
-public class MeaningfulItemIterator<T extends IAEItemStack> implements Iterator<T> {
+public class MeaningfulItemIterator<T extends IAEStack<T>> implements Iterator<T> {
     private final Iterator<T> parent;
     private T next;
 

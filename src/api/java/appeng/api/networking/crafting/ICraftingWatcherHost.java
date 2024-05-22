@@ -24,7 +24,7 @@
 package appeng.api.networking.crafting;
 
 
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 
 
 public interface ICraftingWatcherHost
@@ -44,5 +44,5 @@ public interface ICraftingWatcherHost
 	 * @param craftingGrid current crafting grid
 	 * @param what change
 	 */
-	void onRequestChange( ICraftingGrid craftingGrid, IAEItemStack what );
+	<T extends IAEStack<T>> void onRequestChange( ICraftingGrid craftingGrid, T what );
 }

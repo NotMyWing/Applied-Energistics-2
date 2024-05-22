@@ -21,6 +21,7 @@ package appeng.client.render;
 
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.util.IWideReadableNumberConverter;
 import appeng.util.ReadableNumberConverter;
 import net.minecraft.client.Minecraft;
@@ -196,6 +197,29 @@ public class TesrRenderHelper {
         GlStateManager.translate(-0.5f * width, 0.0f, 0.5f);
         fr.drawString(renderedStackSize, 0, 0, 0);
 
+    }
+
+    public static void renderStack2dWithAmount(final IExAEStack<?> stack, final float scale, final float spacing) {
+        if (stack.unwrap() instanceof IAEItemStack ais) {
+            renderItem2dWithAmount(ais, scale, spacing);
+        } else if (stack.unwrap() instanceof IAEFluidStack afs) {
+            renderFluid2dWithAmount(afs, scale, spacing);
+        } else {
+            final ItemStack renderStack = stack.asItemStackRepresentation();
+
+            TesrRenderHelper.renderItem2d(renderStack, scale);
+
+            final long stackSize = stack.getStackSize();
+            final String renderedStackSize = NUMBER_CONVERTER.toWideReadableForm(stackSize);
+
+            // Render the item count
+            final FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+            final int width = fr.getStringWidth(renderedStackSize);
+            GlStateManager.translate(0.0f, spacing, 0);
+            GlStateManager.scale(1.0f / 62.0f, 1.0f / 62.0f, 1.0f / 62.0f);
+            GlStateManager.translate(-0.5f * width, 0.0f, 0.5f);
+            fr.drawString(renderedStackSize, 0, 0, 0);
+        }
     }
 
 }

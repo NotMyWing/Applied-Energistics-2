@@ -21,6 +21,7 @@ package appeng.client.gui;
 
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.client.gui.widgets.GuiCustomSlot;
 import appeng.client.gui.widgets.GuiScrollbar;
 import appeng.client.gui.widgets.ITooltip;
@@ -42,6 +43,7 @@ import appeng.helpers.InventoryAction;
 import appeng.items.misc.ItemEncodedPattern;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -512,7 +514,7 @@ public abstract class AEBaseGui extends GuiContainer {
                     slotNum = slot.slotNumber;
                 }
 
-                ((AEBaseContainer) this.inventorySlots).setTargetStack(stack);
+                ((AEBaseContainer) this.inventorySlots).setTargetStack(ExAEStack.of(stack));
                 final PacketInventoryAction p = new PacketInventoryAction(InventoryAction.MOVE_REGION, slotNum, 0);
                 NetworkHandler.instance().sendToServer(p);
                 return;
@@ -598,11 +600,14 @@ public abstract class AEBaseGui extends GuiContainer {
             }
 
             if (action != null) {
-                ((AEBaseContainer) this.inventorySlots).setTargetStack(stack);
+                ((AEBaseContainer) this.inventorySlots).setTargetStack(ExAEStack.of(stack));
                 final PacketInventoryAction p = new PacketInventoryAction(action, this.getInventorySlots().size(), 0);
                 NetworkHandler.instance().sendToServer(p);
             }
 
+            return;
+        } else if (slot instanceof final IMESlot<?> meSlot) {
+            tryUnivAutoCrafting(meSlot, mouseButton, clickType);
             return;
         }
 
@@ -639,6 +644,31 @@ public abstract class AEBaseGui extends GuiContainer {
         }
 
         super.handleMouseClick(slot, slotIdx, mouseButton, clickType);
+    }
+
+    protected <T extends IAEStack<T>> void tryUnivAutoCrafting(final IMESlot<T> slot, final int mouseButton, final ClickType clickType) {
+        T stack = slot.getAEStack();
+        if (stack == null) {
+            return;
+        }
+
+        switch (clickType) {
+            case PICKUP:
+                if (mouseButton == 1 || (stack.getStackSize() > 0 && !GuiScreen.isAltKeyDown())
+                        || !Minecraft.getMinecraft().player.inventory.getItemStack().isEmpty()) {
+                    return;
+                } // falls through!
+            case CLONE:
+                if (!stack.isCraftable()) {
+                    return;
+                }
+                break;
+            default:
+                return;
+        }
+
+        ((AEBaseContainer) this.inventorySlots).setTargetStack(ExAEStack.of(stack));
+        NetworkHandler.instance().sendToServer(new PacketInventoryAction(InventoryAction.AUTO_CRAFT, 0, 0));
     }
 
     @Override
@@ -713,7 +743,7 @@ public abstract class AEBaseGui extends GuiContainer {
         if (slot instanceof SlotME) {
             final IAEItemStack item = ((SlotME) slot).getAEStack();
             if (item != null) {
-                ((AEBaseContainer) this.inventorySlots).setTargetStack(item);
+                ((AEBaseContainer) this.inventorySlots).setTargetStack(ExAEStack.of(item));
                 final InventoryAction direction = wheel > 0 ? InventoryAction.ROLL_DOWN : InventoryAction.ROLL_UP;
                 final int times = Math.abs(wheel);
                 final int inventorySize = this.getInventorySlots().size();
@@ -953,7 +983,14 @@ public abstract class AEBaseGui extends GuiContainer {
                     // Annoying but easier than trying to splice into render item
                     super.drawSlot(s);
 
-                    this.stackSizeRenderer.renderStackSize(this.fontRenderer, AEItemStack.fromItemStack(appEngSlot.getDisplayStack()), s.xPos, s.yPos);
+                    final AEItemStack sizedStack = AEItemStack.fromItemStack(appEngSlot.getDisplayStack());
+                    if (sizedStack != null) {
+                        final long size = appEngSlot.getDisplayStackSize();
+                        if (size != 0) {
+                            sizedStack.setStackSize(size);
+                        }
+                        this.stackSizeRenderer.renderStackSize(this.fontRenderer, sizedStack, s.xPos, s.yPos);
+                    }
                     return;
                 } else {
                     super.drawSlot(s);

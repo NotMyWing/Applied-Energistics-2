@@ -255,8 +255,10 @@ public class JEIMissingItem implements IRecipeTransferError {
 
         if (containerCraftingTerm instanceof IContainerCraftingPacket) {
             IItemHandler itemHandler = ((IContainerCraftingPacket) containerCraftingTerm).getInventoryByName("crafting");
-            for (int i = 0; i < itemHandler.getSlots(); i++) {
-                itemList.addStorage(AEItemStack.fromItemStack(itemHandler.getStackInSlot(i)));
+            if (itemHandler != null) {
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    itemList.addStorage(AEItemStack.fromItemStack(itemHandler.getStackInSlot(i)));
+                }
             }
         }
         return itemList;

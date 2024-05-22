@@ -31,13 +31,15 @@ import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.storage.IStorageGrid;
-import appeng.api.storage.channels.IItemStorageChannel;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IItemList;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IUnivItemList;
 import appeng.api.util.DimensionalCoord;
+import appeng.api.util.IExAEStack;
 import appeng.core.AELog;
 import appeng.hooks.TickHandler;
 import appeng.me.cache.GridStorageCache;
+import appeng.util.item.ExAEStack;
+import appeng.util.item.StorageListWrapper;
 import com.google.common.base.Stopwatch;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -46,22 +48,22 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 
-public class CraftingJob implements Runnable, ICraftingJob {
+public class CraftingJob<T extends IAEStack<T>> implements Runnable, ICraftingJob {
     private static final String LOG_CRAFTING_JOB = "CraftingJob (%s) issued by %s requesting [%s] using %s bytes took %s us";
     private static final String LOG_MACHINE_SOURCE_DETAILS = "Machine[object=%s, %s]";
 
     private final MECraftingInventory original;
     private final World world;
-    private final IItemList<IAEItemStack> crafting = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createList();
-    private final IItemList<IAEItemStack> missing = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createList();
+    private final IUnivItemList crafting = AEApi.instance().storage().createUnivList();
+    private final IUnivItemList missing = AEApi.instance().storage().createUnivList();
 
     private final HashMap<String, TwoIntegers> opsAndMultiplier = new HashMap<>();
     private final Object monitor = new Object();
     private final Stopwatch tickSpreadingWatch = Stopwatch.createUnstarted();
     private final Stopwatch craftingTreeWatch = Stopwatch.createUnstarted();
     private final ICraftingGrid cc;
-    private CraftingTreeNode tree;
-    private final IAEItemStack output;
+    private CraftingTreeNode<?> tree;
+    private final T output;
     private boolean simulate = false;
     private MECraftingInventory availableCheck;
     private long bytes = 0;
@@ -76,7 +78,7 @@ public class CraftingJob implements Runnable, ICraftingJob {
         return w;
     }
 
-    public CraftingJob(final World w, final IGrid grid, final IActionSource actionSrc, final IAEItemStack what, final ICraftingCallback callback) {
+    public CraftingJob(final World w, final IGrid grid, final IActionSource actionSrc, final T what, final ICraftingCallback callback) {
         this.world = this.wrapWorld(w);
         this.output = what.copy();
         this.actionSrc = actionSrc;
@@ -85,29 +87,30 @@ public class CraftingJob implements Runnable, ICraftingJob {
 
         this.cc = grid.getCache(ICraftingGrid.class);
         final GridStorageCache sg = grid.getCache(IStorageGrid.class);
-        this.original = new MECraftingInventory(sg.getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)).getStorageList());
+
+        this.original = new MECraftingInventory(new StorageListWrapper(sg));
 
         this.setTree(this.getCraftingTree(cc, what));
         this.availableCheck = null;
     }
 
-    private CraftingTreeNode getCraftingTree(final ICraftingGrid cc, final IAEItemStack what) {
-        return new CraftingTreeNode(cc, this, what, null, -1, 0);
+    private <T extends IAEStack<T>> CraftingTreeNode<T> getCraftingTree(final ICraftingGrid cc, final T what) {
+        return new CraftingTreeNode<>(cc, this, what, null, -1, 0);
     }
 
-    void refund(final IAEItemStack o) {
+    <T extends IAEStack<T>> void refund(final T o) {
         this.availableCheck.injectItems(o, Actionable.MODULATE, this.actionSrc);
     }
 
-    IAEItemStack checkUse(final IAEItemStack available) {
+    <T extends IAEStack<T>> T checkUse(final T available) {
         return this.availableCheck.extractItems(available, Actionable.MODULATE, this.actionSrc);
     }
 
-    IAEItemStack checkAvailable(final IAEItemStack available) {
+    <T extends IAEStack<T>> T checkAvailable(final T available) {
         return this.availableCheck.extractItems(available, Actionable.SIMULATE, this.actionSrc);
     }
 
-    void addTask(IAEItemStack what, final long crafts, final ICraftingPatternDetails details, final int depth) {
+    <T extends IAEStack<T>> void addTask(T what, final long crafts, final ICraftingPatternDetails details, final int depth) {
         if (crafts > 0) {
             what = what.copy();
             what.setStackSize(what.getStackSize() * crafts);
@@ -115,9 +118,8 @@ public class CraftingJob implements Runnable, ICraftingJob {
         }
     }
 
-    void addMissing(IAEItemStack what) {
-        what = what.copy();
-        this.missing.add(what);
+    <T extends IAEStack<T>> void addMissing(final T what) {
+        this.missing.add(what.copy());
     }
 
     @Override
@@ -255,15 +257,15 @@ public class CraftingJob implements Runnable, ICraftingJob {
     }
 
     @Override
-    public void populatePlan(final IItemList<IAEItemStack> plan) {
+    public void populatePlan(final IUnivItemList plan) {
         if (this.getTree() != null) {
             this.getTree().getPlan(plan);
         }
     }
 
     @Override
-    public IAEItemStack getOutput() {
-        return this.output;
+    public IExAEStack<?> getOutput() {
+        return ExAEStack.of(this.output);
     }
 
     public boolean isDone() {
@@ -299,11 +301,11 @@ public class CraftingJob implements Runnable, ICraftingJob {
         this.bytes += crafts;
     }
 
-    public CraftingTreeNode getTree() {
+    public CraftingTreeNode<?> getTree() {
         return this.tree;
     }
 
-    private void setTree(final CraftingTreeNode tree) {
+    private void setTree(final CraftingTreeNode<?> tree) {
         this.tree = tree;
     }
 

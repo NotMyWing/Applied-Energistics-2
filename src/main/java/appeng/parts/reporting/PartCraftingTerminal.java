@@ -19,6 +19,7 @@
 package appeng.parts.reporting;
 
 
+import appeng.api.AEApi;
 import appeng.api.parts.IPartModel;
 import appeng.core.AppEng;
 import appeng.core.sync.GuiBridge;
@@ -99,6 +100,11 @@ public class PartCraftingTerminal extends AbstractPartTerminal {
             return this.craftingGrid;
         }
         return super.getInventoryByName(name);
+    }
+
+    @Override
+    public ItemStack getItemStackRepresentation() {
+        return AEApi.instance().definitions().parts().craftingTerminal().maybeStack(1).orElse(ItemStack.EMPTY);
     }
 
     @Override

@@ -19,7 +19,7 @@
 package appeng.integration.modules.theoneprobe.tile;
 
 
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.integration.modules.theoneprobe.TheOneProbeText;
 import appeng.tile.AEBaseTile;
 import appeng.tile.crafting.TileCraftingMonitorTile;
@@ -39,7 +39,7 @@ public class CraftingMonitorInfoProvider implements ITileProbInfoProvider {
     public void addProbeInfo(AEBaseTile tile, ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
         if (tile instanceof TileCraftingMonitorTile) {
             final TileCraftingMonitorTile monitor = (TileCraftingMonitorTile) tile;
-            final IAEItemStack displayStack = monitor.getJobProgress();
+            final IExAEStack<?> displayStack = monitor.getJobProgress();
 
             if (displayStack != null) {
                 // TODO: check if OK

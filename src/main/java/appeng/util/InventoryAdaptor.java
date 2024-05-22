@@ -19,8 +19,17 @@
 package appeng.util;
 
 
+import appeng.api.AEApi;
+import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
+import appeng.api.networking.security.IActionSource;
+import appeng.api.storage.IMEInventory;
+import appeng.api.storage.IStorageChannel;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IItemList;
 import appeng.util.inv.*;
+import appeng.util.item.AEItemStack;
 import com.jaquadro.minecraft.storagedrawers.api.capabilities.IItemRepository;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -28,8 +37,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+
+import javax.annotation.Nonnull;
+import java.util.Iterator;
+
 
 /**
  * Universal Facade for other inventories. Used to conveniently interact with various types of inventories. This is not
@@ -37,11 +51,11 @@ import net.minecraftforge.items.IItemHandler;
  * actually monitoring an inventory. It is just for insertion and extraction, and is primarily used by import/export
  * buses.
  */
-public abstract class InventoryAdaptor implements Iterable<ItemSlot> {
+public abstract class InventoryAdaptor implements IMEInventory<IAEItemStack>, Iterable<ItemSlot> {
     @CapabilityInject(IItemRepository.class)
     public static Capability<IItemRepository> ITEM_REPOSITORY_CAPABILITY = null;
 
-    public static InventoryAdaptor getAdaptor(final TileEntity te, final EnumFacing d) {
+    public static InventoryAdaptor getAdaptor(final ICapabilityProvider te, final EnumFacing d) {
         if (te != null) {
             if (ITEM_REPOSITORY_CAPABILITY != null && te.hasCapability(ITEM_REPOSITORY_CAPABILITY, d)) {
                 IItemRepository itemRepository = te.getCapability(ITEM_REPOSITORY_CAPABILITY, d);
@@ -85,5 +99,35 @@ public abstract class InventoryAdaptor implements Iterable<ItemSlot> {
     public abstract boolean containsItems();
 
     public abstract boolean hasSlots();
+
+    @Override
+    public IAEItemStack injectItems(final IAEItemStack input, final Actionable type, final IActionSource src) {
+        return AEItemStack.fromItemStack(switch (type) {
+            case MODULATE -> this.addItems(input.createItemStack());
+            case SIMULATE -> this.simulateAdd(input.createItemStack());
+        });
+    }
+
+    @Override
+    public IAEItemStack extractItems(final IAEItemStack request, final Actionable mode, final IActionSource src) {
+        final ItemStack stack = request.createItemStack();
+        return AEItemStack.fromItemStack(switch (mode) {
+            case MODULATE -> this.removeItems(stack.getCount(), stack, null);
+            case SIMULATE -> this.simulateRemove(stack.getCount(), stack, null);
+        });
+    }
+
+    @Override
+    public IItemList<IAEItemStack> getAvailableItems(final IItemList<IAEItemStack> out) {
+        for (final ItemSlot slot : this) {
+            out.add(slot.getAEItemStack());
+        }
+        return out;
+    }
+
+    @Override
+    public IStorageChannel<IAEItemStack> getChannel() {
+        return AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+    }
 
 }

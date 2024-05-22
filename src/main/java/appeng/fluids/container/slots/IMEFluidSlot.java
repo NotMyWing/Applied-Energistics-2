@@ -19,7 +19,13 @@
 package appeng.fluids.container.slots;
 
 
+import appeng.api.AEApi;
+import appeng.api.storage.IStorageChannel;
+import appeng.api.storage.channels.IFluidStorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.util.IExAEStack;
+import appeng.container.slot.IMESlot;
+import appeng.util.item.ExAEStack;
 
 
 /**
@@ -27,8 +33,18 @@ import appeng.api.storage.data.IAEFluidStack;
  * @version rv6
  * @since rv6
  */
-public interface IMEFluidSlot {
+public interface IMEFluidSlot extends IMESlot<IAEFluidStack> {
     IAEFluidStack getAEFluidStack();
+
+    @Override
+    default IAEFluidStack getAEStack() {
+        return getAEFluidStack();
+    }
+
+    @Override
+    default IStorageChannel<IAEFluidStack> getSlotChannel() {
+        return AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class);
+    }
 
     default boolean shouldRenderAsFluid() {
         return true;

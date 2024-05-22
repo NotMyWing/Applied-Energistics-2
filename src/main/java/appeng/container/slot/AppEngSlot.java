@@ -207,6 +207,10 @@ public class AppEngSlot extends Slot {
         return this.itemHandler.getStackInSlot(this.index);
     }
 
+    public long getDisplayStackSize() {
+        return 0L;
+    }
+
     public float getOpacityOfIcon() {
         return 0.4f;
     }

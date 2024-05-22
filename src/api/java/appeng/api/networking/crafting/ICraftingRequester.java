@@ -24,6 +24,7 @@
 package appeng.api.networking.crafting;
 
 
+import appeng.api.storage.data.IAEStack;
 import com.google.common.collect.ImmutableSet;
 
 import appeng.api.config.Actionable;
@@ -51,7 +52,7 @@ public interface ICraftingRequester extends IActionHost
 	 *
 	 * @return unwanted item
 	 */
-	IAEItemStack injectCraftedItems( ICraftingLink link, IAEItemStack items, Actionable mode );
+	<T extends IAEStack<T>> T injectCraftedItems( ICraftingLink link, T items, Actionable mode );
 
 	/**
 	 * called when the job changes from in progress, to either complete, or canceled.

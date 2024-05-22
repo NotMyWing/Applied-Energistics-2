@@ -33,9 +33,10 @@ import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.ITerminalHost;
-import appeng.api.storage.channels.IItemStorageChannel;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IItemList;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IUnivItemList;
+import appeng.api.util.IExAEStack;
+import appeng.api.util.IUnivStackIterable;
 import appeng.client.gui.implementations.GuiCraftConfirm;
 import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
@@ -43,13 +44,11 @@ import appeng.container.interfaces.IInventorySlotAware;
 import appeng.core.AELog;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketMEInventoryUpdate;
+import appeng.core.sync.packets.PacketUnivInventoryUpdate;
+import appeng.helpers.IGuiHost;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.me.helpers.PlayerSource;
-import appeng.parts.reporting.PartCraftingTerminal;
-import appeng.parts.reporting.PartExpandedProcessingPatternTerminal;
-import appeng.parts.reporting.PartPatternTerminal;
-import appeng.parts.reporting.PartTerminal;
+import appeng.parts.reporting.*;
 import appeng.util.Platform;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.player.EntityPlayer;
@@ -193,52 +192,61 @@ public class ContainerCraftConfirm extends AEBaseContainer {
                 }
 
                 try {
-                    final PacketMEInventoryUpdate a = new PacketMEInventoryUpdate((byte) 0);
-                    final PacketMEInventoryUpdate b = new PacketMEInventoryUpdate((byte) 1);
-                    final PacketMEInventoryUpdate c = this.result.isSimulation() ? new PacketMEInventoryUpdate((byte) 2) : null;
+                    final PacketUnivInventoryUpdate a = new PacketUnivInventoryUpdate((byte) 0);
+                    final PacketUnivInventoryUpdate b = new PacketUnivInventoryUpdate((byte) 1);
+                    final PacketUnivInventoryUpdate c = this.result.isSimulation() ? new PacketUnivInventoryUpdate((byte) 2) : null;
 
-                    final IItemList<IAEItemStack> plan = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createList();
+                    final IUnivItemList plan = AEApi.instance().storage().createUnivList();
                     this.result.populatePlan(plan);
 
                     this.setUsedBytes(this.result.getByteTotal());
 
-                    for (final IAEItemStack out : plan) {
+                    if (!plan.traverse(new IUnivStackIterable.Traversal() {
+                        @Override
+                        public <T extends IAEStack<T>> boolean traverse(final T out) {
+                            T o = out.copy();
+                            o.reset();
+                            o.setStackSize(out.getStackSize());
 
-                        IAEItemStack o = out.copy();
-                        o.reset();
-                        o.setStackSize(out.getStackSize());
+                            final T p = out.copy();
+                            p.reset();
+                            p.setStackSize(out.getCountRequestable());
 
-                        final IAEItemStack p = out.copy();
-                        p.reset();
-                        p.setStackSize(out.getCountRequestable());
+                            final IStorageGrid sg = grid.getCache(IStorageGrid.class);
+                            final IMEInventory<T> items = sg.getInventory(out.getChannel());
 
-                        final IStorageGrid sg = grid.getCache(IStorageGrid.class);
-                        final IMEInventory<IAEItemStack> items = sg.getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class));
+                            T m = null;
+                            if (c != null && ContainerCraftConfirm.this.result.isSimulation()) {
+                                m = o.copy();
+                                o = items.extractItems(o, Actionable.SIMULATE, ContainerCraftConfirm.this.getActionSource());
 
-                        IAEItemStack m = null;
-                        if (c != null && this.result.isSimulation()) {
-                            m = o.copy();
-                            o = items.extractItems(o, Actionable.SIMULATE, this.getActionSource());
+                                if (o == null) {
+                                    o = m.copy();
+                                    o.setStackSize(0);
+                                }
 
-                            if (o == null) {
-                                o = m.copy();
-                                o.setStackSize(0);
+                                m.setStackSize(m.getStackSize() - o.getStackSize());
                             }
 
-                            m.setStackSize(m.getStackSize() - o.getStackSize());
-                        }
+                            try {
+                                if (o.getStackSize() > 0) {
+                                    a.appendItem(o);
+                                }
 
-                        if (o.getStackSize() > 0) {
-                            a.appendItem(o);
-                        }
+                                if (p.getStackSize() > 0) {
+                                    b.appendItem(p);
+                                }
 
-                        if (p.getStackSize() > 0) {
-                            b.appendItem(p);
+                                if (c != null && m != null && m.getStackSize() > 0) {
+                                    c.appendItem(m);
+                                }
+                            } catch (IOException e) {
+                                return false; // >.<
+                            }
+                            return true;
                         }
-
-                        if (c != null && m != null && m.getStackSize() > 0) {
-                            c.appendItem(m);
-                        }
+                    })) {
+                        throw new IOException();
                     }
 
                     for (final Object g : this.listeners) {
@@ -288,25 +296,8 @@ public class ContainerCraftConfirm extends AEBaseContainer {
         GuiBridge originalGui = null;
 
         final IActionHost ah = this.getActionHost();
-        if (ah instanceof WirelessTerminalGuiObject) {
-            ItemStack myIcon = ((WirelessTerminalGuiObject) ah).getItemStack();
-            originalGui = (GuiBridge) AEApi.instance().registries().wireless().getWirelessTerminalHandler(myIcon).getGuiHandler(myIcon);
-        }
-
-        if (ah instanceof PartTerminal) {
-            originalGui = GuiBridge.GUI_ME;
-        }
-
-        if (ah instanceof PartCraftingTerminal) {
-            originalGui = GuiBridge.GUI_CRAFTING_TERMINAL;
-        }
-
-        if (ah instanceof PartPatternTerminal) {
-            originalGui = GuiBridge.GUI_PATTERN_TERMINAL;
-        }
-
-        if (ah instanceof PartExpandedProcessingPatternTerminal) {
-            originalGui = GuiBridge.GUI_EXPANDED_PROCESSING_PATTERN_TERMINAL;
+        if (ah instanceof final IGuiHost gh) {
+            originalGui = gh.getGui(this.getInventoryPlayer().player);
         }
 
         final IActionHost h = ((IActionHost) this.getTarget());
@@ -324,7 +315,7 @@ public class ContainerCraftConfirm extends AEBaseContainer {
             final ICraftingLink g = cc.submitJob(this.result, null, this.getSelectedCpu() == -1 ? null : this.cpus.get(this.getSelectedCpu()).getCpu(), true, this.getActionSrc());
             this.setAutoStart(false);
             if (g == null) {
-                this.setJob(cc.beginCraftingJob(this.getWorld(), grid, this.getActionSrc(), this.result.getOutput(), null));
+                this.beginJob(cc, grid, this.result.getOutput());
             } else if (originalGui != null && this.getOpenContext() != null) {
                 final TileEntity te = this.getOpenContext().getTile();
                 if (te != null) {
@@ -337,6 +328,10 @@ public class ContainerCraftConfirm extends AEBaseContainer {
                 }
             }
         }
+    }
+
+    private <T extends IAEStack<T>> void beginJob(final ICraftingGrid cc, final IGrid grid, final IExAEStack<T> target) {
+        this.setJob(cc.beginCraftingJob(this.getWorld(), grid, this.getActionSrc(), target.unwrap(), null));
     }
 
     private IActionSource getActionSrc() {
@@ -437,7 +432,7 @@ public class ContainerCraftConfirm extends AEBaseContainer {
         this.job = job;
     }
 
-    public void postUpdate(final List<IAEItemStack> list, final byte ref) {
+    public void postUpdate(final List<IExAEStack<?>> list, final byte ref) {
         this.guiCraftConfirm.postUpdate(list, ref);
     }
 

@@ -1,6 +1,7 @@
 package appeng.client.gui;
 
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.util.IExAEStack;
 import appeng.client.gui.implementations.GuiCraftAmount;
 import appeng.client.gui.implementations.GuiCraftConfirm;
 import appeng.client.gui.implementations.GuiCraftingCPU;
@@ -37,14 +38,13 @@ public class AEGuiHandler implements IAdvancedGuiHandler<AEBaseGui>, IGhostIngre
     @Nullable
     @Override
     public Object getIngredientUnderMouse(@Nonnull AEBaseGui guiContainer, int mouseX, int mouseY) {
-        List<IAEItemStack> visual;
         int guiSlotIdx;
         Object result = null;
         if (guiContainer instanceof GuiCraftConfirm) {
             guiSlotIdx = getSlotidx(guiContainer, mouseX, mouseY, ((GuiCraftConfirm) guiContainer).getDisplayedRows());
-            visual = ((GuiCraftConfirm) guiContainer).getVisual();
+            final List<IExAEStack<?>> visual = ((GuiCraftConfirm) guiContainer).getVisual();
             if (guiSlotIdx < visual.size() && guiSlotIdx != -1) {
-                result = visual.get(guiSlotIdx).getDefinition();
+                result = unae(visual.get(guiSlotIdx));
             } else {
                 return null;
             }
@@ -52,9 +52,9 @@ public class AEGuiHandler implements IAdvancedGuiHandler<AEBaseGui>, IGhostIngre
 
         if (guiContainer instanceof GuiCraftingCPU) {
             guiSlotIdx = getSlotidx(guiContainer, mouseX, mouseY, ((GuiCraftingCPU) guiContainer).getDisplayedRows());
-            visual = ((GuiCraftingCPU) guiContainer).getVisual();
+            final List<IExAEStack<?>> visual = ((GuiCraftingCPU) guiContainer).getVisual();
             if (guiSlotIdx < visual.size() && guiSlotIdx != -1) {
-                result = visual.get(guiSlotIdx).getDefinition();
+                result = unae(visual.get(guiSlotIdx));
             } else {
                 return null;
             }
@@ -66,6 +66,10 @@ public class AEGuiHandler implements IAdvancedGuiHandler<AEBaseGui>, IGhostIngre
             }
         }
         return result;
+    }
+
+    private static <T extends IAEStack<T>> Object unae(IExAEStack<T> stack) {
+        return stack != null ? stack.getChannel().unwrapStack(stack.unwrap()) : null;
     }
 
     private int getSlotidx(AEBaseGui guiContainer, int mouseX, int mouseY, int rows) {

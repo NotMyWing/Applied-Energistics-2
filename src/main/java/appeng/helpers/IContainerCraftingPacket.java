@@ -21,11 +21,12 @@ package appeng.helpers;
 
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionSource;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 
-public interface IContainerCraftingPacket {
+public interface IContainerCraftingPacket extends IViewFilterable {
 
     /**
      * @return gain access to network infrastructure.
@@ -47,9 +48,4 @@ public interface IContainerCraftingPacket {
      * @return consume items?
      */
     boolean useRealItems();
-
-    /**
-     * @return array of view cells
-     */
-    ItemStack[] getViewCells();
 }

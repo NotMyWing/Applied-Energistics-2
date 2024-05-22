@@ -42,7 +42,7 @@ public interface ICraftingMedium
 	 *
 	 * @return if the pattern was successfully pushed.
 	 */
-	boolean pushPattern( ICraftingPatternDetails patternDetails, InventoryCrafting table );
+	boolean pushPattern( ICraftingPatternDetails patternDetails, ICraftingInventory table );
 
 	/**
 	 * @return if this is false, the crafting engine will refuse to send new jobs to this medium.

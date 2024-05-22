@@ -19,7 +19,7 @@
 package appeng.client.render.crafting;
 
 
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.client.render.TesrRenderHelper;
 import appeng.tile.crafting.TileCraftingMonitorTile;
 import net.minecraft.client.renderer.GlStateManager;
@@ -43,14 +43,14 @@ public class CraftingMonitorTESR extends TileEntitySpecialRenderer<TileCraftingM
 
         EnumFacing facing = te.getForward();
 
-        IAEItemStack jobProgress = te.getJobProgress();
+        IExAEStack<?> jobProgress = te.getJobProgress();
         if (jobProgress != null) {
             GlStateManager.pushMatrix();
             GlStateManager.translate(x + 0.5, y + 0.5, z + 0.5);
 
             TesrRenderHelper.moveToFace(facing);
             TesrRenderHelper.rotateToFace(facing, (byte) 0);
-            TesrRenderHelper.renderItem2dWithAmount(jobProgress, 0.7f, 0.1f);
+            TesrRenderHelper.renderStack2dWithAmount(jobProgress, 0.7f, 0.1f);
 
             GlStateManager.popMatrix();
         }

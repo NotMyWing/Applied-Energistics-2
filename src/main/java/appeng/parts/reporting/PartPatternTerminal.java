@@ -19,6 +19,7 @@
 package appeng.parts.reporting;
 
 
+import appeng.api.AEApi;
 import appeng.api.parts.IPartModel;
 import appeng.core.AppEng;
 import appeng.core.sync.GuiBridge;
@@ -26,6 +27,7 @@ import appeng.helpers.Reflected;
 import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -50,8 +52,8 @@ public class PartPatternTerminal extends AbstractPartEncoder {
     @Reflected
     public PartPatternTerminal(final ItemStack is) {
         super(is);
-        this.crafting = new AppEngInternalInventory(this, CRAFTING_GRID_DIMENSION * CRAFTING_GRID_DIMENSION);
-        this.output = new AppEngInternalInventory(this, 3);
+        this.crafting = new AppEngInternalUnivInventory(this, CRAFTING_GRID_DIMENSION * CRAFTING_GRID_DIMENSION);
+        this.output = new AppEngInternalUnivInventory(this, 3);
         this.pattern = new AppEngInternalInventory(this, 2);
     }
 
@@ -74,9 +76,16 @@ public class PartPatternTerminal extends AbstractPartEncoder {
         return GuiBridge.GUI_PATTERN_TERMINAL;
     }
 
+    @Override
+    public ItemStack getItemStackRepresentation() {
+        return AEApi.instance().definitions().parts().patternTerminal().maybeStack(1).orElse(ItemStack.EMPTY);
+    }
+
     @Nonnull
     @Override
     public IPartModel getStaticModels() {
         return this.selectModel(MODELS_OFF, MODELS_ON, MODELS_HAS_CHANNEL);
     }
+
+
 }

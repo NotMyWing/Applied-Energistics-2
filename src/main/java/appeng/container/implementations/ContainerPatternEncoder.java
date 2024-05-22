@@ -10,6 +10,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
+import appeng.api.util.IExAEStack;
 import appeng.container.ContainerNull;
 import appeng.container.guisync.GuiSync;
 import appeng.container.slot.AppEngSlot;
@@ -21,11 +22,12 @@ import appeng.container.slot.SlotPlayerHotBar;
 import appeng.container.slot.SlotPlayerInv;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.core.sync.packets.PacketPatternSlot;
-import appeng.helpers.IContainerCraftingPacket;
+import appeng.helpers.IContainerPatternPacket;
 import appeng.items.storage.ItemViewCell;
 import appeng.me.helpers.MachineSource;
 import appeng.parts.reporting.AbstractPartEncoder;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
 import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import appeng.util.inv.AdaptorItemHandler;
@@ -33,6 +35,7 @@ import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
 import appeng.util.inv.WrapperCursorItemHandler;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -45,15 +48,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static appeng.helpers.ItemStackHelper.stackWriteToNBT;
-
-public abstract class ContainerPatternEncoder extends ContainerMEMonitorable implements IAEAppEngInventory, IOptionalSlotHost, IContainerCraftingPacket {
+public abstract class ContainerPatternEncoder extends ContainerMEMonitorable implements IAEAppEngInventory, IOptionalSlotHost, IContainerPatternPacket, AppEngInternalUnivInventory.IListener {
 
     protected AbstractPartEncoder patternTerminal = null;
 
@@ -61,7 +61,8 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
 
     final AppEngInternalInventory cOut = new AppEngInternalInventory(null, 1);
 
-    protected IItemHandler crafting;
+    protected AppEngInternalUnivInventory crafting;
+    protected AppEngInternalUnivInventory output;
     protected SlotPatternTerm craftSlot;
     protected SlotRestrictedInput patternSlotIN;
     protected SlotRestrictedInput patternSlotOUT;
@@ -77,7 +78,8 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
 
     protected ContainerPatternEncoder(InventoryPlayer ip, ITerminalHost monitorable, boolean bindInventory) {
         super(ip, monitorable, bindInventory);
-        patternTerminal = (AbstractPartEncoder) monitorable;
+        this.patternTerminal = (AbstractPartEncoder) monitorable;
+        this.craftingMode = patternTerminal.isCraftingRecipe();
     }
 
     protected ContainerPatternEncoder(InventoryPlayer ip, ITerminalHost monitorable, IGuiItemObject iGuiItemObject, boolean bindInventory) {
@@ -86,6 +88,16 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
             patternTerminal = (AbstractPartEncoder) monitorable;
         }
         this.iGuiItemObject = iGuiItemObject;
+    }
+
+    @Override
+    public AppEngInternalUnivInventory getCraftingInventory() {
+        return this.crafting;
+    }
+
+    @Override
+    public AppEngInternalUnivInventory getOutputInventory() {
+        return this.output;
     }
 
     @Override
@@ -113,28 +125,15 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
     public abstract boolean isSlotEnabled(int idx);
 
     @Override
-    public IItemHandler getInventoryByName(String name) {
-        if (name.equals("player")) {
-            return new PlayerInvWrapper(this.getInventoryPlayer());
-        }
-        if (this.getPart() != null) {
-            return this.getPart().getInventoryByName(name);
-        }
-        return null;
-    }
-
-    @Override
-    public boolean useRealItems() {
-        return false;
-    }
-
-    @Override
     public void saveChanges() {
-
     }
 
     @Override
     public void onChangeInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removedStack, ItemStack newStack) {
+    }
+
+    @Override
+    public void onChangeInventory(final AppEngInternalUnivInventory inv, final int slot, final InvOperation op, final IExAEStack<?> oldStack, final IExAEStack<?> newStack) {
         if (inv == this.crafting) {
             this.fixCraftingRecipes();
         }
@@ -143,9 +142,13 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
     void fixCraftingRecipes() {
         if (this.isCraftingMode()) {
             for (int x = 0; x < this.crafting.getSlots(); x++) {
-                final ItemStack is = this.crafting.getStackInSlot(x);
-                if (!is.isEmpty()) {
-                    is.setCount(1);
+                final IExAEStack<?> is = this.crafting.getStackInSlot(x);
+                if (is != null) {
+                    if (!(is.unwrap() instanceof IAEItemStack)) {
+                        this.crafting.setStackInSlot(x, (IExAEStack<?>) null);
+                    } else {
+                        is.setStackSize(1);
+                    }
                 }
             }
         }
@@ -210,8 +213,8 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
     public void encode() {
         ItemStack output = this.patternSlotOUT.getStack();
 
-        final ItemStack[] in = this.getInputs();
-        final ItemStack[] out = this.getOutputs();
+        final IExAEStack<?>[] in = this.getInputs();
+        final IExAEStack<?>[] out = this.getOutputs();
 
         // if there is no input, this would be silly.
         if (in == null || out == null) {
@@ -247,11 +250,11 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
         final NBTTagList tagIn = new NBTTagList();
         final NBTTagList tagOut = new NBTTagList();
 
-        for (final ItemStack i : in) {
+        for (final IExAEStack<?> i : in) {
             tagIn.appendTag(this.createItemTag(i));
         }
 
-        for (final ItemStack i : out) {
+        for (final IExAEStack<?> i : out) {
             tagOut.appendTag(this.createItemTag(i));
         }
 
@@ -439,13 +442,13 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
         }
     }
 
-    protected ItemStack[] getInputs() {
-        final ItemStack[] input = new ItemStack[craftingSlots.length];
+    protected IExAEStack<?>[] getInputs() {
+        final IExAEStack<?>[] input = new IExAEStack<?>[craftingSlots.length];
         boolean hasValue = false;
 
-        for (int x = 0; x < this.craftingSlots.length; x++) {
-            input[x] = this.craftingSlots[x].getStack();
-            if (!input[x].isEmpty()) {
+        for (int x = 0; x < this.crafting.getSlots(); x++) {
+            input[x] = this.crafting.getStackInSlot(x);
+            if (input[x] != null) {
                 hasValue = true;
             }
         }
@@ -457,28 +460,26 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
         return null;
     }
 
-    protected ItemStack[] getOutputs() {
+    protected IExAEStack<?>[] getOutputs() {
         if (this.isCraftingMode()) {
             final ItemStack out = this.getAndUpdateOutput();
 
             if (!out.isEmpty() && out.getCount() > 0) {
-                return new ItemStack[]{out};
+                return new IExAEStack<?>[] {ExAEStack.of(AEItemStack.fromItemStack(out))};
             }
         } else {
-            final List<ItemStack> list = new ArrayList<>(outputSlots.length);
-            boolean hasValue = false;
+            final List<IExAEStack<?>> list = new ArrayList<>(outputSlots.length);
 
-            for (final OptionalSlotFake outputSlot : this.outputSlots) {
-                final ItemStack out = outputSlot.getStack();
+            for (int i = 0; i < this.output.getSlots(); i++) {
+                final IExAEStack<?> out = this.output.getStackInSlot(i);
 
-                if (!out.isEmpty() && out.getCount() > 0) {
+                if (out != null && out.getStackSize() > 0) {
                     list.add(out);
-                    hasValue = true;
                 }
             }
 
-            if (hasValue) {
-                return list.toArray(new ItemStack[0]);
+            if (!list.isEmpty()) {
+                return list.toArray(new IExAEStack<?>[0]);
             }
         }
 
@@ -490,7 +491,16 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
         final InventoryCrafting ic = new InventoryCrafting(this, 3, 3);
 
         for (int x = 0; x < ic.getSizeInventory(); x++) {
-            ic.setInventorySlotContents(x, this.crafting.getStackInSlot(x));
+            final IExAEStack<?> stack = this.crafting.getStackInSlot(x);
+            if (stack != null) {
+                if (stack.unwrap() instanceof final IAEItemStack ais) {
+                    ic.setInventorySlotContents(x, ais.createItemStack());
+                } else { // ingredient is not an item; invalid crafting recipe!
+                    this.currentRecipe = null;
+                    this.cOut.setStackInSlot(0, ItemStack.EMPTY);
+                    return ItemStack.EMPTY;
+                }
+            }
         }
 
         if (this.currentRecipe == null || !this.currentRecipe.matches(ic, world)) {
@@ -597,6 +607,7 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
         super.onUpdate(field, oldValue, newValue);
 
         if (field.equals("craftingMode")) {
+            this.setCraftingMode((Boolean) newValue);
             this.getAndUpdateOutput();
             this.updateOrderOfOutputSlots();
         }
@@ -615,11 +626,11 @@ public abstract class ContainerPatternEncoder extends ContainerMEMonitorable imp
         return isPattern;
     }
 
-    NBTBase createItemTag(final ItemStack i) {
+    NBTBase createItemTag(final IExAEStack<?> i) {
         final NBTTagCompound c = new NBTTagCompound();
 
-        if (!i.isEmpty()) {
-            stackWriteToNBT(i, c);
+        if (i != null) {
+            i.writeToNBT(c);
         }
 
         return c;

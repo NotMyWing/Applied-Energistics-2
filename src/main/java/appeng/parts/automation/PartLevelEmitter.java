@@ -195,7 +195,7 @@ public class PartLevelEmitter extends PartUpgradeable implements IEnergyWatcherH
     }
 
     @Override
-    public void onRequestChange(final ICraftingGrid craftingGrid, final IAEItemStack what) {
+    public <T extends IAEStack<T>> void onRequestChange(final ICraftingGrid craftingGrid, final T what) {
         this.updateState();
     }
 
@@ -438,7 +438,7 @@ public class PartLevelEmitter extends PartUpgradeable implements IEnergyWatcherH
     }
 
     @Override
-    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final InventoryCrafting table) {
+    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final ICraftingInventory table) {
         return false;
     }
 

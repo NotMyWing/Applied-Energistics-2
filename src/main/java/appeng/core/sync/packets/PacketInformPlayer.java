@@ -1,10 +1,12 @@
 package appeng.core.sync.packets;
 
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.AEApi;
+import appeng.api.storage.IStorageChannel;
+import appeng.api.storage.data.IAEStack;
+import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
-import appeng.util.item.AEItemStack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,25 +14,27 @@ import net.minecraft.util.text.TextComponentString;
 
 import java.io.IOException;
 
-public class PacketInformPlayer extends AppEngPacket {
-    private IAEItemStack actualItem = null;
-    private IAEItemStack reportedItem = null;
+public class PacketInformPlayer<T extends IAEStack<T>> extends AppEngPacket {
+    private T actualItem = null;
+    private T reportedItem = null;
     private final InfoType type;
 
+    @SuppressWarnings("unchecked")
     public PacketInformPlayer(ByteBuf stream) throws IOException {
         this.type = InfoType.values()[stream.readInt()];
+        final IStorageChannel<T> channel = (IStorageChannel<T>) Api.INSTANCE.storage().getStorageChannelById(stream.readByte());
         switch (type) {
             case PARTIAL_ITEM_EXTRACTION:
-                this.reportedItem = AEItemStack.fromPacket(stream);
-                this.actualItem = AEItemStack.fromPacket(stream);
+                this.reportedItem = channel.readFromPacket(stream);
+                this.actualItem = channel.readFromPacket(stream);
                 break;
             case NO_ITEMS_EXTRACTED:
-                this.reportedItem = AEItemStack.fromPacket(stream);
+                this.reportedItem = channel.readFromPacket(stream);
                 break;
         }
     }
 
-    public PacketInformPlayer(IAEItemStack expected, IAEItemStack actual, InfoType type) throws IOException {
+    public PacketInformPlayer(T expected, T actual, InfoType type) throws IOException {
         this.reportedItem = expected;
         this.actualItem = actual;
         this.type = type;
@@ -41,6 +45,7 @@ public class PacketInformPlayer extends AppEngPacket {
 
         data.writeInt(type.ordinal());
 
+        data.writeByte(Api.INSTANCE.storage().getStorageChannelId(reportedItem.getChannel()));
         reportedItem.writeToPacket(data);
         if (actualItem != null) {
             actualItem.writeToPacket(data);
@@ -51,12 +56,10 @@ public class PacketInformPlayer extends AppEngPacket {
 
     @Override
     public void clientPacketData(final INetworkInfo network, final AppEngPacket packet, final EntityPlayer player) {
-        TextComponentString msg = null;
-
         if (this.type == InfoType.PARTIAL_ITEM_EXTRACTION) {
-            AppEng.proxy.getPlayers().get(0).sendStatusMessage(new TextComponentString("System reported " + reportedItem.getStackSize() + " " + reportedItem.getItem().getItemStackDisplayName(reportedItem.getDefinition()) + " available but could only extract " + actualItem.getStackSize()), false);
+            AppEng.proxy.getPlayers().get(0).sendStatusMessage(new TextComponentString("System reported " + reportedItem.getStackSize() + " " + reportedItem.asItemStackRepresentation().getDisplayName() + " available but could only extract " + actualItem.getStackSize()), false);
         } else if (this.type == InfoType.NO_ITEMS_EXTRACTED) {
-            AppEng.proxy.getPlayers().get(0).sendStatusMessage(new TextComponentString("System reported " + reportedItem.getStackSize() + " " + reportedItem.getItem().getItemStackDisplayName(reportedItem.getDefinition()) + " available but could not extract anything"), false);
+            AppEng.proxy.getPlayers().get(0).sendStatusMessage(new TextComponentString("System reported " + reportedItem.getStackSize() + " " + reportedItem.asItemStackRepresentation().getDisplayName() + " available but could not extract anything"), false);
         }
     }
 

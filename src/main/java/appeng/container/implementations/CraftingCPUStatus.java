@@ -1,9 +1,9 @@
 package appeng.container.implementations;
 
 import appeng.api.networking.crafting.ICraftingCPU;
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.util.ItemSorters;
-import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,7 +21,7 @@ public class CraftingCPUStatus implements Comparable<CraftingCPUStatus> {
     private final long coprocessors;
     private final long totalItems;
     private final long remainingItems;
-    private final IAEItemStack crafting;
+    private final IExAEStack<?> crafting;
 
     public CraftingCPUStatus() {
         this.serverCluster = null;
@@ -59,7 +59,7 @@ public class CraftingCPUStatus implements Comparable<CraftingCPUStatus> {
         this.coprocessors = i.getLong("coprocessors");
         this.totalItems = i.getLong("totalItems");
         this.remainingItems = i.getLong("remainingItems");
-        this.crafting = i.hasKey("crafting") ? AEItemStack.fromNBT(i.getCompoundTag("crafting")) : null;
+        this.crafting = i.hasKey("crafting") ? ExAEStack.fromNBT(i.getCompoundTag("crafting")) : null;
     }
 
     public CraftingCPUStatus(ByteBuf packet) throws IOException {
@@ -134,7 +134,7 @@ public class CraftingCPUStatus implements Comparable<CraftingCPUStatus> {
         return remainingItems;
     }
 
-    public IAEItemStack getCrafting() {
+    public IExAEStack<?> getCrafting() {
         return crafting;
     }
 

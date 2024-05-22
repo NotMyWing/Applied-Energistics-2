@@ -4,8 +4,11 @@ import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.parts.IPartModel;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.core.sync.GuiBridge;
+import appeng.helpers.IGuiHost;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
 import appeng.util.inv.InvOperation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -15,10 +18,10 @@ import net.minecraftforge.items.IItemHandler;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public abstract class AbstractPartEncoder extends AbstractPartTerminal {
+public abstract class AbstractPartEncoder extends AbstractPartTerminal implements AppEngInternalUnivInventory.IListener, IGuiHost {
 
-    protected AppEngInternalInventory crafting;
-    protected AppEngInternalInventory output;
+    protected AppEngInternalUnivInventory crafting;
+    protected AppEngInternalUnivInventory output;
     protected AppEngInternalInventory pattern;
 
     protected boolean craftingMode = true;
@@ -65,34 +68,41 @@ public abstract class AbstractPartEncoder extends AbstractPartTerminal {
                     this.setSubstitution(details.canSubstitute());
 
                     for (int x = 0; x < this.crafting.getSlots() && x < details.getInputs().length; x++) {
-                        final IAEItemStack item = details.getInputs()[x];
-                        this.crafting.setStackInSlot(x, item == null ? ItemStack.EMPTY : item.createItemStack());
+                        this.crafting.setStackInSlot(x, details.getInputs()[x]);
                     }
 
                     for (int x = 0; x < this.output.getSlots(); x++) {
-                        final IAEItemStack item;
                         if (x < details.getOutputs().length) {
-                            item = details.getOutputs()[x];
+                            this.output.setStackInSlot(x, details.getOutputs()[x]);
                         } else {
-                            item = null;
+                            this.output.setStackInSlot(x, (IExAEStack<?>) null);
                         }
-                        this.output.setStackInSlot(x, item == null ? ItemStack.EMPTY : item.createItemStack());
                     }
                 }
             }
-        } else if (inv == this.crafting) {
-            this.fixCraftingRecipes();
         }
 
+        this.getHost().markForSave();
+    }
+
+    @Override
+    public void onChangeInventory(final AppEngInternalUnivInventory inv, final int slot, final InvOperation op, final IExAEStack<?> oldStack, final IExAEStack<?> newStack) {
+        if (inv == this.crafting) {
+            this.fixCraftingRecipes();
+        }
         this.getHost().markForSave();
     }
 
     private void fixCraftingRecipes() {
         if (this.isCraftingRecipe()) {
             for (int x = 0; x < this.crafting.getSlots(); x++) {
-                final ItemStack is = this.crafting.getStackInSlot(x);
-                if (!is.isEmpty()) {
-                    is.setCount(1);
+                final IExAEStack<?> is = this.crafting.getStackInSlot(x);
+                if (is != null) {
+                    if (!(is.unwrap() instanceof IAEItemStack)) {
+                        this.crafting.setStackInSlot(x, (IExAEStack<?>) null);
+                    } else {
+                        is.setStackSize(1);
+                    }
                 }
             }
         }
@@ -117,19 +127,19 @@ public abstract class AbstractPartEncoder extends AbstractPartTerminal {
 
     @Override
     public IItemHandler getInventoryByName(final String name) {
-        if (name.equals("crafting")) {
-            return this.crafting;
-        }
-
-        if (name.equals("output")) {
-            return this.output;
-        }
-
         if (name.equals("pattern")) {
             return this.pattern;
         }
 
         return super.getInventoryByName(name);
+    }
+
+    public AppEngInternalUnivInventory getCraftingInventory() {
+        return this.crafting;
+    }
+
+    public AppEngInternalUnivInventory getOutputInventory() {
+        return this.output;
     }
 
     @Override

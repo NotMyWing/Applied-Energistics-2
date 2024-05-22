@@ -24,12 +24,12 @@
 package appeng.api.networking.crafting;
 
 
+import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-
-import appeng.api.implementations.ICraftingPatternItem;
-import appeng.api.storage.data.IAEItemStack;
 
 import java.util.Collections;
 import java.util.List;
@@ -65,22 +65,22 @@ public interface ICraftingPatternDetails
 	/**
 	 * @return a list of the inputs, will include nulls.
 	 */
-	IAEItemStack[] getInputs();
+	IExAEStack<?>[] getInputs();
 
 	/**
 	 * @return a list of the inputs, will be clean
 	 */
-	IAEItemStack[] getCondensedInputs();
+	IExAEStack<?>[] getCondensedInputs();
 
 	/**
 	 * @return a list of the outputs, will be clean
 	 */
-	IAEItemStack[] getCondensedOutputs();
+	IExAEStack<?>[] getCondensedOutputs();
 
 	/**
 	 * @return a list of the outputs, will include nulls.
 	 */
-	IAEItemStack[] getOutputs();
+	IExAEStack<?>[] getOutputs();
 
 	/**
 	 * @return if this pattern is enabled to support substitutions.

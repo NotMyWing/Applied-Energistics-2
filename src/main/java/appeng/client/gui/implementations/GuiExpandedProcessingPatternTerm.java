@@ -7,24 +7,19 @@ import appeng.api.storage.ITerminalHost;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerExpandedProcessingPatternTerm;
+import appeng.container.implementations.ContainerPatternEncoder;
 import appeng.container.interfaces.IJEIGhostIngredients;
 import appeng.container.slot.AppEngSlot;
-import appeng.container.slot.SlotFake;
 import appeng.core.AELog;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketInventoryAction;
 import appeng.core.sync.packets.PacketValueConfig;
-import appeng.helpers.InventoryAction;
-import appeng.util.item.AEItemStack;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
@@ -203,36 +198,7 @@ public class GuiExpandedProcessingPatternTerm extends GuiMEMonitorable implement
 
     @Override
     public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
-        if (!(ingredient instanceof ItemStack)) {
-            return Collections.emptyList();
-        }
-        List<IGhostIngredientHandler.Target<?>> targets = new ArrayList<>();
-        for (Slot slot : this.inventorySlots.inventorySlots) {
-            if (slot instanceof SlotFake) {
-                ItemStack itemStack = (ItemStack) ingredient;
-                IGhostIngredientHandler.Target<Object> target = new IGhostIngredientHandler.Target<Object>() {
-                    @Override
-                    public Rectangle getArea() {
-                        return new Rectangle(getGuiLeft() + slot.xPos, getGuiTop() + slot.yPos, 16, 16);
-                    }
-
-                    @Override
-                    public void accept(Object ingredient) {
-                        final PacketInventoryAction p;
-                        try {
-                            p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, (SlotFake) slot, AEItemStack.fromItemStack(itemStack));
-                            NetworkHandler.instance().sendToServer(p);
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                targets.add(target);
-                mapTargetSlot.putIfAbsent(target, slot);
-            }
-        }
-        return targets;
+        return GuiPatternTerm.getPhantomTargets(this, (ContainerPatternEncoder) this.inventorySlots, this.mapTargetSlot, ingredient);
     }
 
     @Override

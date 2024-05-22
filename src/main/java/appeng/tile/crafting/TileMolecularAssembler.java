@@ -26,6 +26,7 @@ import appeng.api.implementations.IPowerChannelState;
 import appeng.api.implementations.IUpgradeableHost;
 import appeng.api.implementations.tiles.ICraftingMachine;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.crafting.ICraftingInventory;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
@@ -38,10 +39,7 @@ import appeng.api.storage.IStorageMonitorable;
 import appeng.api.storage.IStorageMonitorableAccessor;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.api.util.AECableType;
-import appeng.api.util.AEPartLocation;
-import appeng.api.util.DimensionalCoord;
-import appeng.api.util.IConfigManager;
+import appeng.api.util.*;
 import appeng.capabilities.Capabilities;
 import appeng.container.ContainerNull;
 import appeng.core.sync.network.NetworkHandler;
@@ -204,7 +202,7 @@ public class TileMolecularAssembler extends AENetworkInvTile implements IUpgrade
     }
 
     @Override
-    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final InventoryCrafting table, final EnumFacing where) {
+    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final ICraftingInventory table, final EnumFacing where) {
         if (this.myPattern.isEmpty()) {
             boolean isEmpty = ItemHandlerUtil.isEmpty(this.gridInv) && ItemHandlerUtil.isEmpty(this.patternInv);
 
@@ -213,8 +211,13 @@ public class TileMolecularAssembler extends AENetworkInvTile implements IUpgrade
                 this.myPlan = patternDetails;
                 this.pushDirection = AEPartLocation.fromFacing(where);
 
-                for (int x = 0; x < table.getSizeInventory(); x++) {
-                    this.gridInv.setStackInSlot(x, table.getStackInSlot(x));
+                for (int x = 0; x < table.getSlotCount(); x++) {
+                    final IExAEStack<?> stack = table.getStackInSlot(x);
+                    if (stack != null && stack.unwrap() instanceof final IAEItemStack ais) {
+                        this.gridInv.setStackInSlot(x, ais.createItemStack());
+                    } else {
+                        this.gridInv.setStackInSlot(x, ItemStack.EMPTY);
+                    }
                 }
 
                 this.updateSleepiness();
