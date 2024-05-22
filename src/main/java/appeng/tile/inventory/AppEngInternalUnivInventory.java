@@ -15,6 +15,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -22,7 +23,7 @@ import java.util.List;
  * A variant of {@link AppEngInternalAEInventory} that supports heterogeneous contents represented by
  * {@link appeng.api.util.IExAEStack}.
  */
-public class AppEngInternalUnivInventory {
+public class AppEngInternalUnivInventory implements Iterable<IExAEStack<?>> {
 
     private final IListener owner;
     private final List<IExAEStack<?>> stacks;
@@ -79,6 +80,12 @@ public class AppEngInternalUnivInventory {
             this.owner.onChangeInventory(this, slot, op, oldStack, newStack);
             this.dirtyFlag = false;
         }
+    }
+
+    @Nonnull
+    @Override
+    public Iterator<IExAEStack<?>> iterator() {
+        return this.stacks.iterator();
     }
 
     public IItemHandler asItemHandler() {
