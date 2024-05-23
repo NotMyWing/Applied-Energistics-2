@@ -24,6 +24,7 @@ import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.definitions.IMaterials;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.crafting.ICraftingInventory;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
@@ -61,7 +62,6 @@ import appeng.util.inv.IInventoryDestination;
 import appeng.util.inv.InvOperation;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -212,7 +212,7 @@ public class PartInterface extends PartBasicState implements IGridTickable, ISto
     }
 
     @Override
-    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final InventoryCrafting table) {
+    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final ICraftingInventory table) {
         return this.duality.pushPattern(patternDetails, table);
     }
 
@@ -232,8 +232,12 @@ public class PartInterface extends PartBasicState implements IGridTickable, ISto
     }
 
     @Override
-    public IAEItemStack injectCraftedItems(final ICraftingLink link, final IAEItemStack items, final Actionable mode) {
-        return this.duality.injectCraftedItems(link, items, mode);
+    public <T extends IAEStack<T>> T injectCraftedUniv(final ICraftingLink link, final T items, final Actionable mode) {
+        if (items instanceof IAEItemStack ais) {
+            return (T) this.duality.injectCraftedItems(link, ais, mode);
+        } else {
+            return items;
+        }
     }
 
     @Override

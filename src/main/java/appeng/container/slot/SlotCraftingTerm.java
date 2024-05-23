@@ -31,6 +31,7 @@ import appeng.api.storage.data.IItemList;
 import appeng.container.ContainerNull;
 import appeng.container.implementations.ContainerCraftingTerm;
 import appeng.helpers.IContainerCraftingPacket;
+import appeng.helpers.IViewFilterable;
 import appeng.helpers.InventoryAction;
 import appeng.items.storage.ItemViewCell;
 import appeng.util.InventoryAdaptor;
@@ -71,9 +72,9 @@ public class SlotCraftingTerm extends AppEngCraftingSlot {
     private final IActionSource mySrc;
     private final IEnergySource energySrc;
     private final IStorageMonitorable storage;
-    private final IContainerCraftingPacket container;
+    private final IViewFilterable container;
 
-    public SlotCraftingTerm(final EntityPlayer player, final IActionSource mySrc, final IEnergySource energySrc, final IStorageMonitorable storage, final IItemHandler cMatrix, final IItemHandler secondMatrix, final IItemHandler output, final int x, final int y, final IContainerCraftingPacket ccp) {
+    public SlotCraftingTerm(final EntityPlayer player, final IActionSource mySrc, final IEnergySource energySrc, final IStorageMonitorable storage, final IItemHandler cMatrix, final IItemHandler secondMatrix, final IItemHandler output, final int x, final int y, final IViewFilterable ccp) {
         super(player, cMatrix, output, 0, x, y);
         this.energySrc = energySrc;
         this.storage = storage;

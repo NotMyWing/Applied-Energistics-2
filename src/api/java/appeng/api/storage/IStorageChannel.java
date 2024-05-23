@@ -33,6 +33,8 @@ import io.netty.buffer.ByteBuf;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
 
 import appeng.api.storage.data.IAEStack;
@@ -41,6 +43,11 @@ import appeng.api.storage.data.IItemList;
 
 public interface IStorageChannel<T extends IAEStack<T>>
 {
+
+	/**
+	 * @return the channel type for this channel
+	 */
+	Class<? extends IStorageChannel<?>> getChannelType();
 
 	/**
 	 * Can be used as factor for transferring stacks of a channel.
@@ -90,6 +97,37 @@ public interface IStorageChannel<T extends IAEStack<T>>
 	 */
 	@Nullable
 	T createStack( @Nonnull Object input );
+
+	/**
+	 * Gets the underlying stack type of AE stacks for this storage channel. For example,
+	 * {@link appeng.api.storage.channels.IItemStorageChannel} has an underlying stack type of {@link ItemStack} and
+	 * {@link appeng.api.storage.channels.IFluidStorageChannel} has an underlying stack type of {@link FluidStack}.
+	 *
+	 * @return the underlying stack type
+	 */
+	Class<?> getUnderlyingStackType();
+
+	/**
+	 * Coerce a stack to an instance of the underlying stack type given by {@link #getUnderlyingStackType()}.
+	 *
+	 * @param stack the stack to convert
+	 * @return the converted stack, or null if no underlying representation was possible
+	 */
+	@Nullable
+	Object unwrapStack( T stack );
+
+	/**
+	 * Tries to wrap some kind of object in an AE inventory. The given capability provider should be used if the
+	 * inventory type is capability-based (e.g. a Forge item handler). Otherwise, the inventory object can be used if,
+	 * for example, the inventory type is based on an implemented interface.
+	 *
+	 * @param inventory the object which may have an inventory (e.g. a tile entity)
+	 * @param caps      a capability provider which may provide the inventory
+	 * @param side      the side of the object which is being interacted with
+	 * @return the wrapped inventory, or null if no valid inventory could be wrapped
+	 */
+	@Nullable
+	IMEInventory<T> adaptInventory( @Nonnull Object inventory, @Nullable ICapabilityProvider caps, @Nullable EnumFacing side );
 
 	/**
 	 * 

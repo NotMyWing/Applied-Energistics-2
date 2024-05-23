@@ -19,10 +19,13 @@
 package appeng.parts.reporting;
 
 
+import appeng.api.AEApi;
 import appeng.api.parts.IPartModel;
 import appeng.core.AppEng;
+import appeng.core.sync.GuiBridge;
 import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -40,6 +43,16 @@ public class PartTerminal extends AbstractPartTerminal {
 
     public PartTerminal(final ItemStack is) {
         super(is);
+    }
+
+    @Override
+    public GuiBridge getGui(final EntityPlayer player) {
+        return GuiBridge.GUI_ME;
+    }
+
+    @Override
+    public ItemStack getItemStackRepresentation() {
+        return AEApi.instance().definitions().parts().terminal().maybeStack(1).orElse(ItemStack.EMPTY);
     }
 
     @Override

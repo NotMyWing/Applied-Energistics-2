@@ -1,12 +1,12 @@
 package appeng.core.sync.packets;
 
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.client.gui.toasts.CraftingStatusToast;
 import appeng.core.AEConfig;
 import appeng.core.features.AEFeature;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
-import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
@@ -17,15 +17,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.io.IOException;
 
 public class PacketCraftingToast extends AppEngPacket {
-	private final IAEItemStack stack;
+	private final IExAEStack<?> stack;
 	private final boolean cancelled;
 
-	public PacketCraftingToast(final ByteBuf stream) {
-		this.stack = AEItemStack.fromPacket(stream);
+	public PacketCraftingToast(final ByteBuf stream) throws IOException {
+		this.stack = ExAEStack.fromPacket(stream);
 		this.cancelled = stream.readBoolean();
 	}
 
-	public PacketCraftingToast(IAEItemStack stack, boolean cancelled) throws IOException {
+	public PacketCraftingToast(IExAEStack<?> stack, boolean cancelled) throws IOException {
 		this.stack = stack;
 		this.cancelled = cancelled;
 

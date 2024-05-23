@@ -56,7 +56,6 @@ import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.util.Platform;
 import appeng.util.inv.InvOperation;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -71,7 +70,7 @@ import net.minecraftforge.items.IItemHandler;
 import java.util.Random;
 
 
-public class PartLevelEmitter extends PartUpgradeable implements IEnergyWatcherHost, IStackWatcherHost, ICraftingWatcherHost, IMEMonitorHandlerReceiver<IAEItemStack>, ICraftingProvider {
+public class PartLevelEmitter extends PartUpgradeable implements IEnergyWatcherHost, IStackWatcherHost, IUnivCraftingWatcherHost, IMEMonitorHandlerReceiver<IAEItemStack>, IUnivCraftingProvider {
 
     @PartModels
     public static final ResourceLocation MODEL_BASE_OFF = new ResourceLocation(AppEng.MOD_ID, "part/level_emitter_base_off");
@@ -153,7 +152,7 @@ public class PartLevelEmitter extends PartUpgradeable implements IEnergyWatcherH
 
         if (this.getInstalledUpgrades(Upgrades.CRAFTING) > 0) {
             try {
-                return this.getProxy().getCrafting().isRequesting(this.config.getAEStackInSlot(0));
+                return this.getProxy().getCrafting().isRequestingUniv(this.config.getAEStackInSlot(0));
             } catch (final GridAccessException e) {
                 // :P
             }
@@ -195,7 +194,7 @@ public class PartLevelEmitter extends PartUpgradeable implements IEnergyWatcherH
     }
 
     @Override
-    public void onRequestChange(final ICraftingGrid craftingGrid, final IAEItemStack what) {
+    public <T extends IAEStack<T>> void onUnivRequstChange(final ICraftingGrid craftingGrid, final T what) {
         this.updateState();
     }
 
@@ -438,7 +437,7 @@ public class PartLevelEmitter extends PartUpgradeable implements IEnergyWatcherH
     }
 
     @Override
-    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final InventoryCrafting table) {
+    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final ICraftingInventory table) {
         return false;
     }
 
@@ -453,7 +452,7 @@ public class PartLevelEmitter extends PartUpgradeable implements IEnergyWatcherH
             if (this.getConfigManager().getSetting(Settings.CRAFT_VIA_REDSTONE) == YesNo.YES) {
                 final IAEItemStack what = this.config.getAEStackInSlot(0);
                 if (what != null) {
-                    craftingTracker.setEmitable(what);
+                    craftingTracker.setUnivEmitable(what);
                 }
             }
         }

@@ -23,9 +23,12 @@ import appeng.api.AEApi;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.util.IExAEStack;
 import appeng.container.ContainerNull;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -38,9 +41,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 
+import javax.annotation.Nonnull;
 import java.util.*;
-
-import static appeng.helpers.ItemStackHelper.stackFromNBT;
 
 
 public class PatternHelper implements ICraftingPatternDetails, Comparable<PatternHelper> {
@@ -58,10 +60,10 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
     private final InventoryCrafting testFrame;
     private final ItemStack correctOutput;
     private final IRecipe standardRecipe;
-    private final IAEItemStack[] condensedInputs;
-    private final IAEItemStack[] condensedOutputs;
-    private final IAEItemStack[] inputs;
-    private final IAEItemStack[] outputs;
+    private final IExAEStack<?>[] condensedInputs;
+    private final IExAEStack<?>[] condensedOutputs;
+    private final IExAEStack<?>[] inputs;
+    private final IExAEStack<?>[] outputs;
     private final Map<Integer, List<IAEItemStack>> substituteInputs;
     private final boolean isCrafting;
     private final boolean canSubstitute;
@@ -77,99 +79,119 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
             throw new IllegalArgumentException("No pattern here!");
         }
 
-        final NBTTagList inTag = encodedValue.getTagList("in", 10);
-        final NBTTagList outTag = encodedValue.getTagList("out", 10);
-        this.isCrafting = encodedValue.getBoolean("crafting");
-
-        crafting = new InventoryCrafting(new ContainerNull(), isCrafting ? 3 : 4, isCrafting ? 3 : 4);
-        testFrame = new InventoryCrafting(new ContainerNull(), isCrafting ? 3 : 4, isCrafting ? 3 : 4);
-
-        this.canSubstitute = this.isCrafting && encodedValue.getBoolean("substitute");
         this.patternItem = is;
         this.pattern = AEItemStack.fromItemStack(is);
 
-        final List<IAEItemStack> in = new ArrayList<>();
-        final List<IAEItemStack> out = new ArrayList<>();
+        final NBTTagList inTag = encodedValue.getTagList("in", 10);
+        final NBTTagList outTag = encodedValue.getTagList("out", 10);
+        final List<IExAEStack<?>> in = new ArrayList<>();
+        final List<IExAEStack<?>> out = new ArrayList<>();
 
-        for (int x = 0; x < inTag.tagCount(); x++) {
-            NBTTagCompound ingredient = inTag.getCompoundTagAt(x);
-            final ItemStack gs = stackFromNBT(ingredient);
-
-            if (!ingredient.isEmpty() && gs.isEmpty()) {
-                throw new IllegalArgumentException("No pattern here!");
-            }
-
-            this.crafting.setInventorySlotContents(x, gs);
-
-            if (!gs.isEmpty() && (!this.isCrafting || !gs.hasTagCompound())) {
-                this.markItemAs(x, gs, TestStatus.ACCEPT);
-            }
-
-            in.add(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(gs));
-            this.testFrame.setInventorySlotContents(x, gs);
-        }
-
+        this.isCrafting = encodedValue.getBoolean("crafting");
         if (this.isCrafting) {
+            this.crafting = new InventoryCrafting(new ContainerNull(), 3, 3);
+            this.testFrame = new InventoryCrafting(new ContainerNull(), 3, 3);
+            this.canSubstitute = encodedValue.getBoolean("substitute");
+
+            for (int x = 0; x < inTag.tagCount(); x++) {
+                NBTTagCompound ingredient = inTag.getCompoundTagAt(x);
+                final IExAEStack<?> gs = ExAEStack.fromNBT(ingredient);
+
+                if (!ingredient.isEmpty() && gs == null) {
+                    throw new IllegalArgumentException("No pattern here!");
+                }
+
+                final ItemStack gis;
+                if (gs == null) {
+                    gis = ItemStack.EMPTY;
+                } else if (gs.unwrap() instanceof final IAEItemStack ais) {
+                    gis = ais.createItemStack();
+                } else {
+                    throw new IllegalArgumentException("Non-item input to crafting recipe: " + gs);
+                }
+
+                this.crafting.setInventorySlotContents(x, gis);
+
+                if (!gis.hasTagCompound()) {
+                    this.markItemAs(x, gis, TestStatus.ACCEPT);
+                }
+
+                in.add(gs);
+                this.testFrame.setInventorySlotContents(x, gis);
+            }
+
             this.standardRecipe = CraftingManager.findMatchingRecipe(this.crafting, w);
 
             if (this.standardRecipe != null) {
                 this.correctOutput = this.standardRecipe.getCraftingResult(this.crafting);
-                out.add(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(this.correctOutput));
+                out.add(ExAEStack.of(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(this.correctOutput)));
             } else {
                 throw new IllegalStateException("No pattern here!");
             }
         } else {
+            this.crafting = this.testFrame = null;
+            this.canSubstitute = false;
             this.standardRecipe = null;
             this.correctOutput = ItemStack.EMPTY;
 
-            for (int x = 0; x < outTag.tagCount(); x++) {
-                NBTTagCompound resultItemTag = outTag.getCompoundTagAt(x);
-                final ItemStack gs = stackFromNBT(resultItemTag);
+            for (int x = 0; x < inTag.tagCount(); x++) {
+                NBTTagCompound ingredient = inTag.getCompoundTagAt(x);
+                final IExAEStack<?> gs = ExAEStack.fromNBT(ingredient);
 
-                if (!resultItemTag.isEmpty() && gs.isEmpty()) {
+                if (!ingredient.isEmpty() && gs == null) {
                     throw new IllegalArgumentException("No pattern here!");
                 }
 
-                if (!gs.isEmpty()) {
-                    out.add(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(gs));
+                in.add(gs);
+            }
+
+            for (int x = 0; x < outTag.tagCount(); x++) {
+                NBTTagCompound resultItemTag = outTag.getCompoundTagAt(x);
+                final IExAEStack<?> gs = ExAEStack.fromNBT(resultItemTag);
+
+                if (!resultItemTag.isEmpty() && gs == null) {
+                    throw new IllegalArgumentException("No pattern here!");
+                }
+
+                if (gs != null) {
+                    out.add(gs);
                 }
             }
         }
-        final int outputLength = out.size();
 
-        this.inputs = in.toArray(new IAEItemStack[isCrafting ? CRAFTING_INPUT_LIMIT : PROCESSING_INPUT_LIMIT]);
-        this.outputs = out.toArray(new IAEItemStack[outputLength]);
+        this.inputs = in.toArray(new IExAEStack<?>[isCrafting ? CRAFTING_INPUT_LIMIT : PROCESSING_INPUT_LIMIT]);
+        this.outputs = out.toArray(new IExAEStack<?>[0]);
         this.substituteInputs = new HashMap<>(CRAFTING_INPUT_LIMIT);
 
-        final Map<IAEItemStack, IAEItemStack> tmpOutputs = new HashMap<>();
+        final Map<IExAEStack<?>, IExAEStack<?>> tmpOutputs = new HashMap<>();
 
-        for (final IAEItemStack io : this.outputs) {
+        for (final IExAEStack<?> io : this.outputs) {
             if (io == null) {
                 continue;
             }
 
-            final IAEItemStack g = tmpOutputs.get(io);
+            final IExAEStack<?> g = tmpOutputs.get(io);
 
             if (g == null) {
                 tmpOutputs.put(io, io.copy());
             } else {
-                g.add(io);
+                addUnsafe(g, io);
             }
         }
 
-        final Map<IAEItemStack, IAEItemStack> tmpInputs = new HashMap<>();
+        final Map<IExAEStack<?>, IExAEStack<?>> tmpInputs = new HashMap<>();
 
-        for (final IAEItemStack io : this.inputs) {
+        for (final IExAEStack<?> io : this.inputs) {
             if (io == null) {
                 continue;
             }
 
-            final IAEItemStack g = tmpInputs.get(io);
+            final IExAEStack<?> g = tmpInputs.get(io);
 
             if (g == null) {
                 tmpInputs.put(io, io.copy());
             } else {
-                g.add(io);
+                addUnsafe(g, io);
             }
         }
 
@@ -177,21 +199,27 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
             throw new IllegalStateException("No pattern here!");
         }
 
-        this.condensedInputs = new IAEItemStack[tmpInputs.size()];
+        this.condensedInputs = new IExAEStack<?>[tmpInputs.size()];
         int offset = 0;
 
-        for (final IAEItemStack io : tmpInputs.values()) {
+        for (final IExAEStack<?> io : tmpInputs.values()) {
             this.condensedInputs[offset] = io;
             offset++;
         }
 
         offset = 0;
-        this.condensedOutputs = new IAEItemStack[tmpOutputs.size()];
+        this.condensedOutputs = new IExAEStack<?>[tmpOutputs.size()];
 
-        for (final IAEItemStack io : tmpOutputs.values()) {
+        for (final IExAEStack<?> io : tmpOutputs.values()) {
             this.condensedOutputs[offset] = io;
             offset++;
         }
+    }
+
+    @Nonnull
+    @SuppressWarnings("unchecked")
+    private static <T extends IAEStack<T>> void addUnsafe(@Nonnull final IExAEStack<T> dest, @Nonnull final IExAEStack<?> addend) {
+        dest.unwrap().add((T) addend.unwrap());
     }
 
     private void markItemAs(final int slotIndex, final ItemStack i, final TestStatus b) {
@@ -233,7 +261,7 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
 
         // If we cannot substitute, the items must match exactly
         if ((!(i.getItem().isDamageable() || Platform.isGTDamageableItem(i.getItem())) && !canSubstitute) && slotIndex < inputs.length) {
-            if (!inputs[slotIndex].isSameType(i)) {
+            if (!((IAEItemStack) inputs[slotIndex].unwrap()).isSameType(i)) {
                 this.markItemAs(slotIndex, i, TestStatus.DECLINE);
                 return false;
             }
@@ -259,22 +287,22 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
     }
 
     @Override
-    public IAEItemStack[] getInputs() {
+    public IExAEStack<?>[] getUnivInputs() {
         return this.inputs;
     }
 
     @Override
-    public IAEItemStack[] getCondensedInputs() {
+    public IExAEStack<?>[] getCondensedUnivInputs() {
         return this.condensedInputs;
     }
 
     @Override
-    public IAEItemStack[] getCondensedOutputs() {
+    public IExAEStack<?>[] getCondensedUnivOutputs() {
         return this.condensedOutputs;
     }
 
     @Override
-    public IAEItemStack[] getOutputs() {
+    public IExAEStack<?>[] getUnivOutputs() {
         return this.outputs;
     }
 
@@ -298,13 +326,13 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
 
             // Ensure that the specific item put in by the user is at the beginning,
             // so that it takes precedence over substitutions
-            itemList.add(0, this.inputs[slot]);
+            itemList.add(0, (IAEItemStack) this.inputs[slot].unwrap());
             return itemList;
         });
     }
 
     /**
-     * Gets the {@link Ingredient} from the actual used recipe for a given slot-index into {@link #getInputs()}.
+     * Gets the {@link Ingredient} from the actual used recipe for a given slot-index into {@link #getUnivInputs()}.
      * <p/>
      * Conversion is needed for two reasons: our sparse ingredients are always organized in a 3x3 grid, while Vanilla's
      * ingredient list will be condensed to the actual recipe's grid size. In addition, in our 3x3 grid, the user can
@@ -386,8 +414,12 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
             }
         }
 
-        if (this.outputs != null && this.outputs.length > 0) {
-            return this.outputs[0].createItemStack();
+        if (this.outputs != null) {
+            for (final IExAEStack<?> output : this.outputs) {
+                if (output != null && output.unwrap() instanceof final IAEItemStack ais) {
+                    return ais.createItemStack();
+                }
+            }
         }
 
         return ItemStack.EMPTY;

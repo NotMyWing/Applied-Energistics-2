@@ -5,6 +5,7 @@ import appeng.container.slot.OptionalSlotFake;
 import appeng.container.slot.SlotFakeCraftingMatrix;
 import appeng.container.slot.SlotPatternOutputs;
 import appeng.container.slot.SlotRestrictedInput;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraftforge.items.IItemHandler;
 
@@ -21,9 +22,8 @@ public class ContainerExpandedProcessingPatternTerm extends ContainerPatternEnco
         this.outputSlots = new OptionalSlotFake[PROCESSING_OUTPUT_LIMIT];
 
         final IItemHandler patternInv = this.getPart().getInventoryByName("pattern");
-        final IItemHandler output = this.getPart().getInventoryByName("output");
-
-        this.crafting = this.getPart().getInventoryByName("crafting");
+        this.crafting = this.getPart().getCraftingInventory();
+        this.output = this.getPart().getOutputInventory();
 
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
@@ -33,7 +33,7 @@ public class ContainerExpandedProcessingPatternTerm extends ContainerPatternEnco
 
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 2; x++) {
-                this.addSlotToContainer(this.outputSlots[x + y * 2] = new SlotPatternOutputs(output, this, x + y * 2, 96 + x * 18, -76 + y * 18, 0, 0, 1));
+                this.addSlotToContainer(this.outputSlots[x + y * 2] = new SlotPatternOutputs(this.output, this, x + y * 2, 96 + x * 18, -76 + y * 18, 0, 0, 1));
                 this.outputSlots[x + y * 2].setRenderDisabled(false);
                 this.outputSlots[x + y * 2].setIIcon(-1);
             }

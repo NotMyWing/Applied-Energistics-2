@@ -43,7 +43,6 @@ import appeng.container.AEBaseContainer;
 import appeng.container.ContainerNull;
 import appeng.container.ContainerOpenContext;
 import appeng.container.implementations.*;
-import appeng.container.interfaces.IInventorySlotAware;
 import appeng.fluids.container.*;
 import appeng.fluids.helper.IFluidInterfaceHost;
 import appeng.fluids.parts.PartFluidFormationPlane;

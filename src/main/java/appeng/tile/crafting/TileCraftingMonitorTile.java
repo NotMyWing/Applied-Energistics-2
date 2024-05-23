@@ -21,9 +21,9 @@ package appeng.tile.crafting;
 
 import appeng.api.AEApi;
 import appeng.api.implementations.tiles.IColorableTile;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AEColor;
-import appeng.util.item.AEItemStack;
+import appeng.api.util.IExAEStack;
+import appeng.util.item.ExAEStack;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -44,7 +44,7 @@ public class TileCraftingMonitorTile extends TileCraftingTile implements IColora
     @SideOnly(Side.CLIENT)
     private boolean updateList;
 
-    private IAEItemStack dspPlay;
+    private IExAEStack<?> dspPlay;
     private AEColor paintedColor = AEColor.TRANSPARENT;
 
     @Override
@@ -56,7 +56,7 @@ public class TileCraftingMonitorTile extends TileCraftingTile implements IColora
         final boolean hasItem = data.readBoolean();
 
         if (hasItem) {
-            this.dspPlay = AEItemStack.fromPacket(data);
+            this.dspPlay = ExAEStack.fromPacket(data);
         } else {
             this.dspPlay = null;
         }
@@ -103,7 +103,7 @@ public class TileCraftingMonitorTile extends TileCraftingTile implements IColora
         return true;
     }
 
-    public void setJob(final IAEItemStack is) {
+    public void setJob(final IExAEStack<?> is) {
         if ((is == null) != (this.dspPlay == null)) {
             this.dspPlay = is == null ? null : is.copy();
             this.markForUpdate();
@@ -115,7 +115,7 @@ public class TileCraftingMonitorTile extends TileCraftingTile implements IColora
         }
     }
 
-    public IAEItemStack getJobProgress() {
+    public IExAEStack<?> getJobProgress() {
         return this.dspPlay; // AEItemStack.create( new ItemStack( Items.DIAMOND, 64 ) );
     }
 

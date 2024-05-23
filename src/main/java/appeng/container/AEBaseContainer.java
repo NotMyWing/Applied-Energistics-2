@@ -35,6 +35,7 @@ import appeng.api.parts.IPart;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.client.me.SlotME;
 import appeng.container.guisync.GuiSync;
 import appeng.container.guisync.SyncData;
@@ -87,7 +88,7 @@ public abstract class AEBaseContainer extends Container {
     private IEnergySource powerSrc;
     private boolean sentCustomName;
     private int ticksSinceCheck = 900;
-    private IAEItemStack clientRequestedTargetItem = null;
+    private IExAEStack<?> clientRequestedTargetItem = null;
 
     public AEBaseContainer(final InventoryPlayer ip, final TileEntity myTile, final IPart myPart) {
         this(ip, myTile, myPart, null);
@@ -146,21 +147,21 @@ public abstract class AEBaseContainer extends Container {
         this.prepareSync();
     }
 
-    public IAEItemStack getTargetStack() {
+    public IExAEStack<?> getTargetStack() {
         return this.clientRequestedTargetItem;
     }
 
-    public void setTargetStack(final IAEItemStack stack) {
+    public void setTargetStack(final IExAEStack<?> stack) {
         // client doesn't need to re-send, makes for lower overhead rapid packets.
         if (Platform.isClient()) {
             if (stack == null && this.clientRequestedTargetItem == null) {
                 return;
             }
-            if (stack != null && stack.isSameType(this.clientRequestedTargetItem)) {
+            if (stack != null && stack.equals(this.clientRequestedTargetItem)) {
                 return;
             }
 
-            NetworkHandler.instance().sendToServer(new PacketTargetItemStack((AEItemStack) stack));
+            NetworkHandler.instance().sendToServer(new PacketTargetItemStack(stack));
         }
 
         this.clientRequestedTargetItem = stack == null ? null : stack.copy();
@@ -601,7 +602,12 @@ public abstract class AEBaseContainer extends Container {
         }
 
         // get target item.
-        final IAEItemStack slotItem = this.clientRequestedTargetItem;
+        final IAEItemStack slotItem;
+        if (this.clientRequestedTargetItem != null && this.clientRequestedTargetItem.unwrap() instanceof final IAEItemStack ais) {
+            slotItem = ais;
+        } else {
+            slotItem = null;
+        }
 
         switch (action) {
             case SHIFT_CLICK:

@@ -25,6 +25,7 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.container.AEBaseContainer;
 import appeng.container.slot.SlotInaccessible;
 import appeng.me.helpers.PlayerSource;
@@ -39,7 +40,7 @@ import javax.annotation.Nonnull;
 public class ContainerCraftAmount extends AEBaseContainer {
 
     private final Slot craftingItem;
-    private IAEItemStack itemToCreate;
+    private IExAEStack<?> itemToCreate;
 
     public ContainerCraftAmount(final InventoryPlayer ip, final ITerminalHost te) {
         super(ip, te);
@@ -76,11 +77,11 @@ public class ContainerCraftAmount extends AEBaseContainer {
         return this.craftingItem;
     }
 
-    public IAEItemStack getItemToCraft() {
+    public IExAEStack<?> getItemToCraft() {
         return this.itemToCreate;
     }
 
-    public void setItemToCraft(@Nonnull final IAEItemStack itemToCreate) {
+    public void setItemToCraft(@Nonnull final IExAEStack<?> itemToCreate) {
         this.itemToCreate = itemToCreate;
     }
 }

@@ -30,6 +30,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.IConfigManager;
 import appeng.core.sync.GuiBridge;
+import appeng.helpers.IGuiHost;
 import appeng.me.GridAccessException;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.ConfigManager;
@@ -58,7 +59,7 @@ import java.util.List;
  * @version rv3
  * @since rv3
  */
-public abstract class AbstractPartTerminal extends AbstractPartDisplay implements ITerminalHost, IConfigManagerHost, IViewCellStorage, IAEAppEngInventory {
+public abstract class AbstractPartTerminal extends AbstractPartDisplay implements ITerminalHost, IConfigManagerHost, IViewCellStorage, IAEAppEngInventory, IGuiHost {
 
     private final IConfigManager cm = new ConfigManager(this);
     private final AppEngInternalInventory viewCell = new AppEngInternalInventory(this, 5);
@@ -109,10 +110,6 @@ public abstract class AbstractPartTerminal extends AbstractPartDisplay implement
             }
         }
         return true;
-    }
-
-    public GuiBridge getGui(final EntityPlayer player) {
-        return GuiBridge.GUI_ME;
     }
 
     @Override

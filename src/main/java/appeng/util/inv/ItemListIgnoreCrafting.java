@@ -20,14 +20,25 @@ package appeng.util.inv;
 
 
 import appeng.api.config.FuzzyMode;
+import appeng.api.storage.IStorageChannel;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.api.util.IItemListFactory;
 
 import java.util.Collection;
 import java.util.Iterator;
 
 
 public class ItemListIgnoreCrafting<T extends IAEStack<T>> implements IItemList<T> {
+
+    public static final IItemListFactory FACTORY = new IItemListFactory() {
+
+        @Override
+        public <T extends IAEStack<T>> IItemList<T> newList(final IStorageChannel<T> channel) {
+            return new ItemListIgnoreCrafting<>(channel.createList());
+        }
+
+    };
 
     private final IItemList<T> target;
 

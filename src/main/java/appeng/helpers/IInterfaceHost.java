@@ -20,15 +20,15 @@ package appeng.helpers;
 
 
 import appeng.api.implementations.IUpgradeableHost;
-import appeng.api.networking.crafting.ICraftingProvider;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingProvider;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 
 import java.util.EnumSet;
 
 
-public interface IInterfaceHost extends ICraftingProvider, IUpgradeableHost, ICraftingRequester {
+public interface IInterfaceHost extends IUnivCraftingProvider, IUpgradeableHost, IUnivCraftingRequester {
 
     DualityInterface getInterfaceDuality();
 

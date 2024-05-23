@@ -19,10 +19,15 @@
 package appeng.client.gui.implementations;
 
 
+import appeng.api.AEApi;
 import appeng.api.config.ActionItems;
 import appeng.api.config.ItemSubstitution;
 import appeng.api.config.Settings;
+import appeng.api.storage.IStorageChannel;
 import appeng.api.storage.ITerminalHost;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.util.IExAEStack;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerPatternEncoder;
@@ -31,25 +36,32 @@ import appeng.container.implementations.ContainerWirelessPatternTerminal;
 import appeng.container.interfaces.IJEIGhostIngredients;
 import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotFake;
+import appeng.container.slot.SlotFakeCraftingMatrix;
+import appeng.container.slot.SlotPatternOutputs;
 import appeng.core.AELog;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketInventoryAction;
+import appeng.core.sync.packets.PacketUnivGhostItem;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.InventoryAction;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import mezz.jei.api.gui.IGhostIngredientHandler.Target;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 
 public class GuiPatternTerm extends GuiMEMonitorable implements IJEIGhostIngredients {
@@ -265,22 +277,56 @@ public class GuiPatternTerm extends GuiMEMonitorable implements IJEIGhostIngredi
     }
 
     @Override
-    public List<Target<?>> getPhantomTargets(Object ingredient) {
-        if (!(ingredient instanceof ItemStack)) {
-            return Collections.emptyList();
-        }
-        List<Target<?>> targets = new ArrayList<>();
-        for (Slot slot : this.inventorySlots.inventorySlots) {
-            if (slot instanceof SlotFake) {
-                ItemStack itemStack = (ItemStack) ingredient;
-                Target<Object> target = new Target<Object>() {
+    public List<Target<?>> getPhantomTargets(final Object ingredient) {
+        return getPhantomTargets(this, this.container, this.mapTargetSlot, ingredient);
+    }
+
+    static List<Target<?>> getPhantomTargets(final GuiContainer gui, final ContainerPatternEncoder cont, final Map<Target<?>, Object> mapTargetSlot, final Object ingredient) {
+        final boolean isItem = ingredient instanceof ItemStack;
+        final List<Target<?>> targets = new ArrayList<>();
+        for (final Slot slot : cont.inventorySlots) {
+            if (!(slot instanceof SlotFake)) {
+                continue;
+            }
+            final Target<Object> target;
+            if (slot instanceof SlotFakeCraftingMatrix || slot instanceof SlotPatternOutputs) {
+                final int slotNum = slot instanceof SlotFakeCraftingMatrix
+                        ? slot.getSlotIndex() : (cont.getCraftingInventory().getSlots() + slot.getSlotIndex());
+                target = new Target<>() {
                     @Override
                     public Rectangle getArea() {
-                        return new Rectangle(getGuiLeft() + slot.xPos, getGuiTop() + slot.yPos, 16, 16);
+                        return new Rectangle(gui.getGuiLeft() + slot.xPos, gui.getGuiTop() + slot.yPos, 16, 16);
+                    }
+
+                    @Override
+                    public void accept(final Object ingredient) {
+                        final IExAEStack<?> stack;
+                        if (ingredient instanceof final ItemStack is) {
+                            stack = ExAEStack.of(AEItemStack.fromItemStack(is));
+                        } else {
+                            stack = stackFromIngredient(ingredient);
+                        }
+                        if (stack != null) {
+                            try {
+                                NetworkHandler.instance().sendToServer(new PacketUnivGhostItem(slotNum, stack));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                };
+            } else if (isItem) {
+                target = new Target<>() {
+                    @Override
+                    public Rectangle getArea() {
+                        return new Rectangle(gui.getGuiLeft() + slot.xPos, gui.getGuiTop() + slot.yPos, 16, 16);
                     }
 
                     @Override
                     public void accept(Object ingredient) {
+                        if (!(ingredient instanceof final ItemStack itemStack)) {
+                            return;
+                        }
                         final PacketInventoryAction p;
                         try {
                             p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, (SlotFake) slot, AEItemStack.fromItemStack(itemStack));
@@ -291,11 +337,30 @@ public class GuiPatternTerm extends GuiMEMonitorable implements IJEIGhostIngredi
                         }
                     }
                 };
-                targets.add(target);
-                mapTargetSlot.putIfAbsent(target, slot);
+            } else {
+                continue;
             }
+            targets.add(target);
+            mapTargetSlot.putIfAbsent(target, slot);
         }
         return targets;
+    }
+
+    static IExAEStack<?> stackFromIngredient(final Object ingredient) {
+        for (final IStorageChannel<? extends IAEStack<?>> channel : AEApi.instance().storage().storageChannels()) {
+            if (channel instanceof IItemStorageChannel) {
+                continue;
+            }
+            final IExAEStack<?> stack = stackFromIngredient(channel, ingredient);
+            if (stack != null) {
+                return stack;
+            }
+        }
+        return null;
+    }
+
+    private static <T extends IAEStack<T>> IExAEStack<T> stackFromIngredient(final IStorageChannel<T> channel, final Object ingredient) {
+        return ExAEStack.of(channel.createStack(ingredient));
     }
 
     @Override

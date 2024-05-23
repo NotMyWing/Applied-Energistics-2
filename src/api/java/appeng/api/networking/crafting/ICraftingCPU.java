@@ -24,14 +24,18 @@
 package appeng.api.networking.crafting;
 
 
+import appeng.api.AEApi;
 import appeng.api.networking.security.IActionSource;
-import appeng.api.networking.storage.IBaseMonitor;
+import appeng.api.networking.storage.IUnivMonitor;
+import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.util.IExAEStack;
 
 import javax.annotation.Nullable;
 
 
-public interface ICraftingCPU extends IBaseMonitor<IAEItemStack>
+public interface ICraftingCPU extends IUnivMonitor
 {
 
 	/**
@@ -59,12 +63,34 @@ public interface ICraftingCPU extends IBaseMonitor<IAEItemStack>
 	 */
 	String getName();
 
+	/**
+	 * @return final output of the current crafting operation, or null if not crafting an item
+	 * @deprecated implement and use {@link #getTargetOutput()} instead.
+	 */
+	@Deprecated
+	@Nullable
+	default IAEItemStack getFinalOutput()
+	{
+		final IExAEStack<?> out = this.getTargetOutput();
+		if ( out == null )
+		{
+			return null;
+		}
+
+		final IAEStack<?> outStack = out.unwrap();
+		if (outStack instanceof IAEItemStack)
+		{
+			return (IAEItemStack) outStack;
+		}
+
+		return AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(outStack.asItemStackRepresentation());
+	}
 
 	/**
 	 * @return final output of the current crafting operation, or null if not crafting
 	 */
 	@Nullable
-	default IAEItemStack getFinalOutput()
+	default IExAEStack<?> getTargetOutput()
 	{
 		return null;
 	}

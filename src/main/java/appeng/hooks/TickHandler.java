@@ -52,7 +52,7 @@ public class TickHandler {
 
     public static final TickHandler INSTANCE = new TickHandler();
     private final Queue<IWorldCallable<?>> serverQueue = new ArrayDeque<>();
-    private final Multimap<World, CraftingJob> craftingJobs = LinkedListMultimap.create();
+    private final Multimap<World, CraftingJob<?>> craftingJobs = LinkedListMultimap.create();
     private final WeakHashMap<World, Queue<IWorldCallable<?>>> callQueue = new WeakHashMap<>();
     private final HandlerRep server = new HandlerRep();
     private final HandlerRep client = new HandlerRep();
@@ -167,7 +167,7 @@ public class TickHandler {
         if (ev.type == Type.WORLD && ev.phase == Phase.END) {
             final WorldTickEvent wte = (WorldTickEvent) ev;
             synchronized (this.craftingJobs) {
-                final Collection<CraftingJob> jobSet = this.craftingJobs.get(wte.world);
+                final Collection<CraftingJob<?>> jobSet = this.craftingJobs.get(wte.world);
                 if (!jobSet.isEmpty()) {
                     final int jobSize = jobSet.size();
                     final int microSecondsPerTick = AEConfig.instance().getCraftingCalculationTimePerTick() * 1000;
@@ -240,7 +240,7 @@ public class TickHandler {
         }
     }
 
-    public void registerCraftingSimulation(final World world, final CraftingJob craftingJob) {
+    public void registerCraftingSimulation(final World world, final CraftingJob<?> craftingJob) {
         synchronized (this.craftingJobs) {
             this.craftingJobs.put(world, craftingJob);
         }

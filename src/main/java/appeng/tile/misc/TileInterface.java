@@ -23,8 +23,8 @@ import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.definitions.IMaterials;
-import appeng.api.implementations.tiles.ISegmentedInventory;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.crafting.ICraftingInventory;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.crafting.ICraftingProviderHelper;
@@ -35,6 +35,7 @@ import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AECableType;
 import appeng.api.util.AEPartLocation;
 import appeng.api.util.DimensionalCoord;
@@ -46,7 +47,6 @@ import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 import appeng.items.misc.ItemEncodedPattern;
 import appeng.tile.grid.AENetworkInvTile;
-import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.Platform;
 import appeng.util.SettingsFrom;
@@ -55,8 +55,6 @@ import appeng.util.inv.InvOperation;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -65,7 +63,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import javax.annotation.Nullable;
@@ -245,7 +242,7 @@ public class TileInterface extends AENetworkInvTile implements IGridTickable, II
     }
 
     @Override
-    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final InventoryCrafting table) {
+    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final ICraftingInventory table) {
         return this.duality.pushPattern(patternDetails, table);
     }
 
@@ -270,8 +267,12 @@ public class TileInterface extends AENetworkInvTile implements IGridTickable, II
     }
 
     @Override
-    public IAEItemStack injectCraftedItems(final ICraftingLink link, final IAEItemStack items, final Actionable mode) {
-        return this.duality.injectCraftedItems(link, items, mode);
+    public <T extends IAEStack<T>> T injectCraftedUniv(final ICraftingLink link, final T items, final Actionable mode) {
+        if (items instanceof IAEItemStack ais) {
+            return (T) this.duality.injectCraftedItems(link, ais, mode);
+        } else {
+            return items;
+        }
     }
 
     @Override

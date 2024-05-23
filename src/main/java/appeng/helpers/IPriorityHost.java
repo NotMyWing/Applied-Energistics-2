@@ -20,10 +20,11 @@ package appeng.helpers;
 
 
 import appeng.core.sync.GuiBridge;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 
-public interface IPriorityHost {
+public interface IPriorityHost extends IGuiHost {
 
     /**
      * get current priority.
@@ -35,7 +36,11 @@ public interface IPriorityHost {
      */
     void setPriority(int newValue);
 
-    ItemStack getItemStackRepresentation();
-
     GuiBridge getGuiBridge();
+
+    @Override
+    default GuiBridge getGui(EntityPlayer player) {
+        return this.getGuiBridge();
+    }
+
 }

@@ -24,7 +24,7 @@ import appeng.api.config.*;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingGrid;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.ticking.TickRateModulation;
@@ -35,6 +35,7 @@ import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.util.AECableType;
 import appeng.core.AELog;
 import appeng.core.AppEng;
@@ -60,7 +61,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 
 
-public class PartExportBus extends PartSharedItemBus implements ICraftingRequester {
+public class PartExportBus extends PartSharedItemBus implements IUnivCraftingRequester {
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(AppEng.MOD_ID, "part/export_bus_base");
 
     @PartModels
@@ -213,7 +214,11 @@ public class PartExportBus extends PartSharedItemBus implements ICraftingRequest
     }
 
     @Override
-    public IAEItemStack injectCraftedItems(final ICraftingLink link, final IAEItemStack items, final Actionable mode) {
+    public <T extends IAEStack<T>> T injectCraftedUniv(final ICraftingLink link, final T i, final Actionable mode) {
+        if (!(i instanceof IAEItemStack items)) {
+            return i;
+        }
+        
         final InventoryAdaptor d = this.getHandler();
 
         try {
@@ -237,17 +242,17 @@ public class PartExportBus extends PartSharedItemBus implements ICraftingRequest
                     }
 
                     if (remaining == inputStack) {
-                        return items;
+                        return i;
                     }
 
-                    return AEItemStack.fromItemStack(remaining);
+                    return (T) AEItemStack.fromItemStack(remaining);
                 }
             }
         } catch (final GridAccessException e) {
             AELog.debug(e);
         }
 
-        return items;
+        return i;
     }
 
     @Override

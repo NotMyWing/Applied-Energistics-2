@@ -98,7 +98,8 @@ public abstract class AEBaseMEGui extends AEBaseGui {
         } else if (s instanceof AppEngSlot) {
             if (!(s instanceof SlotPlayerInv) && !(s instanceof SlotPlayerHotBar)) {
                 if (!s.getStack().isEmpty()) {
-                    final String formattedAmount = NumberFormat.getNumberInstance(Locale.US).format(s.getStack().getCount());
+                    long ds = ((AppEngSlot) s).getDisplayStackSize();
+                    final String formattedAmount = NumberFormat.getNumberInstance(Locale.US).format(ds != 0 ? ds : s.getStack().getCount());
                     currentToolTip.add(TextFormatting.GRAY + formattedAmount);
                     this.drawHoveringText(currentToolTip, x, y, this.fontRenderer);
                     return;

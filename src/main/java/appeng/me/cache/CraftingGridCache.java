@@ -19,7 +19,6 @@
 package appeng.me.cache;
 
 
-import appeng.api.AEApi;
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
 import appeng.api.networking.IGrid;
@@ -36,11 +35,13 @@ import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.ICellProvider;
 import appeng.api.storage.IMEInventoryHandler;
+import appeng.api.storage.IMEUnivInventoryHandler;
 import appeng.api.storage.IStorageChannel;
-import appeng.api.storage.channels.IItemStorageChannel;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.api.storage.data.IUnivItemList;
+import appeng.api.util.IExAEStack;
+import appeng.api.util.IUnivStackIterable;
 import appeng.crafting.CraftingJob;
 import appeng.crafting.CraftingLink;
 import appeng.crafting.CraftingLinkNexus;
@@ -50,6 +51,9 @@ import appeng.me.helpers.BaseActionSource;
 import appeng.me.helpers.GenericInterestManager;
 import appeng.tile.crafting.TileCraftingStorageTile;
 import appeng.tile.crafting.TileCraftingTile;
+import appeng.util.inv.UnivStackIterableWrapper;
+import appeng.util.inv.UnivSubInventoryHandlerDelegate;
+import appeng.util.item.ExAEStack;
 import com.google.common.collect.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -66,7 +70,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.stream.StreamSupport;
 
 
-public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper, ICellProvider, IMEInventoryHandler<IAEItemStack> {
+public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper, ICellProvider, IMEUnivInventoryHandler {
 
     private static final ExecutorService CRAFTING_POOL;
     private static final Comparator<ICraftingPatternDetails> COMPARATOR = (firstDetail, nextDetail) -> nextDetail.getPriority() - firstDetail.getPriority();
@@ -78,12 +82,12 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     private final Set<CraftingCPUCluster> craftingCPUClusters = new HashSet<>();
-    private final Set<ICraftingProvider> craftingProviders = new HashSet<>();
+    private final Set<IUnivCraftingProvider> craftingProviders = new HashSet<>();
     private final Map<IGridNode, ICraftingWatcher> craftingWatchers = new HashMap<>();
     private final IGrid grid;
-    private final Object2ObjectMap<ICraftingPatternDetails, List<ICraftingMedium>> craftingMethods = new Object2ObjectOpenHashMap<>();
-    private final Object2ObjectMap<IAEItemStack, ImmutableList<ICraftingPatternDetails>> craftableItems = new Object2ObjectOpenHashMap<>();
-    private final Set<IAEItemStack> emitableItems = new HashSet<>();
+    private final Object2ObjectMap<ICraftingPatternDetails, List<IUnivCraftingMedium>> craftingMethods = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<IExAEStack<?>, ImmutableList<ICraftingPatternDetails>> craftableItems = new Object2ObjectOpenHashMap<>();
+    private final Set<IExAEStack<?>> emitableItems = new HashSet<>();
     private final Map<String, CraftingLinkNexus> craftingLinks = new HashMap<>();
     private final Multimap<IAEStack, CraftingWatcher> interests = HashMultimap.create();
     private final GenericInterestManager<CraftingWatcher> interestManager = new GenericInterestManager<>(this.interests);
@@ -131,7 +135,7 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
 
     @Override
     public void removeNode(final IGridNode gridNode, final IGridHost machine) {
-        if (machine instanceof ICraftingWatcherHost) {
+        if (machine instanceof IUnivCraftingWatcherHost) {
             final ICraftingWatcher craftingWatcher = this.craftingWatchers.get(gridNode);
             if (craftingWatcher != null) {
                 craftingWatcher.reset();
@@ -139,7 +143,7 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
             }
         }
 
-        if (machine instanceof ICraftingRequester) {
+        if (machine instanceof IUnivCraftingRequester) {
             for (final CraftingLinkNexus link : this.craftingLinks.values()) {
                 if (link.isMachine(machine)) {
                     link.removeNode();
@@ -151,7 +155,7 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
             this.updateList = true;
         }
 
-        if (machine instanceof ICraftingProvider) {
+        if (machine instanceof IUnivCraftingProvider) {
             this.craftingProviders.remove(machine);
             this.updatePatterns = true;
         }
@@ -159,15 +163,15 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
 
     @Override
     public void addNode(final IGridNode gridNode, final IGridHost machine) {
-        if (machine instanceof ICraftingWatcherHost) {
-            final ICraftingWatcherHost watcherHost = (ICraftingWatcherHost) machine;
+        if (machine instanceof IUnivCraftingWatcherHost) {
+            final IUnivCraftingWatcherHost watcherHost = (IUnivCraftingWatcherHost) machine;
             final CraftingWatcher watcher = new CraftingWatcher(this, watcherHost);
             this.craftingWatchers.put(gridNode, watcher);
             watcherHost.updateWatcher(watcher);
         }
 
-        if (machine instanceof ICraftingRequester) {
-            for (final ICraftingLink link : ((ICraftingRequester) machine).getRequestedJobs()) {
+        if (machine instanceof IUnivCraftingRequester) {
+            for (final ICraftingLink link : ((IUnivCraftingRequester) machine).getRequestedJobs()) {
                 if (link instanceof CraftingLink) {
                     this.addLink((CraftingLink) link);
                 }
@@ -178,8 +182,8 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
             this.updateList = true;
         }
 
-        if (machine instanceof ICraftingProvider) {
-            this.craftingProviders.add((ICraftingProvider) machine);
+        if (machine instanceof IUnivCraftingProvider) {
+            this.craftingProviders.add((IUnivCraftingProvider) machine);
             this.updatePatterns = true;
         }
     }
@@ -203,8 +207,8 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     private void recalculateCraftingPatterns() {
-        final Object2ObjectMap<IAEItemStack, ImmutableList<ICraftingPatternDetails>> oldItems = new Object2ObjectOpenHashMap<>(this.craftableItems);
-        final Set<IAEItemStack> oldEmitableItems = new HashSet<>(this.emitableItems);
+        final Object2ObjectMap<IExAEStack<?>, ImmutableList<ICraftingPatternDetails>> oldItems = new Object2ObjectOpenHashMap<>(this.craftableItems);
+        final Set<IExAEStack<?>> oldEmitableItems = new HashSet<>(this.emitableItems);
 
         // erase list.
         this.craftingMethods.clear();
@@ -212,15 +216,15 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
         this.emitableItems.clear();
 
         // re-create list..
-        for (final ICraftingProvider provider : this.craftingProviders) {
+        for (final IUnivCraftingProvider provider : this.craftingProviders) {
             provider.provideCrafting(this);
         }
 
-        final Object2ObjectMap<IAEItemStack, ObjectSet<ICraftingPatternDetails>> tmpCraft = new Object2ObjectOpenHashMap<>();
+        final Object2ObjectMap<IExAEStack<?>, ObjectSet<ICraftingPatternDetails>> tmpCraft = new Object2ObjectOpenHashMap<>();
 
         // new craftables!
         for (final ICraftingPatternDetails details : this.craftingMethods.keySet()) {
-            for (IAEItemStack out : details.getOutputs()) {
+            for (IExAEStack<?> out : details.getUnivOutputs()) {
                 if (out == null) {
                     continue;
                 }
@@ -239,51 +243,51 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
         }
 
         // make them immutable
-        for (final Entry<IAEItemStack, ObjectSet<ICraftingPatternDetails>> e : tmpCraft.entrySet()) {
+        for (final Entry<IExAEStack<?>, ObjectSet<ICraftingPatternDetails>> e : tmpCraft.entrySet()) {
             this.craftableItems.put(e.getKey(), ImmutableList.copyOf(e.getValue()));
         }
 
-        List<IAEItemStack> craftablesChanged = new ArrayList<>();
+        List<IExAEStack<?>> craftablesChanged = new ArrayList<>();
 
-        ObjectSet<Entry<IAEItemStack, ImmutableList<ICraftingPatternDetails>>> i = oldItems.entrySet();
-        for (Entry<IAEItemStack, ImmutableList<ICraftingPatternDetails>> ais : i) {
+        ObjectSet<Entry<IExAEStack<?>, ImmutableList<ICraftingPatternDetails>>> i = oldItems.entrySet();
+        for (Entry<IExAEStack<?>, ImmutableList<ICraftingPatternDetails>> ais : i) {
             if (!this.craftableItems.containsKey(ais.getKey())) {
-                IAEItemStack changedStack = ais.getKey().copy();
+                IExAEStack<?> changedStack = ais.getKey().copy();
                 changedStack.reset();
                 changedStack.setCraftable(false);
                 craftablesChanged.add(changedStack);
             }
         }
 
-        ObjectSet<Entry<IAEItemStack, ImmutableList<ICraftingPatternDetails>>> j = this.craftableItems.entrySet();
-        for (Entry<IAEItemStack, ImmutableList<ICraftingPatternDetails>> ais : j) {
-            if (!oldItems.containsKey(ais)) {
-                IAEItemStack changedStack = ais.getKey().copy();
+        ObjectSet<Entry<IExAEStack<?>, ImmutableList<ICraftingPatternDetails>>> j = this.craftableItems.entrySet();
+        for (Entry<IExAEStack<?>, ImmutableList<ICraftingPatternDetails>> ais : j) {
+            if (!oldItems.containsKey(ais.getKey())) {
+                IExAEStack<?> changedStack = ais.getKey().copy();
                 changedStack.reset();
                 changedStack.setCraftable(true);
                 craftablesChanged.add(changedStack);
             }
         }
 
-        for (final IAEItemStack st : oldEmitableItems) {
+        for (final IExAEStack<?> st : oldEmitableItems) {
             if (!emitableItems.contains(st)) {
-                IAEItemStack changedStack = st.copy();
+                IExAEStack<?> changedStack = st.copy();
                 changedStack.reset();
                 changedStack.setCraftable(false);
                 craftablesChanged.add(changedStack);
             }
         }
 
-        for (final IAEItemStack st : this.emitableItems) {
+        for (final IExAEStack<?> st : this.emitableItems) {
             if (!oldEmitableItems.contains(st)) {
-                IAEItemStack changedStack = st.copy();
+                IExAEStack<?> changedStack = st.copy();
                 changedStack.reset();
                 changedStack.setCraftable(true);
                 craftablesChanged.add(changedStack);
             }
         }
 
-        this.storageGrid.postCraftablesChanges(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class), craftablesChanged, new BaseActionSource());
+        this.storageGrid.postCraftablesChanges(new UnivStackIterableWrapper(craftablesChanged), new BaseActionSource());
     }
 
     private void updateCPUClusters() {
@@ -329,8 +333,8 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     @Override
-    public void addCraftingOption(final ICraftingMedium medium, final ICraftingPatternDetails api) {
-        List<ICraftingMedium> details = this.craftingMethods.get(api);
+    public void addUnivCraftingOption(final IUnivCraftingMedium medium, final ICraftingPatternDetails api) {
+        List<IUnivCraftingMedium> details = this.craftingMethods.get(api);
         if (details == null) {
             details = new ArrayList<>();
             details.add(medium);
@@ -341,16 +345,17 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     @Override
-    public void setEmitable(final IAEItemStack someItem) {
-        this.emitableItems.add(someItem.copy());
+    public <T extends IAEStack<T>> void setUnivEmitable(final T someItem) {
+        this.emitableItems.add(ExAEStack.of(someItem.copy()));
     }
 
     @Override
     public List<IMEInventoryHandler> getCellArray(final IStorageChannel<?> channel) {
         final List<IMEInventoryHandler> list = new ArrayList<>(1);
 
-        if (channel == AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)) {
-            list.add(this);
+        IMEInventoryHandler<?> inv = inventoryFor(channel);
+        if (inv != null) {
+            list.add(inv);
         }
 
         return list;
@@ -367,12 +372,12 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     @Override
-    public boolean isPrioritized(final IAEItemStack input) {
+    public <T extends IAEStack<T>> boolean isPrioritized(final T input) {
         return true;
     }
 
     @Override
-    public boolean canAccept(final IAEItemStack input) {
+    public <T extends IAEStack<T>> boolean canAccept(final T input) {
         for (final CraftingCPUCluster cpu : this.craftingCPUClusters) {
             if (cpu.canAccept(input)) {
                 return true;
@@ -393,7 +398,12 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     @Override
-    public IAEItemStack injectItems(IAEItemStack input, final Actionable type, final IActionSource src) {
+    public <T extends IAEStack<T>> IMEInventoryHandler<T> inventoryFor(final IStorageChannel<T> channel) {
+        return new UnivSubInventoryHandlerDelegate<>(this, channel);
+    }
+
+    @Override
+    public <T extends IAEStack<T>> T injectItems(T input, final Actionable type, final IActionSource src) {
         for (final CraftingCPUCluster cpu : this.craftingCPUClusters) {
             input = cpu.injectItems(input, type, src);
         }
@@ -402,32 +412,44 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     @Override
-    public IAEItemStack extractItems(final IAEItemStack request, final Actionable mode, final IActionSource src) {
+    public <T extends IAEStack<T>> T extractItems(final T request, final Actionable mode, final IActionSource src) {
         return null;
     }
 
     @Override
-    public IItemList<IAEItemStack> getAvailableItems(final IItemList<IAEItemStack> out) {
+    public IUnivItemList getAvailableItems(final IUnivItemList out) {
         // add craftable items!
-        for (final IAEItemStack stack : this.craftableItems.keySet()) {
-            out.addCrafting(stack);
-        }
-
-        for (final IAEItemStack st : this.emitableItems) {
-            out.addCrafting(st);
-        }
-
+        IExAEStack.onEach(this.craftableItems.keySet(), out::addCrafting);
+        IExAEStack.onEach(this.emitableItems, out::addCrafting);
         return out;
     }
 
     @Override
-    public IStorageChannel<IAEItemStack> getChannel() {
-        return AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+    public <T extends IAEStack<T>> IItemList<T> getAvailableItems(final IStorageChannel<T> channel, final IItemList<T> out) {
+        IExAEStack.onEach(this.craftableItems.keySet(), new IUnivStackIterable.Visitor() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public <U extends IAEStack<U>> void visit(final U stack) {
+                if (stack.getChannel() == channel) {
+                    out.addCrafting((T) stack);
+                }
+            }
+        });
+        IExAEStack.onEach(this.emitableItems, new IUnivStackIterable.Visitor() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public <U extends IAEStack<U>> void visit(final U stack) {
+                if (stack.getChannel() == channel) {
+                    out.addCrafting((T) stack);
+                }
+            }
+        });
+        return out;
     }
 
     @Override
-    public ImmutableCollection<ICraftingPatternDetails> getCraftingFor(final IAEItemStack whatToCraft, final ICraftingPatternDetails details, final int slotIndex, final World world) {
-        final ImmutableList<ICraftingPatternDetails> res = this.craftableItems.get(whatToCraft);
+    public <T extends IAEStack<T>> ImmutableCollection<ICraftingPatternDetails> getUnivCraftingFor(final T whatToCraft, final ICraftingPatternDetails details, final int slotIndex, final World world) {
+        final ImmutableList<ICraftingPatternDetails> res = this.craftableItems.get(ExAEStack.of(whatToCraft));
 
         if (res == null) {
             return ImmutableSet.of();
@@ -437,18 +459,18 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     @Override
-    public Future<ICraftingJob> beginCraftingJob(final World world, final IGrid grid, final IActionSource actionSrc, final IAEItemStack slotItem, final ICraftingCallback cb) {
+    public <T extends IAEStack<T>> Future<ICraftingJob> beginUnivCraftingJob(final World world, final IGrid grid, final IActionSource actionSrc, final T slotItem, final ICraftingCallback cb) {
         if (world == null || grid == null || actionSrc == null || slotItem == null) {
             throw new IllegalArgumentException("Invalid Crafting Job Request");
         }
 
-        final CraftingJob job = new CraftingJob(world, grid, actionSrc, slotItem, cb);
+        final CraftingJob<T> job = new CraftingJob<>(world, grid, actionSrc, slotItem, cb);
 
         return CRAFTING_POOL.submit(job, job);
     }
 
     @Override
-    public ICraftingLink submitJob(final ICraftingJob job, final ICraftingRequester requestingMachine, final ICraftingCPU target, final boolean prioritizePower, final IActionSource src) {
+    public ICraftingLink submitJob(final ICraftingJob job, final IUnivCraftingRequester requestingMachine, final ICraftingCPU target, final boolean prioritizePower, final IActionSource src) {
         if (job.isSimulation()) {
             return null;
         }
@@ -501,29 +523,29 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     }
 
     @Override
-    public boolean canEmitFor(final IAEItemStack someItem) {
-        return this.emitableItems.contains(someItem);
+    public <T extends IAEStack<T>> boolean canEmitForUniv(final T someItem) {
+        return this.emitableItems.contains(ExAEStack.of(someItem));
     }
 
     @Override
-    public boolean isRequesting(final IAEItemStack what) {
-        return this.requesting(what) > 0;
+    public <T extends IAEStack<T>> boolean isRequestingUniv(final T what) {
+        return this.requestingUniv(what) > 0;
     }
 
     @Override
-    public long requesting(IAEItemStack what) {
+    public <T extends IAEStack<T>> long requestingUniv(final T what) {
         long requested = 0;
 
         for (final CraftingCPUCluster cluster : this.craftingCPUClusters) {
-            final IAEItemStack stack = cluster.making(what);
+            final T stack = cluster.making(what);
             requested += stack != null ? stack.getStackSize() : 0;
         }
 
         return requested;
     }
 
-    public List<ICraftingMedium> getMediums(final ICraftingPatternDetails key) {
-        List<ICraftingMedium> mediums = this.craftingMethods.get(key);
+    public List<IUnivCraftingMedium> getMediums(final ICraftingPatternDetails key) {
+        List<IUnivCraftingMedium> mediums = this.craftingMethods.get(key);
 
         if (mediums == null) {
             mediums = ImmutableList.of();

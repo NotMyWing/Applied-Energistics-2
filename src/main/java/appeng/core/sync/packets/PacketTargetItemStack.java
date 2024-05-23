@@ -19,24 +19,26 @@
 package appeng.core.sync.packets;
 
 
+import appeng.api.util.IExAEStack;
 import appeng.container.AEBaseContainer;
 import appeng.core.AELog;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
 
 
 public class PacketTargetItemStack extends AppEngPacket {
-    private AEItemStack stack;
+    private IExAEStack<?> stack;
 
     // automatic.
     public PacketTargetItemStack(final ByteBuf stream) {
         try {
             if (stream.readableBytes() > 0) {
-                this.stack = AEItemStack.fromPacket(stream);
+                this.stack = ExAEStack.fromPacket(stream);
             } else {
                 this.stack = null;
             }
@@ -47,7 +49,7 @@ public class PacketTargetItemStack extends AppEngPacket {
     }
 
     // api
-    public PacketTargetItemStack(AEItemStack stack) {
+    public PacketTargetItemStack(IExAEStack<?> stack) {
 
         this.stack = stack;
 

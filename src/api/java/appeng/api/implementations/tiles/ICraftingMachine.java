@@ -24,13 +24,23 @@
 package appeng.api.implementations.tiles;
 
 
+import appeng.api.AEApi;
+import appeng.api.networking.crafting.ICraftingInventory;
+import appeng.api.storage.channels.IItemStorageChannel;
 import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 
 
-public interface ICraftingMachine
+/**
+ * A machine capable of receiving item autocrafting jobs from an interface.
+ *
+ * @deprecated implement and use {@link IUnivCraftingMachine} instead.
+ */
+@Deprecated
+public interface ICraftingMachine extends IUnivCraftingMachine
 {
 
 	/**
@@ -44,11 +54,24 @@ public interface ICraftingMachine
 	 */
 	boolean pushPattern( ICraftingPatternDetails patternDetails, InventoryCrafting table, EnumFacing ejectionDirection );
 
-	/**
-	 * check if the crafting machine is accepting pushes via pushPattern, if this is false, all calls to push will fail,
-	 * you can try inserting into the inventory instead.
-	 *
-	 * @return true, if pushPattern can complete, if its false push will always be false.
-	 */
-	boolean acceptsPlans();
+	@Override
+	default boolean pushPattern( final ICraftingPatternDetails patternDetails, final ICraftingInventory table, final EnumFacing ejectionDirection )
+	{
+		final InventoryCrafting ic = AEApi.instance().deprecation().createFakeCraftingInventory(table.getWidth(), table.getHeight());
+		if ( !this.pushPattern(patternDetails, ic, ejectionDirection) )
+		{
+			return false;
+		}
+
+		final IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+		for ( int i = 0; i < ic.getSizeInventory(); i++ )
+		{
+			final ItemStack stack = ic.getStackInSlot(i);
+			if ( !stack.isEmpty() )
+			{
+				table.setStackInSlot(i, channel.createStack(stack));
+			}
+		}
+		return true;
+	}
 }

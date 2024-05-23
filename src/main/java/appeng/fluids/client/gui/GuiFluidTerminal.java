@@ -25,23 +25,25 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
 import appeng.client.gui.AEBaseMEGui;
-import appeng.client.gui.widgets.GuiImgButton;
-import appeng.client.gui.widgets.GuiScrollbar;
-import appeng.client.gui.widgets.ISortSource;
-import appeng.client.gui.widgets.MEGuiTextField;
+import appeng.client.gui.widgets.*;
 import appeng.client.me.FluidRepo;
 import appeng.client.me.InternalFluidSlotME;
 import appeng.client.me.SlotFluidME;
+import appeng.core.AEConfig;
 import appeng.core.AELog;
+import appeng.core.localization.ButtonToolTips;
 import appeng.core.localization.GuiText;
+import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketInventoryAction;
+import appeng.core.sync.packets.PacketSwitchGuis;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.fluids.container.ContainerFluidTerminal;
 import appeng.fluids.container.slots.IMEFluidSlot;
 import appeng.helpers.InventoryAction;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
@@ -74,6 +76,7 @@ public class GuiFluidTerminal extends AEBaseMEGui implements ISortSource, IConfi
 
     protected ITerminalHost terminal;
 
+    private GuiTabButton craftingStatusBtn;
     private MEGuiTextField searchField;
     private GuiImgButton sortByBox;
     private GuiImgButton sortDirBox;
@@ -108,6 +111,10 @@ public class GuiFluidTerminal extends AEBaseMEGui implements ISortSource, IConfi
         this.searchField.setVisible(true);
 
         int offset = this.guiTop;
+
+        this.buttonList.add(this.craftingStatusBtn = new GuiTabButton(this.guiLeft + 170, offset - 4, 2 + 11 * 16, GuiText.CraftingStatus
+                .getLocal(), this.itemRender));
+        this.craftingStatusBtn.setHideEdge(13);
 
         this.buttonList.add(this.sortByBox = new GuiImgButton(this.guiLeft - 18, offset, Settings.SORT_BY, this.configSrc.getSetting(Settings.SORT_BY)));
         offset += 20;
@@ -163,21 +170,27 @@ public class GuiFluidTerminal extends AEBaseMEGui implements ISortSource, IConfi
 
             if (fluidSlot.getAEFluidStack() != null && fluidSlot.shouldRenderAsFluid()) {
                 final IAEFluidStack fluidStack = fluidSlot.getAEFluidStack();
-                final String formattedAmount = NumberFormat.getNumberInstance(Locale.US).format(fluidStack.getStackSize() / 1000.0) + " B";
+                final List<String> list = new ArrayList<>();
+
+                list.add(fluidStack.getFluidStack().getLocalizedName());
+
+                if (fluidStack.getStackSize() > 0) {
+                    final String formattedAmount = NumberFormat.getNumberInstance(Locale.US).format(fluidStack.getStackSize() / 1000.0) + " B";
+                    list.add(formattedAmount);
+                }
 
                 final String modName = "" + TextFormatting.BLUE + TextFormatting.ITALIC + Loader.instance()
                         .getIndexedModList()
                         .get(Platform.getModId(fluidStack))
                         .getName();
-
-                final List<String> list = new ArrayList<>();
-
-                list.add(fluidStack.getFluidStack().getLocalizedName());
-                list.add(formattedAmount);
                 list.add(modName);
 
-                this.drawHoveringText(list, mouseX, mouseY);
+                if (fluidStack.isCraftable() && AEConfig.instance().isShowCraftableTooltip()) {
+                    final String local = ButtonToolTips.ItemsCraftable.getLocal();
+                    list.add(TextFormatting.GRAY + local);
+                }
 
+                this.drawHoveringText(list, mouseX, mouseY);
                 return;
             }
         }
@@ -186,6 +199,10 @@ public class GuiFluidTerminal extends AEBaseMEGui implements ISortSource, IConfi
 
     @Override
     protected void actionPerformed(GuiButton btn) throws IOException {
+        if (btn == this.craftingStatusBtn) {
+            NetworkHandler.instance().sendToServer(new PacketSwitchGuis(GuiBridge.GUI_CRAFTING_STATUS));
+        }
+
         if (btn instanceof GuiImgButton) {
             final boolean backwards = Mouse.isButtonDown(1);
             final GuiImgButton iBtn = (GuiImgButton) btn;
@@ -207,23 +224,25 @@ public class GuiFluidTerminal extends AEBaseMEGui implements ISortSource, IConfi
 
     @Override
     protected void handleMouseClick(Slot slot, int slotIdx, int mouseButton, ClickType clickType) {
-        if (slot instanceof SlotFluidME) {
-            final SlotFluidME meSlot = (SlotFluidME) slot;
-
-            if (clickType == ClickType.PICKUP) {
+        if (slot instanceof final SlotFluidME meSlot) {
+            if (clickType == ClickType.PICKUP && !Minecraft.getMinecraft().player.inventory.getItemStack().isEmpty()) {
                 // TODO: Allow more options
                 if (mouseButton == 0 && meSlot.getHasStack()) {
                     this.container.setTargetStack(meSlot.getAEFluidStack());
                     AELog.debug("mouse0 GUI STACK SIZE %s", meSlot.getAEFluidStack().getStackSize());
                     NetworkHandler.instance().sendToServer(new PacketInventoryAction(InventoryAction.FILL_ITEM, slot.slotNumber, 0));
+                    return;
                 } else {
                     this.container.setTargetStack(meSlot.getAEFluidStack());
                     if (meSlot.getAEFluidStack() != null) {
                         AELog.debug("mouse1 GUI STACK SIZE %s", meSlot.getAEFluidStack().getStackSize());
                     }
                     NetworkHandler.instance().sendToServer(new PacketInventoryAction(InventoryAction.EMPTY_ITEM, slot.slotNumber, 0));
+                    return;
                 }
             }
+
+            tryUnivAutoCrafting(meSlot, mouseButton, clickType);
             return;
         }
         super.handleMouseClick(slot, slotIdx, mouseButton, clickType);

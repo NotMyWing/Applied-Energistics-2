@@ -40,9 +40,8 @@ public class ContainerPatternTerm extends ContainerPatternEncoder {
         this.outputSlots = new OptionalSlotFake[3];
 
         final IItemHandler patternInv = this.getPart().getInventoryByName("pattern");
-        final IItemHandler output = this.getPart().getInventoryByName("output");
-
-        this.crafting = this.getPart().getInventoryByName("crafting");
+        this.crafting = this.getPart().getCraftingInventory();
+        this.output = this.getPart().getOutputInventory();
 
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
@@ -55,7 +54,7 @@ public class ContainerPatternTerm extends ContainerPatternEncoder {
         this.craftSlot.setIIcon(-1);
 
         for (int y = 0; y < this.outputSlots.length; y++) {
-            this.addSlotToContainer(this.outputSlots[y] = new SlotPatternOutputs(output, this, y, 110, -76 + y * 18, 0, 0, 1));
+            this.addSlotToContainer(this.outputSlots[y] = new SlotPatternOutputs(this.output, this, y, 110, -76 + y * 18, 0, 0, 1));
             this.outputSlots[y].setRenderDisabled(false);
             this.outputSlots[y].setIIcon(-1);
         }

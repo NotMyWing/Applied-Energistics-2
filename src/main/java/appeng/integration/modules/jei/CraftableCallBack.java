@@ -14,6 +14,7 @@ import appeng.helpers.IContainerCraftingPacket;
 import appeng.helpers.InventoryAction;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import appeng.util.item.ExAEStack;
 import com.google.common.base.Stopwatch;
 import mezz.jei.api.gui.ITooltipCallback;
 import net.minecraft.inventory.Container;
@@ -66,7 +67,7 @@ public class CraftableCallBack implements ITooltipCallback<ItemStack> {
                                 tooltip.add(line);
                                 if (Mouse.isButtonDown(2) && this.lastClicked.elapsed(TimeUnit.MILLISECONDS) > 200) {
                                     this.lastClicked.reset().start();
-                                    ((AEBaseContainer) container).setTargetStack(itemStack);
+                                    ((AEBaseContainer) container).setTargetStack(ExAEStack.of(itemStack));
                                     final PacketInventoryAction p = new PacketInventoryAction(InventoryAction.AUTO_CRAFT, container.getInventory().size(), 0);
                                     NetworkHandler.instance().sendToServer(p);
                                 }
@@ -89,7 +90,7 @@ public class CraftableCallBack implements ITooltipCallback<ItemStack> {
                         tooltip.add(line);
                         if (Mouse.isButtonDown(2) && this.lastClicked.elapsed(TimeUnit.MILLISECONDS) > 200) {
                             this.lastClicked.reset().start();
-                            ((AEBaseContainer) container).setTargetStack(found);
+                            ((AEBaseContainer) container).setTargetStack(ExAEStack.of(found));
                             final PacketInventoryAction p = new PacketInventoryAction(InventoryAction.AUTO_CRAFT, container.getInventory().size(), 0);
                             NetworkHandler.instance().sendToServer(p);
                         }
@@ -115,8 +116,10 @@ public class CraftableCallBack implements ITooltipCallback<ItemStack> {
 
         if (containerCraftingTerm instanceof IContainerCraftingPacket) {
             IItemHandler itemHandler = ((IContainerCraftingPacket) containerCraftingTerm).getInventoryByName("crafting");
-            for (int i = 0; i < itemHandler.getSlots(); i++) {
-                itemList.addStorage(AEItemStack.fromItemStack(itemHandler.getStackInSlot(i)));
+            if (itemHandler != null) {
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    itemList.addStorage(AEItemStack.fromItemStack(itemHandler.getStackInSlot(i)));
+                }
             }
         }
         return itemList;

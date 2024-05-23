@@ -20,8 +20,6 @@ package appeng.core.sync.packets;
 
 
 import appeng.api.storage.data.IAEItemStack;
-import appeng.container.implementations.ContainerCraftConfirm;
-import appeng.container.implementations.ContainerCraftingCPU;
 import appeng.container.implementations.ContainerMEMonitorable;
 import appeng.container.implementations.ContainerNetworkStatus;
 import appeng.core.AELog;
@@ -132,14 +130,6 @@ public class PacketMEInventoryUpdate extends AppEngPacket {
     @SideOnly(Side.CLIENT)
     public void clientPacketData(final INetworkInfo network, final AppEngPacket packet, final EntityPlayer player) {
         final Container c = player.openContainer;
-
-        if (c instanceof ContainerCraftConfirm) {
-            ((ContainerCraftConfirm) c).postUpdate(this.list, this.ref);
-        }
-
-        if (c instanceof ContainerCraftingCPU) {
-            ((ContainerCraftingCPU) c).postUpdate(this.list, this.ref);
-        }
 
         if (c instanceof ContainerMEMonitorable) {
             ((ContainerMEMonitorable) c).postUpdate(this.list);

@@ -24,7 +24,7 @@ import appeng.api.config.PowerMultiplier;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.implementations.IUpgradeableCellContainer;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.util.IExAEStack;
 import appeng.container.interfaces.IInventorySlotAware;
 import appeng.container.slot.OptionalSlotFake;
 import appeng.container.slot.SlotFakeCraftingMatrix;
@@ -36,8 +36,8 @@ import appeng.core.localization.PlayerMessages;
 import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.parts.automation.StackUpgradeInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.tile.inventory.AppEngInternalUnivInventory;
 import appeng.util.Platform;
-import appeng.util.helpers.ItemHandlerUtil;
 import appeng.util.inv.InvOperation;
 import baubles.api.BaublesApi;
 import net.minecraft.entity.player.EntityPlayer;
@@ -54,7 +54,6 @@ public class ContainerWirelessPatternTerminal extends ContainerPatternEncoder im
 
     private final WirelessTerminalGuiObject wirelessTerminalGUIObject;
     private final int slot;
-    protected AppEngInternalInventory output;
     protected AppEngInternalInventory pattern;
     protected AppEngInternalInventory upgrades;
 
@@ -66,8 +65,8 @@ public class ContainerWirelessPatternTerminal extends ContainerPatternEncoder im
     public ContainerWirelessPatternTerminal(final InventoryPlayer ip, final WirelessTerminalGuiObject gui) {
         super(ip, gui, gui, false);
 
-        this.crafting = new AppEngInternalInventory(this, CRAFTING_GRID_DIMENSION * CRAFTING_GRID_DIMENSION);
-        this.output = new AppEngInternalInventory(this, 3);
+        this.crafting = new AppEngInternalUnivInventory(this, CRAFTING_GRID_DIMENSION * CRAFTING_GRID_DIMENSION);
+        this.output = new AppEngInternalUnivInventory(this, 3);
         this.pattern = new AppEngInternalInventory(this, 2);
 
         this.craftingSlots = new SlotFakeCraftingMatrix[9];
@@ -232,7 +231,7 @@ public class ContainerWirelessPatternTerminal extends ContainerPatternEncoder im
     public void saveChanges() {
         if (Platform.isServer()) {
             NBTTagCompound tag = new NBTTagCompound();
-            ((AppEngInternalInventory) crafting).writeToNBT(tag, "craftingGrid");
+            crafting.writeToNBT(tag, "craftingGrid");
 
             this.output.writeToNBT(tag, "output");
             this.pattern.writeToNBT(tag, "patterns");
@@ -245,7 +244,7 @@ public class ContainerWirelessPatternTerminal extends ContainerPatternEncoder im
     private void loadFromNBT() {
         NBTTagCompound data = wirelessTerminalGUIObject.getItemStack().getTagCompound();
         if (data != null) {
-            ((AppEngInternalInventory) crafting).readFromNBT(data, "craftingGrid");
+            crafting.readFromNBT(data, "craftingGrid");
             this.output.readFromNBT(data, "output");
             this.pattern.readFromNBT(data, "patterns");
             upgrades.readFromNBT(wirelessTerminalGUIObject.getItemStack().getTagCompound().getCompoundTag("upgrades"));
@@ -263,39 +262,21 @@ public class ContainerWirelessPatternTerminal extends ContainerPatternEncoder im
                     this.setCraftingMode(details.isCraftable());
                     this.setSubstitute(details.canSubstitute());
 
-                    for (int x = 0; x < this.crafting.getSlots() && x < details.getInputs().length; x++) {
-                        final IAEItemStack item = details.getInputs()[x];
-                        ItemHandlerUtil.setStackInSlot(this.crafting, x, item == null ? ItemStack.EMPTY : item.createItemStack());
+                    for (int x = 0; x < this.crafting.getSlots() && x < details.getUnivInputs().length; x++) {
+                        this.crafting.setStackInSlot(x, details.getUnivInputs()[x]);
                     }
 
                     for (int x = 0; x < this.output.getSlots(); x++) {
-                        final IAEItemStack item;
-                        if (x < details.getOutputs().length) {
-                            item = details.getOutputs()[x];
+                        if (x < details.getUnivOutputs().length) {
+                            this.output.setStackInSlot(x, details.getUnivOutputs()[x]);
                         } else {
-                            item = null;
+                            this.output.setStackInSlot(x, (IExAEStack<?>) null);
                         }
-                        this.output.setStackInSlot(x, item == null ? ItemStack.EMPTY : item.createItemStack());
                     }
                 }
             }
         }
         super.onChangeInventory(inv, slot, mc, removedStack, newStack);
-    }
-
-    @Override
-    public IItemHandler getInventoryByName(String name) {
-        if (name.equals("crafting")) {
-            return this.crafting;
-        } else if (name.equals("output")) {
-            return this.output;
-        }
-        return super.getInventoryByName(name);
-    }
-
-    @Override
-    public boolean useRealItems() {
-        return false;
     }
 
     @Override

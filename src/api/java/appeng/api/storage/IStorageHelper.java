@@ -24,16 +24,21 @@
 package appeng.api.storage;
 
 
+import java.io.IOException;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
+import appeng.api.util.IExAEStack;
+import appeng.api.util.IItemListFactory;
+import appeng.api.storage.data.IUnivItemList;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import appeng.api.config.Actionable;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.networking.energy.IEnergySource;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.storage.IStorageGrid;
@@ -87,13 +92,55 @@ public interface IStorageHelper
 	Collection<IStorageChannel<? extends IAEStack<?>>> storageChannels();
 
 	/**
+	 * Create a heterogeneous {@link IUnivItemList} with the given sublist factory.
+	 *
+	 * @return the new list
+	 */
+	@Nonnull
+	IUnivItemList createUnivList( @Nonnull IItemListFactory subListFactory );
+
+	/**
+	 * Create a heterogeneous {@link IUnivItemList} with the default sublist factory {@link IItemListFactory#DEFAULT}.
+	 *
+	 * @return the new list
+	 */
+	@Nonnull
+	default IUnivItemList createUnivList()
+	{
+		return createUnivList(IItemListFactory.DEFAULT);
+	}
+
+	/**
+	 * Wrap an AE stack in an {@link IExAEStack}.
+	 *
+	 * @param stack the stack the wrap
+	 * @return the wrapped stack
+	 */
+	<T extends IAEStack<T>> IExAEStack<T> createExStack( T stack );
+
+	/**
+	 * Deserialize an {@link IExAEStack} from a packet byte buffer.
+	 *
+	 * @param input the packet data
+	 * @return the deserialized stack
+	 */
+	IExAEStack<?> readExStackFromPacket( @Nonnull ByteBuf input ) throws IOException;
+
+	/**
+	 * Deserialize an {@link IExAEStack} from an NBT compound tag.
+	 * @param nbt the NBT data
+	 * @return the deserialized stack
+	 */
+	IExAEStack<?> createExStackFromNBT( NBTTagCompound nbt );
+
+	/**
 	 * load a crafting link from nbt data.
 	 *
 	 * @param data to be loaded data
 	 *
 	 * @return crafting link
 	 */
-	ICraftingLink loadCraftingLink( NBTTagCompound data, ICraftingRequester req );
+	ICraftingLink loadCraftingLink( NBTTagCompound data, IUnivCraftingRequester req );
 
 	/**
 	 * Extracts items from a {@link IMEInventory} respecting power requirements.

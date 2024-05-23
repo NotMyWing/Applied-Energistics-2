@@ -25,6 +25,7 @@ package appeng.api.networking.crafting;
 
 
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 
 
 /**
@@ -35,11 +36,32 @@ public interface ICraftingProviderHelper
 
 	/**
 	 * Add new Pattern to AE's crafting cache.
+	 *
+	 * @deprecated use {@link #addUnivCraftingOption(IUnivCraftingMedium, ICraftingPatternDetails)} instead.
 	 */
-	void addCraftingOption( ICraftingMedium medium, ICraftingPatternDetails api );
+	@Deprecated
+	default void addCraftingOption( final ICraftingMedium medium, final ICraftingPatternDetails api )
+	{
+		this.addUnivCraftingOption(medium, api);
+	}
+
+	/**
+	 * Add new Pattern to AE's crafting cache.
+	 */
+	void addUnivCraftingOption( IUnivCraftingMedium medium, ICraftingPatternDetails api );
+
+	/**
+	 * Set an item can Emitable
+	 * @deprecated use {@link #setUnivEmitable(IAEStack)} instead.
+	 */
+	@Deprecated
+	default void setEmitable( IAEItemStack what )
+	{
+		this.setUnivEmitable(what);
+	}
 
 	/**
 	 * Set an item can Emitable
 	 */
-	void setEmitable( IAEItemStack what );
+	<T extends IAEStack<T>> void setUnivEmitable( T what );
 }

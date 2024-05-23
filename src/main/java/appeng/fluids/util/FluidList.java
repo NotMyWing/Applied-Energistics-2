@@ -22,6 +22,7 @@ package appeng.fluids.util;
 import appeng.api.config.FuzzyMode;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IItemList;
+import appeng.util.item.MeaningfulItemIterator;
 
 import java.util.*;
 
@@ -151,7 +152,7 @@ public final class FluidList implements IItemList<IAEFluidStack> {
 
     @Override
     public Iterator<IAEFluidStack> iterator() {
-        return new MeaningfulFluidIterator<>(this.records.values().iterator());
+        return new MeaningfulItemIterator<>(this.records.values());
     }
 
     @Override

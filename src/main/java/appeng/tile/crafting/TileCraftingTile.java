@@ -28,6 +28,7 @@ import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.storage.IMEInventory;
+import appeng.api.storage.IMEUnivInventory;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AEPartLocation;
@@ -233,7 +234,7 @@ public class TileCraftingTile extends AENetworkTile implements IAEMultiBlock, IP
     public void breakCluster() {
         if (this.cluster != null) {
             this.cluster.cancel();
-            final IMEInventory<IAEItemStack> inv = this.cluster.getInventory();
+            final IMEUnivInventory inv = this.cluster.getInventory();
 
             final LinkedList<WorldCoord> places = new LinkedList<>();
 
@@ -261,7 +262,8 @@ public class TileCraftingTile extends AENetworkTile implements IAEMultiBlock, IP
                 throw new IllegalStateException(this.cluster + " does not contain any kind of blocks, which were destroyed.");
             }
 
-            for (IAEItemStack ais : inv.getAvailableItems(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createList())) {
+            final IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+            for (IAEItemStack ais : inv.inventoryFor(channel).getAvailableItems(channel.createList())) {
                 ais = ais.copy();
                 ais.setStackSize(ais.getDefinition().getMaxStackSize());
                 while (true) {

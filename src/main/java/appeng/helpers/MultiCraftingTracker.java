@@ -20,16 +20,16 @@ package appeng.helpers;
 
 
 import appeng.api.AEApi;
+import appeng.api.config.Actionable;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.crafting.ICraftingGrid;
 import appeng.api.networking.crafting.ICraftingJob;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.networking.security.IActionSource;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.util.InventoryAdaptor;
+import appeng.api.storage.IMEInventory;
+import appeng.api.storage.data.IAEStack;
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
@@ -40,12 +40,12 @@ import java.util.concurrent.Future;
 public class MultiCraftingTracker {
 
     private final int size;
-    private final ICraftingRequester owner;
+    private final IUnivCraftingRequester owner;
 
     private Future<ICraftingJob>[] jobs = null;
     private ICraftingLink[] links = null;
 
-    public MultiCraftingTracker(final ICraftingRequester o, final int size) {
+    public MultiCraftingTracker(final IUnivCraftingRequester o, final int size) {
         this.owner = o;
         this.size = size;
     }
@@ -72,13 +72,11 @@ public class MultiCraftingTracker {
         }
     }
 
-    public boolean handleCrafting(final int x, final long itemToCraft, final IAEItemStack ais, final InventoryAdaptor d, final World w, final IGrid g, final ICraftingGrid cg, final IActionSource mySrc) {
-        if (ais != null) {
-            ItemStack inputStack = ais.createItemStack();
+    public <T extends IAEStack<T>> boolean handleCrafting(final int x, final long itemToCraft, final T target, final IMEInventory<T> d, final World w, final IGrid g, final ICraftingGrid cg, final IActionSource mySrc) {
+        if (target != null) {
+            T remaining = d.injectItems(target, Actionable.SIMULATE, mySrc);
 
-            ItemStack remaining = d.simulateAdd(inputStack);
-
-            if (remaining.isEmpty()) {
+            if (remaining == null) {
                 final Future<ICraftingJob> craftingJob = this.getJob(x);
 
                 if (this.getLink(x) != null) {
@@ -109,10 +107,10 @@ public class MultiCraftingTracker {
                     }
                 } else {
                     if (this.getLink(x) == null) {
-                        final IAEItemStack aisC = ais.copy();
+                        final T aisC = target.copy();
                         aisC.setStackSize(itemToCraft);
 
-                        this.setJob(x, cg.beginCraftingJob(w, g, mySrc, aisC, null));
+                        this.setJob(x, cg.beginUnivCraftingJob(w, g, mySrc, aisC, null));
                     }
                 }
             }

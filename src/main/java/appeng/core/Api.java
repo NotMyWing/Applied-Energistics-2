@@ -22,14 +22,15 @@ package appeng.core;
 import appeng.api.IAppEngApi;
 import appeng.api.features.IRegistryContainer;
 import appeng.api.networking.IGridHelper;
-import appeng.api.storage.IStorageHelper;
 import appeng.api.util.IClientHelper;
+import appeng.api.util.IDeprecationHelper;
 import appeng.core.api.ApiClientHelper;
 import appeng.core.api.ApiGrid;
 import appeng.core.api.ApiPart;
 import appeng.core.api.ApiStorage;
 import appeng.core.features.registries.PartModels;
 import appeng.core.features.registries.RegistryContainer;
+import appeng.helpers.ApiDeprecation;
 
 
 public final class Api implements IAppEngApi {
@@ -39,10 +40,11 @@ public final class Api implements IAppEngApi {
 
     // private MovableTileRegistry MovableRegistry = new MovableTileRegistry();
     private final IRegistryContainer registryContainer;
-    private final IStorageHelper storageHelper;
+    private final ApiStorage storageHelper;
     private final IGridHelper networkHelper;
     private final ApiDefinitions definitions;
     private final IClientHelper client;
+    private final IDeprecationHelper deprecation;
 
     private Api() {
         this.storageHelper = new ApiStorage();
@@ -51,6 +53,7 @@ public final class Api implements IAppEngApi {
         this.partHelper = new ApiPart();
         this.definitions = new ApiDefinitions((PartModels) this.registryContainer.partModels());
         this.client = new ApiClientHelper();
+        this.deprecation = new ApiDeprecation();
     }
 
     public PartModels getPartModels() {
@@ -63,7 +66,7 @@ public final class Api implements IAppEngApi {
     }
 
     @Override
-    public IStorageHelper storage() {
+    public ApiStorage storage() {
         return this.storageHelper;
     }
 
@@ -85,5 +88,10 @@ public final class Api implements IAppEngApi {
     @Override
     public IClientHelper client() {
         return this.client;
+    }
+
+    @Override
+    public IDeprecationHelper deprecation() {
+        return this.deprecation;
     }
 }

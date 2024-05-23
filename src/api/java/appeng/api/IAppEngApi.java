@@ -31,6 +31,7 @@ import appeng.api.networking.IGridNode;
 import appeng.api.parts.IPartHelper;
 import appeng.api.storage.IStorageHelper;
 import appeng.api.util.IClientHelper;
+import appeng.api.util.IDeprecationHelper;
 
 
 @AEInjectable
@@ -65,5 +66,10 @@ public interface IAppEngApi
 	 * @return Utility methods primarily useful for client side stuff
 	 */
 	IClientHelper client();
+
+	/**
+	 * @return A helper for bridging the gap between old and new API shapes.
+	 */
+	IDeprecationHelper deprecation();
 
 }

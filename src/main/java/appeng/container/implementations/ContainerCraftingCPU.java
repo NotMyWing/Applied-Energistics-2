@@ -25,18 +25,18 @@ import appeng.api.networking.crafting.CraftingItemList;
 import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
-import appeng.api.networking.storage.IBaseMonitor;
-import appeng.api.storage.IMEMonitorHandlerReceiver;
-import appeng.api.storage.channels.IItemStorageChannel;
-import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IItemList;
-import appeng.client.gui.implementations.GuiCraftConfirm;
+import appeng.api.networking.storage.IUnivMonitor;
+import appeng.api.storage.IUnivMonitorHandlerReceiver;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IUnivItemList;
+import appeng.api.util.IExAEStack;
+import appeng.api.util.IUnivStackIterable;
 import appeng.client.gui.implementations.GuiCraftingCPU;
 import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
 import appeng.core.AELog;
 import appeng.core.sync.network.NetworkHandler;
-import appeng.core.sync.packets.PacketMEInventoryUpdate;
+import appeng.core.sync.packets.PacketUnivInventoryUpdate;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.helpers.ICustomNameObject;
 import appeng.me.cluster.IAEMultiBlock;
@@ -52,9 +52,9 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class ContainerCraftingCPU extends AEBaseContainer implements IMEMonitorHandlerReceiver<IAEItemStack>, ICustomNameObject {
+public class ContainerCraftingCPU extends AEBaseContainer implements IUnivMonitorHandlerReceiver, ICustomNameObject {
 
-    private final IItemList<IAEItemStack> list = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createList();
+    private final IUnivItemList list = AEApi.instance().storage().createUnivList();
     private IGrid network;
     private CraftingCPUCluster monitor = null;
     private String cpuName = null;
@@ -149,14 +149,24 @@ public class ContainerCraftingCPU extends AEBaseContainer implements IMEMonitorH
             }
             if (!this.list.isEmpty()) {
                 try {
-                    final PacketMEInventoryUpdate a = new PacketMEInventoryUpdate((byte) 0);
-                    final PacketMEInventoryUpdate b = new PacketMEInventoryUpdate((byte) 1);
-                    final PacketMEInventoryUpdate c = new PacketMEInventoryUpdate((byte) 2);
+                    final PacketUnivInventoryUpdate a = new PacketUnivInventoryUpdate((byte) 0);
+                    final PacketUnivInventoryUpdate b = new PacketUnivInventoryUpdate((byte) 1);
+                    final PacketUnivInventoryUpdate c = new PacketUnivInventoryUpdate((byte) 2);
 
-                    for (final IAEItemStack out : this.list) {
-                        a.appendItem(this.getMonitor().getItemStack(out, CraftingItemList.STORAGE));
-                        b.appendItem(this.getMonitor().getItemStack(out, CraftingItemList.ACTIVE));
-                        c.appendItem(this.getMonitor().getItemStack(out, CraftingItemList.PENDING));
+                    if (!IExAEStack.traverse(this.list, new IUnivStackIterable.Traversal() {
+                        @Override
+                        public <T extends IAEStack<T>> boolean traverse(final T out) {
+                            try {
+                                a.appendItem(ContainerCraftingCPU.this.getMonitor().getItemStack(out, CraftingItemList.STORAGE));
+                                b.appendItem(ContainerCraftingCPU.this.getMonitor().getItemStack(out, CraftingItemList.ACTIVE));
+                                c.appendItem(ContainerCraftingCPU.this.getMonitor().getItemStack(out, CraftingItemList.PENDING));
+                                return true;
+                            } catch (IOException e) {
+                                return false; // >.<
+                            }
+                        }
+                    })) {
+                        throw new IOException();
                     }
 
                     this.list.resetStatus();
@@ -190,12 +200,13 @@ public class ContainerCraftingCPU extends AEBaseContainer implements IMEMonitorH
     }
 
     @Override
-    public void postChange(final IBaseMonitor<IAEItemStack> monitor, final Iterable<IAEItemStack> change, final IActionSource actionSource) {
-        for (IAEItemStack is : change) {
-            is = is.copy();
-            is.setStackSize(1);
-            this.list.add(is);
-        }
+    public void postChange(final IUnivMonitor monitor, final IUnivStackIterable change, final IActionSource actionSource) {
+        change.onEach(new IUnivStackIterable.Visitor() {
+            @Override
+            public <T extends IAEStack<T>> void visit(final T stack) {
+                ContainerCraftingCPU.this.list.add(stack.copy().setStackSize(1));
+            }
+        });
     }
 
     @Override
@@ -237,7 +248,7 @@ public class ContainerCraftingCPU extends AEBaseContainer implements IMEMonitorH
         this.network = network;
     }
 
-    public void postUpdate(final List<IAEItemStack> list, final byte ref) {
+    public void postUpdate(final List<IExAEStack<?>> list, final byte ref) {
         this.guiCraftingCPU.postUpdate(list, ref);
     }
 

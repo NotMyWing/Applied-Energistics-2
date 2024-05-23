@@ -24,28 +24,50 @@
 package appeng.api.networking.crafting;
 
 
+import appeng.api.AEApi;
+import appeng.api.storage.channels.IItemStorageChannel;
 import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
 
 
 /**
  * A place to send Items for crafting purposes, this is considered part of AE's External crafting system.
+ *
+ * @deprecated implement and use {@link IUnivCraftingMedium} instead.
  */
-public interface ICraftingMedium
+@Deprecated
+public interface ICraftingMedium extends IUnivCraftingMedium
 {
 
-	/**
-	 * instruct a medium to create the item represented by the pattern+details, the items on the table, and where if
-	 * possible the output should be directed.
-	 *
-	 * @param patternDetails details
-	 * @param table crafting table
-	 *
-	 * @return if the pattern was successfully pushed.
-	 */
-	boolean pushPattern( ICraftingPatternDetails patternDetails, InventoryCrafting table );
+    /**
+     * instruct a medium to create the item represented by the pattern+details, the items on the table, and where if
+     * possible the output should be directed.
+     *
+     * @param patternDetails details
+     * @param table crafting table
+     *
+     * @return if the pattern was successfully pushed.
+     */
+    boolean pushPattern( ICraftingPatternDetails patternDetails, InventoryCrafting table );
 
-	/**
-	 * @return if this is false, the crafting engine will refuse to send new jobs to this medium.
-	 */
-	boolean isBusy();
+    @Override
+    default boolean pushPattern( final ICraftingPatternDetails patternDetails, final ICraftingInventory table )
+    {
+        final InventoryCrafting ic = AEApi.instance().deprecation().createFakeCraftingInventory(table.getWidth(), table.getHeight());
+        if ( !this.pushPattern(patternDetails, ic) )
+        {
+            return false;
+        }
+
+        final IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+        for ( int i = 0; i < ic.getSizeInventory(); i++ )
+        {
+            final ItemStack stack = ic.getStackInSlot(i);
+            if ( !stack.isEmpty() )
+            {
+                table.setStackInSlot(i, channel.createStack(stack));
+            }
+        }
+        return true;
+    }
 }

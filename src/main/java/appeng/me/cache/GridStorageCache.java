@@ -36,6 +36,7 @@ import appeng.api.storage.*;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.api.util.IUnivStackIterable;
 import appeng.me.helpers.BaseActionSource;
 import appeng.me.helpers.GenericInterestManager;
 import appeng.me.helpers.MachineSource;
@@ -236,7 +237,23 @@ public class GridStorageCache implements IStorageGrid {
     }
 
     @Override
-    public void postCraftablesChanges(IStorageChannel<?> chan, Iterable<? extends IAEStack<?>> input, IActionSource src) {
+    public void postCraftablesChanges(IUnivStackIterable input, IActionSource src) {
+        final Map<IStorageChannel<?>, List<? extends IAEStack<?>>> perChan = new IdentityHashMap<>();
+        input.onEach(new IUnivStackIterable.Visitor() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public <T extends IAEStack<T>> void visit(final T stack) {
+                ((List<T>) perChan.computeIfAbsent(stack.getChannel(), c -> new ArrayList<T>())).add(stack);
+            }
+        });
+        for (final Map.Entry<IStorageChannel<?>, List<? extends IAEStack<?>>> entry : perChan.entrySet()) {
+            this.postCraftablesChanges(entry.getKey(), entry.getValue(), src);
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public void postCraftablesChanges(final IStorageChannel<?> chan, final Iterable<? extends IAEStack<?>> input, final IActionSource src) {
         this.storageMonitors.get(chan).updateCraftables((Iterable) input, src);
     }
 

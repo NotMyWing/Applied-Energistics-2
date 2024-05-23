@@ -30,7 +30,7 @@ import appeng.api.storage.data.IAEStack;
 /**
  * DO NOT IMPLEMENT.
  *
- * Will be injected when adding an {@link ICraftingWatcherHost} to a grid.
+ * Will be injected when adding an {@link IUnivCraftingWatcherHost} to a grid.
  */
 public interface ICraftingWatcher
 {
