@@ -4,6 +4,7 @@ package appeng.fluids.container;
 import appeng.api.config.RedstoneMode;
 import appeng.api.config.SecurityPermissions;
 import appeng.api.config.Settings;
+import appeng.api.config.YesNo;
 import appeng.container.guisync.GuiSync;
 import appeng.fluids.parts.PartFluidLevelEmitter;
 import appeng.fluids.util.IAEFluidTank;
@@ -41,6 +42,7 @@ public class ContainerFluidLevelEmitter extends ContainerFluidConfigurable {
 
     @Override
     protected void setupConfig() {
+        this.setupUpgrades();
     }
 
     @Override
@@ -50,8 +52,7 @@ public class ContainerFluidLevelEmitter extends ContainerFluidConfigurable {
 
     @Override
     public int availableUpgrades() {
-
-        return 0;
+        return 1;
     }
 
     @Override
@@ -60,6 +61,7 @@ public class ContainerFluidLevelEmitter extends ContainerFluidConfigurable {
 
         if (Platform.isServer()) {
             this.EmitterValue = this.lvlEmitter.getReportingValue();
+            this.setCraftingMode((YesNo) this.getUpgradeable().getConfigManager().getSetting(Settings.CRAFT_VIA_REDSTONE));
             this.setRedStoneMode((RedstoneMode) this.getUpgradeable().getConfigManager().getSetting(Settings.REDSTONE_EMITTER));
         }
 

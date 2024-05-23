@@ -29,7 +29,6 @@ import appeng.container.guisync.GuiSync;
 import appeng.container.slot.*;
 import appeng.items.contents.NetworkToolViewer;
 import appeng.items.tools.ToolNetworkTool;
-import appeng.parts.automation.PartExportBus;
 import appeng.util.Platform;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -191,8 +190,10 @@ public class ContainerUpgradeable extends AEBaseContainer implements IOptionalSl
     protected void loadSettingsFromHost(final IConfigManager cm) {
         this.setFuzzyMode((FuzzyMode) cm.getSetting(Settings.FUZZY_MODE));
         this.setRedStoneMode((RedstoneMode) cm.getSetting(Settings.REDSTONE_CONTROLLED));
-        if (this.getUpgradeable() instanceof PartExportBus) {
+        if (cm.getSettings().contains(Settings.CRAFT_ONLY)) {
             this.setCraftingMode((YesNo) cm.getSetting(Settings.CRAFT_ONLY));
+        }
+        if (cm.getSettings().contains(Settings.SCHEDULING_MODE)) {
             this.setSchedulingMode((SchedulingMode) cm.getSetting(Settings.SCHEDULING_MODE));
         }
     }

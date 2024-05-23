@@ -340,6 +340,9 @@ final class Registration {
         Upgrades.FUZZY.registerItem(parts.levelEmitter(), 1);
         Upgrades.CRAFTING.registerItem(parts.levelEmitter(), 1);
 
+        // Fluid Level Emitter
+        Upgrades.CRAFTING.registerItem(parts.fluidLevelEmitter(), 1);
+
         // Import Bus
         Upgrades.FUZZY.registerItem(parts.importBus(), 1);
         Upgrades.REDSTONE.registerItem(parts.importBus(), 1);
@@ -362,6 +365,7 @@ final class Registration {
         Upgrades.CAPACITY.registerItem(parts.fluidExportBus(), 2);
         Upgrades.REDSTONE.registerItem(parts.fluidExportBus(), 1);
         Upgrades.SPEED.registerItem(parts.fluidExportBus(), 4);
+        Upgrades.CRAFTING.registerItem(parts.fluidExportBus(), 1);
 
         // Storage Cells
         Upgrades.FUZZY.registerItem(items.cell1k(), 1);

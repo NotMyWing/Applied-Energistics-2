@@ -7,6 +7,7 @@ import appeng.api.util.IExAEStack;
 import appeng.api.util.IUnivStackIterable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 
@@ -36,7 +37,10 @@ public interface IUnivItemList extends IUnivStackIterable
      */
     default <T extends IAEStack<T>> void add( final T option )
     {
-        this.listFor(option.getChannel()).add(option);
+        if ( option != null )
+        {
+            this.listFor(option.getChannel()).add(option);
+        }
     }
 
     /**
@@ -46,7 +50,7 @@ public interface IUnivItemList extends IUnivStackIterable
      */
     default <T extends IAEStack<T>> T findPrecise( final T i )
     {
-        return this.listFor(i.getChannel()).findPrecise(i);
+        return i != null ? this.listFor(i.getChannel()).findPrecise(i) : null;
     }
 
     /**
@@ -55,7 +59,7 @@ public interface IUnivItemList extends IUnivStackIterable
      */
     default <T extends IAEStack<T>> Collection<T> findFuzzy( final T input, final FuzzyMode fuzzy )
     {
-        return this.listFor(input.getChannel()).findFuzzy(input, fuzzy);
+        return input != null ? this.listFor(input.getChannel()).findFuzzy(input, fuzzy) : Collections.emptyList();
     }
 
     /**
@@ -71,7 +75,10 @@ public interface IUnivItemList extends IUnivStackIterable
      */
     default <T extends IAEStack<T>> void addStorage( final T option )
     {
-        this.listFor(option.getChannel()).addStorage(option);
+        if ( option != null )
+        {
+            this.listFor(option.getChannel()).addStorage(option);
+        }
     }
 
     /**
@@ -81,7 +88,10 @@ public interface IUnivItemList extends IUnivStackIterable
      */
     default <T extends IAEStack<T>> void addCrafting( final T option )
     {
-        this.listFor(option.getChannel()).addCrafting(option);
+        if ( option != null )
+        {
+            this.listFor(option.getChannel()).addCrafting(option);
+        }
     }
 
     /**
@@ -92,7 +102,10 @@ public interface IUnivItemList extends IUnivStackIterable
      */
     default <T extends IAEStack<T>> void addRequestable( final T option )
     {
-        this.listFor(option.getChannel()).addRequestable(option);
+        if ( option != null )
+        {
+            this.listFor(option.getChannel()).addRequestable(option);
+        }
     }
 
     /**

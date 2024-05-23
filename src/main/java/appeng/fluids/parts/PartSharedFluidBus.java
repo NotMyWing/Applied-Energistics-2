@@ -38,12 +38,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 
@@ -75,6 +77,15 @@ public abstract class PartSharedFluidBus extends PartUpgradeable implements IGri
                 this.doBusWork();
             }
         }
+    }
+
+    protected IFluidHandler getHandler() {
+        final TileEntity target = this.getConnectedTE();
+        final EnumFacing side = this.getSide().getFacing().getOpposite();
+        if (target == null || !target.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side)) {
+            return null;
+        }
+        return target.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side);
     }
 
     private void updateState() {

@@ -4,7 +4,11 @@ package appeng.fluids.parts;
 import appeng.api.AEApi;
 import appeng.api.config.RedstoneMode;
 import appeng.api.config.Settings;
+import appeng.api.config.Upgrades;
+import appeng.api.config.YesNo;
+import appeng.api.networking.crafting.*;
 import appeng.api.networking.events.MENetworkChannelsChanged;
+import appeng.api.networking.events.MENetworkCraftingPatternChange;
 import appeng.api.networking.events.MENetworkEventSubscribe;
 import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.IActionSource;
@@ -51,7 +55,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import java.util.Random;
 
 
-public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatcherHost, IConfigManagerHost, IAEFluidInventory, IMEMonitorHandlerReceiver<IAEFluidStack>, IConfigurableFluidInventory {
+public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatcherHost, ICraftingWatcherHost, IConfigManagerHost, IAEFluidInventory, IMEMonitorHandlerReceiver<IAEFluidStack>, IConfigurableFluidInventory, ICraftingProvider {
     @PartModels
     public static final ResourceLocation MODEL_BASE_OFF = new ResourceLocation(AppEng.MOD_ID, "part/level_emitter_base_off");
     @PartModels
@@ -76,12 +80,14 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
     private long lastReportedValue = 0;
     private long reportingValue = 0;
     private IStackWatcher stackWatcher = null;
+    private ICraftingWatcher craftingWatcher = null;
     private final AEFluidInventory config = new AEFluidInventory(this, 1);
 
     public PartFluidLevelEmitter(ItemStack is) {
         super(is);
 
         this.getConfigManager().registerSetting(Settings.REDSTONE_EMITTER, RedstoneMode.HIGH_SIGNAL);
+        this.getConfigManager().registerSetting(Settings.CRAFT_VIA_REDSTONE, YesNo.NO);
     }
 
     public long getReportingValue() {
@@ -99,6 +105,12 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
     }
 
     @Override
+    public void upgradesChanged() {
+        this.configureWatchers();
+        this.updateState();
+    }
+
+    @Override
     public void updateWatcher(IStackWatcher newWatcher) {
         this.stackWatcher = newWatcher;
         this.configureWatchers();
@@ -110,6 +122,17 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
             this.lastReportedValue = fullStack.getStackSize();
             this.updateState();
         }
+    }
+
+    @Override
+    public void updateWatcher(final ICraftingWatcher newWatcher) {
+        this.craftingWatcher = newWatcher;
+        this.configureWatchers();
+    }
+
+    @Override
+    public <T extends IAEStack<T>> void onRequestChange(final ICraftingGrid craftingGrid, final T what) {
+        this.updateState();
     }
 
     @Override
@@ -189,12 +212,29 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
 
     private void configureWatchers() {
         final IFluidStorageChannel channel = AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class);
+        final IAEFluidStack myStack = this.config.getFluidInSlot(0);
 
         if (this.stackWatcher != null) {
             this.stackWatcher.reset();
+        }
+        if (this.craftingWatcher != null) {
+            this.craftingWatcher.reset();
+        }
 
-            final IAEFluidStack myStack = this.config.getFluidInSlot(0);
+        try {
+            this.getProxy().getGrid().postEvent(new MENetworkCraftingPatternChange(this, this.getProxy().getNode()));
+        } catch (final GridAccessException e1) {
+            // :/
+        }
 
+        if (this.getInstalledUpgrades(Upgrades.CRAFTING) > 0) {
+            if (this.craftingWatcher != null && myStack != null) {
+                this.craftingWatcher.add(myStack);
+            }
+            return;
+        }
+
+        if (this.stackWatcher != null) {
             try {
                 if (myStack != null) {
                     this.getProxy().getStorage().getInventory(channel).removeListener(this);
@@ -240,6 +280,16 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
 
         if (!this.getProxy().isActive()) {
             return false;
+        }
+
+        if (this.getInstalledUpgrades(Upgrades.CRAFTING) > 0) {
+            try {
+                return this.getProxy().getCrafting().isRequesting(this.config.getFluidInSlot(0));
+            } catch (final GridAccessException e) {
+                // :P
+            }
+
+            return this.prevState;
         }
 
         final boolean flipState = this.getConfigManager().getSetting(Settings.REDSTONE_EMITTER) == RedstoneMode.LOW_SIGNAL;
@@ -309,6 +359,28 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
             return this.config;
         }
         return null;
+    }
+
+    @Override
+    public void provideCrafting(final ICraftingProviderHelper craftingTracker) {
+        if (this.getInstalledUpgrades(Upgrades.CRAFTING) > 0) {
+            if (this.getConfigManager().getSetting(Settings.CRAFT_VIA_REDSTONE) == YesNo.YES) {
+                final IAEFluidStack what = this.config.getFluidInSlot(0);
+                if (what != null) {
+                    craftingTracker.setEmitable(what);
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean pushPattern(final ICraftingPatternDetails patternDetails, final ICraftingInventory table) {
+        return false;
+    }
+
+    @Override
+    public boolean isBusy() {
+        return true;
     }
 
     @Override

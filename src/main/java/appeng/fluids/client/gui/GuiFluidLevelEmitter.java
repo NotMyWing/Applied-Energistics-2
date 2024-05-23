@@ -3,6 +3,8 @@ package appeng.fluids.client.gui;
 
 import appeng.api.config.RedstoneMode;
 import appeng.api.config.Settings;
+import appeng.api.config.Upgrades;
+import appeng.api.config.YesNo;
 import appeng.client.gui.implementations.GuiUpgradeable;
 import appeng.client.gui.widgets.GuiImgButton;
 import appeng.client.gui.widgets.GuiNumberBox;
@@ -10,12 +12,14 @@ import appeng.core.AEConfig;
 import appeng.core.AELog;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.network.NetworkHandler;
+import appeng.core.sync.packets.PacketConfigButton;
 import appeng.core.sync.packets.PacketValueConfig;
 import appeng.fluids.client.gui.widgets.GuiFluidSlot;
 import appeng.fluids.container.ContainerFluidLevelEmitter;
 import appeng.fluids.parts.PartFluidLevelEmitter;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.InventoryPlayer;
+import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
 
@@ -32,6 +36,8 @@ public class GuiFluidLevelEmitter extends GuiUpgradeable {
     private GuiButton minus10;
     private GuiButton minus100;
     private GuiButton minus1000;
+
+    private GuiImgButton craftingMode;
 
     public GuiFluidLevelEmitter(final InventoryPlayer inventoryPlayer, final PartFluidLevelEmitter te) {
         super(new ContainerFluidLevelEmitter(inventoryPlayer, te));
@@ -58,6 +64,7 @@ public class GuiFluidLevelEmitter extends GuiUpgradeable {
     @Override
     protected void addButtons() {
         this.redstoneMode = new GuiImgButton(this.guiLeft - 18, this.guiTop + 28, Settings.REDSTONE_EMITTER, RedstoneMode.LOW_SIGNAL);
+        this.craftingMode = new GuiImgButton(this.guiLeft - 18, this.guiTop + 48, Settings.CRAFT_VIA_REDSTONE, YesNo.NO);
 
         final int a = AEConfig.instance().levelByMillyBuckets(0);
         final int b = AEConfig.instance().levelByMillyBuckets(1);
@@ -75,6 +82,7 @@ public class GuiFluidLevelEmitter extends GuiUpgradeable {
         this.buttonList.add(this.minus1000 = new GuiButton(0, this.guiLeft + 120, this.guiTop + 59, 38, 20, "-" + d));
 
         this.buttonList.add(this.redstoneMode);
+        this.buttonList.add(this.craftingMode);
     }
 
     @Override
@@ -88,11 +96,22 @@ public class GuiFluidLevelEmitter extends GuiUpgradeable {
         if (isPointInRegion(24, 43, 89, this.fontRenderer.FONT_HEIGHT, mouseX, mouseY))
             drawTooltip(mouseX - guiLeft - 7, mouseY - guiTop + 25, "Amount in millibuckets");
         super.drawFG(offsetX, offsetY, mouseX, mouseY);
-    }
 
-    @Override
-    protected boolean drawUpgrades() {
-        return false;
+        final boolean notCraftingMode = this.bc.getInstalledUpgrades(Upgrades.CRAFTING) == 0;
+        this.level.setEnabled(notCraftingMode);
+        this.plus1.enabled = notCraftingMode;
+        this.plus10.enabled = notCraftingMode;
+        this.plus100.enabled = notCraftingMode;
+        this.plus1000.enabled = notCraftingMode;
+        this.minus1.enabled = notCraftingMode;
+        this.minus10.enabled = notCraftingMode;
+        this.minus100.enabled = notCraftingMode;
+        this.minus1000.enabled = notCraftingMode;
+        this.redstoneMode.enabled = notCraftingMode;
+
+        if (this.craftingMode != null) {
+            this.craftingMode.set(((ContainerFluidLevelEmitter) this.inventorySlots).getCraftingMode());
+        }
     }
 
     @Override
@@ -107,11 +126,16 @@ public class GuiFluidLevelEmitter extends GuiUpgradeable {
 
     @Override
     protected void handleButtonVisibility() {
+        this.craftingMode.setVisibility(this.bc.getInstalledUpgrades(Upgrades.CRAFTING) > 0);
     }
 
     @Override
     protected void actionPerformed(final GuiButton btn) throws IOException {
         super.actionPerformed(btn);
+
+        if (btn == this.craftingMode) {
+            NetworkHandler.instance().sendToServer(new PacketConfigButton(this.craftingMode.getSetting(), Mouse.isButtonDown(1)));
+        }
 
         final boolean isPlus = btn == this.plus1 || btn == this.plus10 || btn == this.plus100 || btn == this.plus1000;
         final boolean isMinus = btn == this.minus1 || btn == this.minus10 || btn == this.minus100 || btn == this.minus1000;
