@@ -30,14 +30,10 @@ import appeng.api.networking.events.MENetworkCraftingPatternChange;
 /**
  * Allows a IGridHost to provide crafting patterns to the network, post a {@link MENetworkCraftingPatternChange} to tell
  * AE2 to update.
+ *
+ * @deprecated implement and use {@link IUnivCraftingProvider} instead.
  */
-public interface ICraftingProvider extends ICraftingMedium
+@Deprecated
+public interface ICraftingProvider extends IUnivCraftingProvider, ICraftingMedium
 {
-
-	/**
-	 * called when the network is looking for possible crafting jobs.
-	 *
-	 * @param craftingTracker crafting helper
-	 */
-	void provideCrafting( ICraftingProviderHelper craftingTracker );
 }

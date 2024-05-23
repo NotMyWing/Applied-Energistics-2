@@ -28,32 +28,24 @@ import appeng.api.storage.data.IAEStack;
 
 
 /**
- * DO NOT IMPLEMENT.
- *
- * Will be injected when adding an {@link IUnivCraftingWatcherHost} to a grid.
+ * Represents a device that can subscribe to autocrafting state updates in an ME grid.
  */
-public interface ICraftingWatcher
+public interface IUnivCraftingWatcherHost
 {
-	/**
-	 * Add a specific {@link IAEStack} to watch.
-	 *
-	 * Supports multiple values, duplicate ones will not be added.
-	 *
-	 * @param stack
-	 * @return true, if successfully added.
-	 */
-	boolean add( IAEStack<?> stack );
 
 	/**
-	 * Remove a specific {@link IAEStack} from the watcher.
+	 * provides the ICraftingWatcher for this host, for the current network, is called when the hot changes networks.
+	 * You do not need to clear your old watcher, its already been removed by the time this gets called.
 	 *
-	 * @param stack
-	 * @return true, if successfully removed.
+	 * @param newWatcher crafting watcher for this host
 	 */
-	boolean remove( IAEStack<?> stack );
+	void updateWatcher( ICraftingWatcher newWatcher );
 
 	/**
-	 * Removes all watched stacks and resets the watcher to a clean state.
+	 * Called when a crafting status changes.
+	 *
+	 * @param craftingGrid current crafting grid
+	 * @param what change
 	 */
-	void reset();
+	<T extends IAEStack<T>> void onUnivRequstChange( ICraftingGrid craftingGrid, T what );
 }

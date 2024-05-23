@@ -287,22 +287,22 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
     }
 
     @Override
-    public IExAEStack<?>[] getInputs() {
+    public IExAEStack<?>[] getUnivInputs() {
         return this.inputs;
     }
 
     @Override
-    public IExAEStack<?>[] getCondensedInputs() {
+    public IExAEStack<?>[] getCondensedUnivInputs() {
         return this.condensedInputs;
     }
 
     @Override
-    public IExAEStack<?>[] getCondensedOutputs() {
+    public IExAEStack<?>[] getCondensedUnivOutputs() {
         return this.condensedOutputs;
     }
 
     @Override
-    public IExAEStack<?>[] getOutputs() {
+    public IExAEStack<?>[] getUnivOutputs() {
         return this.outputs;
     }
 
@@ -332,7 +332,7 @@ public class PatternHelper implements ICraftingPatternDetails, Comparable<Patter
     }
 
     /**
-     * Gets the {@link Ingredient} from the actual used recipe for a given slot-index into {@link #getInputs()}.
+     * Gets the {@link Ingredient} from the actual used recipe for a given slot-index into {@link #getUnivInputs()}.
      * <p/>
      * Conversion is needed for two reasons: our sparse ingredients are always organized in a 3x3 grid, while Vanilla's
      * ingredient list will be condensed to the actual recipe's grid size. In addition, in our 3x3 grid, the user can

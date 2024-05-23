@@ -24,36 +24,25 @@
 package appeng.api.networking.crafting;
 
 
-import appeng.api.storage.data.IAEStack;
-
-
 /**
- * DO NOT IMPLEMENT.
- *
- * Will be injected when adding an {@link IUnivCraftingWatcherHost} to a grid.
+ * A place to send Items for crafting purposes, this is considered part of AE's External crafting system.
  */
-public interface ICraftingWatcher
+public interface IUnivCraftingMedium
 {
-	/**
-	 * Add a specific {@link IAEStack} to watch.
-	 *
-	 * Supports multiple values, duplicate ones will not be added.
-	 *
-	 * @param stack
-	 * @return true, if successfully added.
-	 */
-	boolean add( IAEStack<?> stack );
 
 	/**
-	 * Remove a specific {@link IAEStack} from the watcher.
+	 * instruct a medium to create the item represented by the pattern+details, the items on the table, and where if
+	 * possible the output should be directed.
 	 *
-	 * @param stack
-	 * @return true, if successfully removed.
+	 * @param patternDetails details
+	 * @param table crafting table
+	 *
+	 * @return if the pattern was successfully pushed.
 	 */
-	boolean remove( IAEStack<?> stack );
+	boolean pushPattern( ICraftingPatternDetails patternDetails, ICraftingInventory table );
 
 	/**
-	 * Removes all watched stacks and resets the watcher to a clean state.
+	 * @return if this is false, the crafting engine will refuse to send new jobs to this medium.
 	 */
-	void reset();
+	boolean isBusy();
 }

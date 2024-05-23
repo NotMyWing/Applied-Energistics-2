@@ -264,7 +264,7 @@ public class CraftingJob<T extends IAEStack<T>> implements Runnable, ICraftingJo
     }
 
     @Override
-    public IExAEStack<?> getOutput() {
+    public IExAEStack<?> getUnivOutput() {
         return ExAEStack.of(this.output);
     }
 

@@ -25,35 +25,41 @@ package appeng.api.networking.crafting;
 
 
 import appeng.api.storage.data.IAEStack;
+import com.google.common.collect.ImmutableSet;
+
+import appeng.api.config.Actionable;
+import appeng.api.networking.security.IActionHost;
 
 
 /**
- * DO NOT IMPLEMENT.
- *
- * Will be injected when adding an {@link IUnivCraftingWatcherHost} to a grid.
+ * Represents a device that can submit autocrafting requests and receive the results.
  */
-public interface ICraftingWatcher
+public interface IUnivCraftingRequester extends IActionHost
 {
-	/**
-	 * Add a specific {@link IAEStack} to watch.
-	 *
-	 * Supports multiple values, duplicate ones will not be added.
-	 *
-	 * @param stack
-	 * @return true, if successfully added.
-	 */
-	boolean add( IAEStack<?> stack );
 
 	/**
-	 * Remove a specific {@link IAEStack} from the watcher.
+	 * called when the host is added to the grid, and should return all crafting links it poses so they can be connected
+	 * with the cpu that hosts the job.
 	 *
-	 * @param stack
-	 * @return true, if successfully removed.
+	 * @return set of jobs, or an empty list.
 	 */
-	boolean remove( IAEStack<?> stack );
+	ImmutableSet<ICraftingLink> getRequestedJobs();
 
 	/**
-	 * Removes all watched stacks and resets the watcher to a clean state.
+	 * items are injected into the requester as they are completed, any items that cannot be taken, or are unwanted can
+	 * be returned.
+	 *
+	 * @param items item
+	 * @param mode action mode
+	 *
+	 * @return unwanted item
 	 */
-	void reset();
+	<T extends IAEStack<T>> T injectCraftedUniv( ICraftingLink link, T items, Actionable mode );
+
+	/**
+	 * called when the job changes from in progress, to either complete, or canceled.
+	 *
+	 * after this call the crafting link is "dead" and should be discarded.
+	 */
+	void jobStateChange( ICraftingLink link );
 }

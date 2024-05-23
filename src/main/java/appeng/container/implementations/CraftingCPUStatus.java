@@ -39,7 +39,7 @@ public class CraftingCPUStatus implements Comparable<CraftingCPUStatus> {
         this.name = cluster.getName();
         this.serial = serial;
         if (cluster.isBusy()) {
-            crafting = cluster.getFinalOutput();
+            crafting = cluster.getTargetOutput();
             totalItems = cluster.getStartItemCount();
             remainingItems = cluster.getRemainingItemCount();
         } else {

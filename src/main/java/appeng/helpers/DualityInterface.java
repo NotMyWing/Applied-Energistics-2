@@ -26,7 +26,7 @@ import appeng.api.config.Upgrades;
 import appeng.api.config.YesNo;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.implementations.IUpgradeableHost;
-import appeng.api.implementations.tiles.ICraftingMachine;
+import appeng.api.implementations.tiles.IUnivCraftingMachine;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
@@ -93,7 +93,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 
-public class DualityInterface implements IGridTickable, IStorageMonitorable, IInventoryDestination, IAEAppEngInventory, IConfigManagerHost, ICraftingProvider, IUpgradeableHost {
+public class DualityInterface implements IGridTickable, IStorageMonitorable, IInventoryDestination, IAEAppEngInventory, IConfigManagerHost, IUnivCraftingProvider, IUpgradeableHost {
     public static final int NUMBER_OF_STORAGE_SLOTS = 9;
     public static final int NUMBER_OF_CONFIG_SLOTS = 9;
     public static final int NUMBER_OF_PATTERN_SLOTS = 36;
@@ -1005,8 +1005,8 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                 continue;
             }
 
-            if (te instanceof ICraftingMachine) {
-                final ICraftingMachine cm = (ICraftingMachine) te;
+            if (te instanceof IUnivCraftingMachine) {
+                final IUnivCraftingMachine cm = (IUnivCraftingMachine) te;
                 if (cm.acceptsPlans()) {
                     visitedFaces.remove(s);
                     if (cm.pushPattern(patternDetails, table, s.getOpposite())) {
@@ -1167,7 +1167,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
         if (this.gridProxy.isActive() && this.craftingList != null) {
             for (final ICraftingPatternDetails details : this.craftingList) {
                 details.setPriority(this.priority);
-                craftingTracker.addCraftingOption(this, details);
+                craftingTracker.addUnivCraftingOption(this, details);
             }
         }
     }
@@ -1297,7 +1297,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
             }
 
             final InventoryAdaptor adaptor = InventoryAdaptor.getAdaptor(directedTile, direction.getOpposite());
-            if (directedTile instanceof ICraftingMachine || adaptor != null) {
+            if (directedTile instanceof IUnivCraftingMachine || adaptor != null) {
                 if (adaptor != null && !adaptor.hasSlots()) {
                     continue;
                 }

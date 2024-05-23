@@ -25,7 +25,7 @@ import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.api.config.YesNo;
 import appeng.api.implementations.IUpgradeableHost;
-import appeng.api.implementations.tiles.ICraftingMachine;
+import appeng.api.implementations.tiles.IUnivCraftingMachine;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
@@ -51,9 +51,7 @@ import appeng.fluids.util.AEFluidInventory;
 import appeng.fluids.util.IAEFluidInventory;
 import appeng.fluids.util.IAEFluidTank;
 import appeng.helpers.ICustomNameObject;
-import appeng.helpers.IInterfaceHost;
 import appeng.me.GridAccessException;
-import appeng.me.GridNodeCollection;
 import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.MachineSource;
 import appeng.me.storage.MEMonitorIFluidHandler;
@@ -86,7 +84,6 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.Collection;
@@ -257,7 +254,7 @@ public class DualityFluidInterface implements IGridTickable, IStorageMonitorable
             }
 
             final InventoryAdaptor adaptor = InventoryAdaptor.getAdaptor(directedTile, direction.getOpposite());
-            if (directedTile instanceof ICraftingMachine || adaptor != null) {
+            if (directedTile instanceof IUnivCraftingMachine || adaptor != null) {
                 if (adaptor != null && !adaptor.hasSlots()) {
                     continue;
                 }

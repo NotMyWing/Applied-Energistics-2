@@ -24,7 +24,7 @@ import appeng.api.config.*;
 import appeng.api.definitions.ITileDefinition;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.implementations.IUpgradeableHost;
-import appeng.api.implementations.tiles.ICraftingMachine;
+import appeng.api.implementations.tiles.IUnivCraftingMachine;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingInventory;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -82,7 +82,7 @@ import static appeng.helpers.ItemStackHelper.stackFromNBT;
 import static appeng.helpers.ItemStackHelper.stackWriteToNBT;
 
 
-public class TileMolecularAssembler extends AENetworkInvTile implements IUpgradeableHost, IConfigManagerHost, IGridTickable, ICraftingMachine, IPowerChannelState {
+public class TileMolecularAssembler extends AENetworkInvTile implements IUpgradeableHost, IConfigManagerHost, IGridTickable, IUnivCraftingMachine, IPowerChannelState {
     private final InventoryCrafting craftingInv;
     private final AppEngInternalInventory gridInv = new AppEngInternalInventory(this, 9 + 1, 1);
     private final AppEngInternalInventory patternInv = new AppEngInternalInventory(this, 1, 1);
@@ -260,7 +260,7 @@ public class TileMolecularAssembler extends AENetworkInvTile implements IUpgrade
             }
         }
 
-        return this.myPlan.getOutputs().length > 0;
+        return this.myPlan.getUnivOutputs().length > 0;
     }
 
     @Override

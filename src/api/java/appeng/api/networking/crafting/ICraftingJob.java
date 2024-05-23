@@ -24,6 +24,10 @@
 package appeng.api.networking.crafting;
 
 
+import appeng.api.AEApi;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IItemList;
 import appeng.api.storage.data.IUnivItemList;
 import appeng.api.util.IExAEStack;
 
@@ -44,6 +48,20 @@ public interface ICraftingJob
 
 	/**
 	 * Populates the plan list with stack size, and requestable values that represent the stored, and crafting job
+	 * contents respectively. This overload is for backwards-compatibility ONLY and will throw an exception if the
+	 * crafting job contains any non-item ingredients!
+	 *
+	 * @param plan plan
+	 * @deprecated use {@link #populatePlan(IUnivItemList)} instead.
+	 */
+	@Deprecated
+	default void populatePlan( final IItemList<IAEItemStack> plan )
+	{
+		this.populatePlan(AEApi.instance().deprecation().wrapAsUniv(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class), plan));
+	}
+
+	/**
+	 * Populates the plan list with stack size, and requestable values that represent the stored, and crafting job
 	 * contents respectively.
 	 *
 	 * @param plan plan
@@ -51,7 +69,20 @@ public interface ICraftingJob
 	void populatePlan( IUnivItemList plan );
 
 	/**
+	 * This overload is for backwards-compatibility ONLY and will throw an exception if the output is not an item!
+	 *
+	 * @return the final output of the job
+	 * @deprecated use {@link #getUnivOutput()} instead.
+	 */
+	@Deprecated
+	default IAEItemStack getOutput()
+	{
+		final IExAEStack<?> stack = getUnivOutput();
+		return stack != null ? AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class).createStack(stack.asItemStackRepresentation()) : null;
+	}
+
+	/**
 	 * @return the final output of the job.
 	 */
-	IExAEStack<?> getOutput();
+	IExAEStack<?> getUnivOutput();
 }

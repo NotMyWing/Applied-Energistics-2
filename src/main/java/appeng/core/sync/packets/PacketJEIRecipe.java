@@ -218,7 +218,7 @@ public class PacketJEIRecipe extends AppEngPacket {
                                 }
                             } else {
                                 // Query the crafting grid if there is a pattern providing the item
-                                if (!crafting.getCraftingFor(request, null, 0, null).isEmpty()) {
+                                if (!crafting.getUnivCraftingFor(request, null, 0, null).isEmpty()) {
                                     out = request;
                                 } else {
                                     // Fall back using an existing item

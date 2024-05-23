@@ -24,24 +24,19 @@
 package appeng.api.networking.crafting;
 
 
-import appeng.api.storage.data.IAEStack;
-import com.google.common.collect.ImmutableSet;
-
 import appeng.api.config.Actionable;
-import appeng.api.networking.security.IActionHost;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 
 
-public interface ICraftingRequester extends IActionHost
+/**
+ * Represents a device that can submit item autocrafting requests and receive the results.
+ *
+ * @deprecated implement and use {@link IUnivCraftingRequester} instead.
+ */
+@Deprecated
+public interface ICraftingRequester extends IUnivCraftingRequester
 {
-
-	/**
-	 * called when the host is added to the grid, and should return all crafting links it poses so they can be connected
-	 * with the cpu that hosts the job.
-	 *
-	 * @return set of jobs, or an empty list.
-	 */
-	ImmutableSet<ICraftingLink> getRequestedJobs();
 
 	/**
 	 * items are injected into the requester as they are completed, any items that cannot be taken, or are unwanted can
@@ -52,12 +47,12 @@ public interface ICraftingRequester extends IActionHost
 	 *
 	 * @return unwanted item
 	 */
-	<T extends IAEStack<T>> T injectCraftedItems( ICraftingLink link, T items, Actionable mode );
+	IAEItemStack injectCraftedItems( ICraftingLink link, IAEItemStack items, Actionable mode );
 
-	/**
-	 * called when the job changes from in progress, to either complete, or canceled.
-	 *
-	 * after this call the crafting link is "dead" and should be discarded.
-	 */
-	void jobStateChange( ICraftingLink link );
+	@SuppressWarnings("unchecked")
+    @Override
+	default <T extends IAEStack<T>> T injectCraftedUniv( final ICraftingLink link, final T items, final Actionable mode )
+	{
+		return items instanceof IAEItemStack ? (T) this.injectCraftedItems(link, (IAEItemStack) items, mode) : items;
+	}
 }

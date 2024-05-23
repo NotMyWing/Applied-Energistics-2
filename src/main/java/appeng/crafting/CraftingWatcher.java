@@ -20,7 +20,7 @@ package appeng.crafting;
 
 
 import appeng.api.networking.crafting.ICraftingWatcher;
-import appeng.api.networking.crafting.ICraftingWatcherHost;
+import appeng.api.networking.crafting.IUnivCraftingWatcherHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.me.cache.CraftingGridCache;
 
@@ -35,15 +35,15 @@ import java.util.Set;
 public class CraftingWatcher implements ICraftingWatcher {
 
     private final CraftingGridCache gsc;
-    private final ICraftingWatcherHost host;
+    private final IUnivCraftingWatcherHost host;
     private final Set<IAEStack> myInterests = new HashSet<>();
 
-    public CraftingWatcher(final CraftingGridCache cache, final ICraftingWatcherHost host) {
+    public CraftingWatcher(final CraftingGridCache cache, final IUnivCraftingWatcherHost host) {
         this.gsc = cache;
         this.host = host;
     }
 
-    public ICraftingWatcherHost getHost() {
+    public IUnivCraftingWatcherHost getHost() {
         return this.host;
     }
 

@@ -22,15 +22,14 @@ package appeng.crafting;
 import appeng.api.config.Actionable;
 import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.storage.data.IAEStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 
 public class CraftingLink implements ICraftingLink {
 
-    private final ICraftingRequester req;
+    private final IUnivCraftingRequester req;
     private final ICraftingCPU cpu;
     private final String CraftID;
     private final boolean standalone;
@@ -38,7 +37,7 @@ public class CraftingLink implements ICraftingLink {
     private boolean done = false;
     private CraftingLinkNexus tie;
 
-    public CraftingLink(final NBTTagCompound data, final ICraftingRequester req) {
+    public CraftingLink(final NBTTagCompound data, final IUnivCraftingRequester req) {
         this.CraftID = data.getString("CraftID");
         this.setCanceled(data.getBoolean("canceled"));
         this.setDone(data.getBoolean("done"));
@@ -157,7 +156,7 @@ public class CraftingLink implements ICraftingLink {
             return input;
         }
 
-        return this.tie.getRequest().getRequester().injectCraftedItems(this.tie.getRequest(), input, mode);
+        return this.tie.getRequest().getRequester().injectCraftedUniv(this.tie.getRequest(), input, mode);
     }
 
     public void markDone() {
@@ -170,7 +169,7 @@ public class CraftingLink implements ICraftingLink {
         this.canceled = canceled;
     }
 
-    ICraftingRequester getRequester() {
+    IUnivCraftingRequester getRequester() {
         return this.req;
     }
 

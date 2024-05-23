@@ -48,8 +48,44 @@ public interface ICraftingGrid extends IGridCache
 	 * @param details pattern details
 	 *
 	 * @return a collection of crafting patterns for the item in question.
+	 * @deprecated use {@link #getUnivCraftingFor(IAEStack, ICraftingPatternDetails, int, World)} instead.
 	 */
-	<T extends IAEStack<T>> ImmutableCollection<ICraftingPatternDetails> getCraftingFor( T whatToCraft, ICraftingPatternDetails details, int slot, World world );
+	@Deprecated
+	default ImmutableCollection<ICraftingPatternDetails> getCraftingFor( final IAEItemStack whatToCraft, final ICraftingPatternDetails details, final int slot, final World world )
+	{
+		return this.getUnivCraftingFor(whatToCraft, details, slot, world);
+	}
+
+	/**
+	 * @param whatToCraft requested craft
+	 * @param world crafting world
+	 * @param slot slot index
+	 * @param details pattern details
+	 *
+	 * @return a collection of crafting patterns for the item in question.
+	 */
+	<T extends IAEStack<T>> ImmutableCollection<ICraftingPatternDetails> getUnivCraftingFor( T whatToCraft, ICraftingPatternDetails details, int slot, World world );
+
+
+	/**
+	 * Begin calculating a crafting job.
+	 *
+	 * @param world crafting world
+	 * @param grid network
+	 * @param actionSrc source
+	 * @param craftWhat result
+	 * @param callback callback
+	 * -- optional
+	 *
+	 * @return a future which will at an undetermined point in the future get you the {@link ICraftingJob} do not wait
+	 * on this, your be waiting forever.
+	 * @deprecated use {@link #beginUnivCraftingJob(World, IGrid, IActionSource, IAEStack, ICraftingCallback)} instead.
+	 */
+	@Deprecated
+	default Future<ICraftingJob> beginCraftingJob( final World world, final IGrid grid, final IActionSource actionSrc, final IAEItemStack craftWhat, final ICraftingCallback callback )
+	{
+		return this.beginUnivCraftingJob(world, grid, actionSrc, craftWhat, callback);
+	}
 
 	/**
 	 * Begin calculating a crafting job.
@@ -64,7 +100,7 @@ public interface ICraftingGrid extends IGridCache
 	 * @return a future which will at an undetermined point in the future get you the {@link ICraftingJob} do not wait
 	 * on this, your be waiting forever.
 	 */
-	<T extends IAEStack<T>> Future<ICraftingJob> beginCraftingJob( World world, IGrid grid, IActionSource actionSrc, T craftWhat, ICraftingCallback callback );
+	<T extends IAEStack<T>> Future<ICraftingJob> beginUnivCraftingJob( World world, IGrid grid, IActionSource actionSrc, T craftWhat, ICraftingCallback callback );
 
 	/**
 	 * Submit the job to the Crafting system for processing.
@@ -80,22 +116,49 @@ public interface ICraftingGrid extends IGridCache
 	 *
 	 * @return null ( if failed ) or an {@link ICraftingLink} other wise, if you send requestingMachine you need to
 	 * properly keep track of this and handle the nbt saving and loading of the object as well as the
-	 * {@link ICraftingRequester} methods. if you send null, this object should be discarded after verifying the
+	 * {@link IUnivCraftingRequester} methods. if you send null, this object should be discarded after verifying the
 	 * return state.
 	 */
-	ICraftingLink submitJob( ICraftingJob job, ICraftingRequester requestingMachine, ICraftingCPU target, boolean prioritizePower, IActionSource src );
+	ICraftingLink submitJob( ICraftingJob job, IUnivCraftingRequester requestingMachine, ICraftingCPU target, boolean prioritizePower, IActionSource src );
 
 	/**
 	 * @return list of all the crafting cpus on the grid
 	 */
 	ImmutableSet<ICraftingCPU> getCpus();
 
+
+	/**
+	 * @param what to be requested item
+	 *
+	 * @return true if the item can be requested via a crafting emitter.
+	 * @deprecated use {@link #canEmitForUniv(IAEStack)} instead.
+	 */
+	@Deprecated
+	default boolean canEmitFor( final IAEItemStack what )
+	{
+		return this.canEmitForUniv(what);
+	}
+
 	/**
 	 * @param what to be requested item
 	 *
 	 * @return true if the item can be requested via a crafting emitter.
 	 */
-	<T extends IAEStack<T>> boolean canEmitFor( T what );
+	<T extends IAEStack<T>> boolean canEmitForUniv( T what );
+
+	/**
+	 * is this item being crafted?
+	 *
+	 * @param what item being crafted
+	 *
+	 * @return true if it is being crafting
+	 * @deprecated use {@link #isRequestingUniv(IAEStack)} instead.
+	 */
+	@Deprecated
+	default boolean isRequesting( final IAEItemStack what )
+	{
+		return this.isRequestingUniv(what);
+	}
 
 	/**
 	 * is this item being crafted?
@@ -104,7 +167,21 @@ public interface ICraftingGrid extends IGridCache
 	 *
 	 * @return true if it is being crafting
 	 */
-	<T extends IAEStack<T>> boolean isRequesting( T what );
+	<T extends IAEStack<T>> boolean isRequestingUniv( T what );
+
+	/**
+	 * The total amount being requested across all crafting cpus of a grid.
+	 *
+	 * @param what item being requested, ignores stacksize
+	 *
+	 * @return The total amount being requested.
+	 * @deprecated use {@link #requestingUniv(IAEStack)} instead.
+	 */
+	@Deprecated
+	default long requesting( final IAEItemStack what )
+	{
+		return this.requestingUniv(what);
+	}
 
 	/**
 	 * The total amount being requested across all crafting cpus of a grid.
@@ -113,5 +190,5 @@ public interface ICraftingGrid extends IGridCache
 	 *
 	 * @return The total amount being requested.
 	 */
-	<T extends IAEStack<T>> long requesting( T what );
+	<T extends IAEStack<T>> long requestingUniv( T what );
 }

@@ -24,7 +24,6 @@ import appeng.api.config.PowerMultiplier;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.implementations.IUpgradeableCellContainer;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.IExAEStack;
 import appeng.container.interfaces.IInventorySlotAware;
 import appeng.container.slot.OptionalSlotFake;
@@ -39,7 +38,6 @@ import appeng.parts.automation.StackUpgradeInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.AppEngInternalUnivInventory;
 import appeng.util.Platform;
-import appeng.util.helpers.ItemHandlerUtil;
 import appeng.util.inv.InvOperation;
 import baubles.api.BaublesApi;
 import net.minecraft.entity.player.EntityPlayer;
@@ -264,13 +262,13 @@ public class ContainerWirelessPatternTerminal extends ContainerPatternEncoder im
                     this.setCraftingMode(details.isCraftable());
                     this.setSubstitute(details.canSubstitute());
 
-                    for (int x = 0; x < this.crafting.getSlots() && x < details.getInputs().length; x++) {
-                        this.crafting.setStackInSlot(x, details.getInputs()[x]);
+                    for (int x = 0; x < this.crafting.getSlots() && x < details.getUnivInputs().length; x++) {
+                        this.crafting.setStackInSlot(x, details.getUnivInputs()[x]);
                     }
 
                     for (int x = 0; x < this.output.getSlots(); x++) {
-                        if (x < details.getOutputs().length) {
-                            this.output.setStackInSlot(x, details.getOutputs()[x]);
+                        if (x < details.getUnivOutputs().length) {
+                            this.output.setStackInSlot(x, details.getUnivOutputs()[x]);
                         } else {
                             this.output.setStackInSlot(x, (IExAEStack<?>) null);
                         }

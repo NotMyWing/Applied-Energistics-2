@@ -24,7 +24,7 @@ import appeng.api.config.*;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingGrid;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.ticking.TickRateModulation;
@@ -61,7 +61,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 
 
-public class PartExportBus extends PartSharedItemBus implements ICraftingRequester {
+public class PartExportBus extends PartSharedItemBus implements IUnivCraftingRequester {
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(AppEng.MOD_ID, "part/export_bus_base");
 
     @PartModels
@@ -214,7 +214,7 @@ public class PartExportBus extends PartSharedItemBus implements ICraftingRequest
     }
 
     @Override
-    public <T extends IAEStack<T>> T injectCraftedItems(final ICraftingLink link, final T i, final Actionable mode) {
+    public <T extends IAEStack<T>> T injectCraftedUniv(final ICraftingLink link, final T i, final Actionable mode) {
         if (!(i instanceof IAEItemStack items)) {
             return i;
         }

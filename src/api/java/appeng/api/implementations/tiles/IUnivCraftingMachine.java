@@ -21,39 +21,36 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package appeng.api.networking.crafting;
+package appeng.api.implementations.tiles;
 
 
-import appeng.api.storage.data.IAEStack;
+import appeng.api.networking.crafting.ICraftingInventory;
+import appeng.api.networking.crafting.ICraftingPatternDetails;
+import net.minecraft.util.EnumFacing;
 
 
 /**
- * DO NOT IMPLEMENT.
- *
- * Will be injected when adding an {@link IUnivCraftingWatcherHost} to a grid.
+ * A machine capable of receiving autocrafting jobs from an interface.
  */
-public interface ICraftingWatcher
+public interface IUnivCraftingMachine
 {
-	/**
-	 * Add a specific {@link IAEStack} to watch.
-	 *
-	 * Supports multiple values, duplicate ones will not be added.
-	 *
-	 * @param stack
-	 * @return true, if successfully added.
-	 */
-	boolean add( IAEStack<?> stack );
 
 	/**
-	 * Remove a specific {@link IAEStack} from the watcher.
+	 * inserts a crafting plan, and the necessary items into the crafting machine.
 	 *
-	 * @param stack
-	 * @return true, if successfully removed.
+	 * @param patternDetails details of pattern
+	 * @param table crafting table
+	 * @param ejectionDirection ejection direction
+	 *
+	 * @return if it was accepted, all or nothing.
 	 */
-	boolean remove( IAEStack<?> stack );
+	boolean pushPattern( ICraftingPatternDetails patternDetails, ICraftingInventory table, EnumFacing ejectionDirection );
 
 	/**
-	 * Removes all watched stacks and resets the watcher to a clean state.
+	 * check if the crafting machine is accepting pushes via pushPattern, if this is false, all calls to push will fail,
+	 * you can try inserting into the inventory instead.
+	 *
+	 * @return true, if pushPattern can complete, if its false push will always be false.
 	 */
-	void reset();
+	boolean acceptsPlans();
 }

@@ -55,7 +55,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import java.util.Random;
 
 
-public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatcherHost, ICraftingWatcherHost, IConfigManagerHost, IAEFluidInventory, IMEMonitorHandlerReceiver<IAEFluidStack>, IConfigurableFluidInventory, ICraftingProvider {
+public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatcherHost, IUnivCraftingWatcherHost, IConfigManagerHost, IAEFluidInventory, IMEMonitorHandlerReceiver<IAEFluidStack>, IConfigurableFluidInventory, IUnivCraftingProvider {
     @PartModels
     public static final ResourceLocation MODEL_BASE_OFF = new ResourceLocation(AppEng.MOD_ID, "part/level_emitter_base_off");
     @PartModels
@@ -131,7 +131,7 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
     }
 
     @Override
-    public <T extends IAEStack<T>> void onRequestChange(final ICraftingGrid craftingGrid, final T what) {
+    public <T extends IAEStack<T>> void onUnivRequstChange(final ICraftingGrid craftingGrid, final T what) {
         this.updateState();
     }
 
@@ -284,7 +284,7 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
 
         if (this.getInstalledUpgrades(Upgrades.CRAFTING) > 0) {
             try {
-                return this.getProxy().getCrafting().isRequesting(this.config.getFluidInSlot(0));
+                return this.getProxy().getCrafting().isRequestingUniv(this.config.getFluidInSlot(0));
             } catch (final GridAccessException e) {
                 // :P
             }
@@ -367,7 +367,7 @@ public class PartFluidLevelEmitter extends PartUpgradeable implements IStackWatc
             if (this.getConfigManager().getSetting(Settings.CRAFT_VIA_REDSTONE) == YesNo.YES) {
                 final IAEFluidStack what = this.config.getFluidInSlot(0);
                 if (what != null) {
-                    craftingTracker.setEmitable(what);
+                    craftingTracker.setUnivEmitable(what);
                 }
             }
         }

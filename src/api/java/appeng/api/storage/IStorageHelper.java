@@ -38,7 +38,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 import appeng.api.config.Actionable;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.networking.energy.IEnergySource;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.storage.IStorageGrid;
@@ -140,7 +140,7 @@ public interface IStorageHelper
 	 *
 	 * @return crafting link
 	 */
-	ICraftingLink loadCraftingLink( NBTTagCompound data, ICraftingRequester req );
+	ICraftingLink loadCraftingLink( NBTTagCompound data, IUnivCraftingRequester req );
 
 	/**
 	 * Extracts items from a {@link IMEInventory} respecting power requirements.

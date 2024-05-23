@@ -21,7 +21,7 @@ package appeng.core.api;
 
 import appeng.api.config.Actionable;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.networking.energy.IEnergySource;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.storage.IStorageGrid;
@@ -137,7 +137,7 @@ public class ApiStorage implements IStorageHelper {
     }
 
     @Override
-    public ICraftingLink loadCraftingLink(final NBTTagCompound data, final ICraftingRequester req) {
+    public ICraftingLink loadCraftingLink(final NBTTagCompound data, final IUnivCraftingRequester req) {
         Preconditions.checkNotNull(data);
         Preconditions.checkNotNull(req);
 

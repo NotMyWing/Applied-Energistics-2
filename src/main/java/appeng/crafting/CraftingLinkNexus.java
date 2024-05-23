@@ -22,7 +22,7 @@ package appeng.crafting;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.me.cache.CraftingGridCache;
 
 
@@ -49,7 +49,7 @@ public class CraftingLinkNexus {
             this.tickOfDeath++;
         } else {
             final boolean hasCpu = craftingGridCache.hasCpu(this.cpu.getCpu());
-            final ICraftingRequester requester = req.getRequester();
+            final IUnivCraftingRequester requester = req.getRequester();
             final IGridNode actionableNode = requester != null ? requester.getActionableNode() : null;
             final IGrid grid = actionableNode != null ? actionableNode.getGrid() : null;
             final boolean hasMachine = grid != null && grid == g;

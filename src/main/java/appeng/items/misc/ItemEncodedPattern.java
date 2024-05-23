@@ -140,8 +140,8 @@ public class ItemEncodedPattern extends AEBaseItem implements ICraftingPatternIt
         final boolean isCrafting = details.isCraftable();
         final boolean substitute = details.canSubstitute();
 
-        final IExAEStack<?>[] in = details.getCondensedInputs();
-        final IExAEStack<?>[] out = details.getCondensedOutputs();
+        final IExAEStack<?>[] in = details.getCondensedUnivInputs();
+        final IExAEStack<?>[] out = details.getCondensedUnivOutputs();
 
         final String label = (isCrafting ? GuiText.Crafts.getLocal() : GuiText.Creates.getLocal()) + ": ";
         final String and = ' ' + GuiText.And.getLocal() + ' ';
@@ -198,7 +198,7 @@ public class ItemEncodedPattern extends AEBaseItem implements ICraftingPatternIt
 
         final ICraftingPatternDetails details = this.getPatternForItem(item, w);
 
-        out = details != null ? details.getOutputs()[0].asItemStackRepresentation() : ItemStack.EMPTY;
+        out = details != null ? details.getUnivOutputs()[0].asItemStackRepresentation() : ItemStack.EMPTY;
 
         SIMPLE_CACHE.put(item, out);
         return out;

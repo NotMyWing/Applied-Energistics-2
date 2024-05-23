@@ -77,7 +77,7 @@ public class CraftingTreeNode<T extends IAEStack<T>> {
         this.cc = cc;
         this.depth = depth;
 
-        this.canEmit = cc.canEmitFor(this.what);
+        this.canEmit = cc.canEmitForUniv(this.what);
     }
 
     public void addNode() {
@@ -89,7 +89,7 @@ public class CraftingTreeNode<T extends IAEStack<T>> {
             return; // if you can emit for something, you can't make it with patterns.
         }
 
-        for (final ICraftingPatternDetails details : cc.getCraftingFor(this.what, this.parent == null ? null : this.parent.details, slot, this.world))// in
+        for (final ICraftingPatternDetails details : cc.getUnivCraftingFor(this.what, this.parent == null ? null : this.parent.details, slot, this.world))// in
         // order.
         {
             if (this.parent == null || notRecursive(details) && this.parent.details != details) {

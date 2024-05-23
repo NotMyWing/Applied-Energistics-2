@@ -46,16 +46,13 @@ import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketUnivInventoryUpdate;
 import appeng.helpers.IGuiHost;
-import appeng.helpers.WirelessTerminalGuiObject;
 import appeng.me.helpers.PlayerSource;
-import appeng.parts.reporting.*;
 import appeng.util.Platform;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IContainerListener;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -315,7 +312,7 @@ public class ContainerCraftConfirm extends AEBaseContainer {
             final ICraftingLink g = cc.submitJob(this.result, null, this.getSelectedCpu() == -1 ? null : this.cpus.get(this.getSelectedCpu()).getCpu(), true, this.getActionSrc());
             this.setAutoStart(false);
             if (g == null) {
-                this.beginJob(cc, grid, this.result.getOutput());
+                this.beginJob(cc, grid, this.result.getUnivOutput());
             } else if (originalGui != null && this.getOpenContext() != null) {
                 final TileEntity te = this.getOpenContext().getTile();
                 if (te != null) {
@@ -331,7 +328,7 @@ public class ContainerCraftConfirm extends AEBaseContainer {
     }
 
     private <T extends IAEStack<T>> void beginJob(final ICraftingGrid cc, final IGrid grid, final IExAEStack<T> target) {
-        this.setJob(cc.beginCraftingJob(this.getWorld(), grid, this.getActionSrc(), target.unwrap(), null));
+        this.setJob(cc.beginUnivCraftingJob(this.getWorld(), grid, this.getActionSrc(), target.unwrap(), null));
     }
 
     private IActionSource getActionSrc() {

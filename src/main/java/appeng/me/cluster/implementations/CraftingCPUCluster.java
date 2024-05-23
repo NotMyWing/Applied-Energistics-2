@@ -87,7 +87,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
     private final List<TileCraftingTile> storage = new ArrayList<>();
     private final List<TileCraftingMonitorTile> status = new ArrayList<>();
     private final HashMap<IUnivMonitorHandlerReceiver, Object> listeners = new HashMap<>();
-    private final Map<ICraftingPatternDetails, Queue<ICraftingMedium>> visitedMediums = new HashMap<>();
+    private final Map<ICraftingPatternDetails, Queue<IUnivCraftingMedium>> visitedMediums = new HashMap<>();
     private ICraftingLink myLastLink;
     private String myName = "";
     private boolean isDestroyed = false;
@@ -117,7 +117,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
     }
 
     @Override
-    public IExAEStack<?> getFinalOutput() {
+    public IExAEStack<?> getTargetOutput() {
         return finalOutput;
     }
 
@@ -372,7 +372,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
 
             if (!list.isEmpty()) {
                 for (final CraftingWatcher iw : list) {
-                    iw.getHost().onRequestChange(sg, diff);
+                    iw.getHost().onUnivRequstChange(sg, diff);
                 }
             }
         }
@@ -467,7 +467,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
             });
         } else if (details.canSubstitute()) {
             // When substitutions are allowed, we have to keep track of which items we've reserved
-            IExAEStack<?>[] inputs = details.getInputs();
+            IExAEStack<?>[] inputs = details.getUnivInputs();
             Map<IAEItemStack, Integer> consumedCount = new HashMap<>();
             for (int i = 0; i < inputs.length; i++) {
                 List<IAEItemStack> substitutes = details.getSubstituteInputs(i);
@@ -625,7 +625,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
 
             final ICraftingPatternDetails details = e.getKey();
 
-            if (this.canCraft(details, details.getCondensedInputs())) {
+            if (this.canCraft(details, details.getCondensedUnivInputs())) {
                 ICraftingInventory ic = null;
 
                 if (!visitedMediums.containsKey(details) || visitedMediums.get(details).isEmpty()) {
@@ -634,7 +634,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
 
                 while (!visitedMediums.get(details).isEmpty()) {
 
-                    ICraftingMedium m = visitedMediums.get(details).poll();
+                    IUnivCraftingMedium m = visitedMediums.get(details).poll();
 
                     if (e.getValue().value <= 0) {
                         continue;
@@ -642,7 +642,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
 
                     if (m != null && !m.isBusy()) {
                         if (ic == null) {
-                            final IExAEStack<?>[] input = details.getInputs();
+                            final IExAEStack<?>[] input = details.getUnivInputs();
                             double sum = 0;
 
                             for (final IExAEStack<?> anInput : input) {
@@ -739,7 +739,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
                             this.somethingChanged = true;
                             this.remainingOperations--;
 
-                            IExAEStack.onEach(details.getCondensedOutputs(), new IUnivStackIterable.Visitor() {
+                            IExAEStack.onEach(details.getCondensedUnivOutputs(), new IUnivStackIterable.Visitor() {
                                 @Override
                                 public <T extends IAEStack<T>> void visit(final T out) {
                                     CraftingCPUCluster.this.postChange(out, CraftingCPUCluster.this.machineSrc);
@@ -839,7 +839,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
         this.markDirty();
     }
 
-    public ICraftingLink submitJob(final IGrid g, final ICraftingJob job, final IActionSource src, final ICraftingRequester requestingMachine) {
+    public ICraftingLink submitJob(final IGrid g, final ICraftingJob job, final IActionSource src, final IUnivCraftingRequester requestingMachine) {
         if (!this.tasks.isEmpty() || !this.waitingFor.isEmpty()) {
             return null;
         }
@@ -859,7 +859,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
             this.waitingFor.resetStatus();
             ((CraftingJob<?>) job).getTree().setJob(ci, this, src);
             if (ci.commit(src)) {
-                this.finalOutput = job.getOutput();
+                this.finalOutput = job.getUnivOutput();
                 this.waiting = false;
                 this.isComplete = false;
 
@@ -987,7 +987,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
                 break;
             case PENDING:
                 for (final Entry<ICraftingPatternDetails, TaskProgress> t : this.tasks.entrySet()) {
-                    IExAEStack.onEach(t.getKey().getCondensedOutputs(), new IUnivStackIterable.Visitor() {
+                    IExAEStack.onEach(t.getKey().getCondensedUnivOutputs(), new IUnivStackIterable.Visitor() {
                         @Override
                         public <T extends IAEStack<T>> void visit(final T stack) {
                             list.add(stack.copy().setStackSize(stack.getStackSize() * t.getValue().value));
@@ -1004,7 +1004,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
                 this.waitingFor.onEach(list::add);
 
                 for (final Entry<ICraftingPatternDetails, TaskProgress> t : this.tasks.entrySet()) {
-                    IExAEStack.onEach(t.getKey().getCondensedOutputs(), new IUnivStackIterable.Visitor() {
+                    IExAEStack.onEach(t.getKey().getCondensedUnivOutputs(), new IUnivStackIterable.Visitor() {
                         @Override
                         public <T extends IAEStack<T>> void visit(final T stack) {
                             list.add(stack.copy().setStackSize(stack.getStackSize() * t.getValue().value));
@@ -1050,7 +1050,7 @@ public final class CraftingCPUCluster implements IAECluster, ICraftingCPU {
                 is.setStackSize(0);
 
                 for (final Entry<ICraftingPatternDetails, TaskProgress> t : this.tasks.entrySet()) {
-                    for (final IExAEStack<?> output : t.getKey().getCondensedOutputs()) {
+                    for (final IExAEStack<?> output : t.getKey().getCondensedUnivOutputs()) {
                         if (output.getChannel() == is.getChannel() && output.equals(is)) {
                             is.setStackSize(is.getStackSize() + output.getStackSize() * t.getValue().value);
                         }

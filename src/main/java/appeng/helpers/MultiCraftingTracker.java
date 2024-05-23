@@ -25,7 +25,7 @@ import appeng.api.networking.IGrid;
 import appeng.api.networking.crafting.ICraftingGrid;
 import appeng.api.networking.crafting.ICraftingJob;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.data.IAEStack;
@@ -40,12 +40,12 @@ import java.util.concurrent.Future;
 public class MultiCraftingTracker {
 
     private final int size;
-    private final ICraftingRequester owner;
+    private final IUnivCraftingRequester owner;
 
     private Future<ICraftingJob>[] jobs = null;
     private ICraftingLink[] links = null;
 
-    public MultiCraftingTracker(final ICraftingRequester o, final int size) {
+    public MultiCraftingTracker(final IUnivCraftingRequester o, final int size) {
         this.owner = o;
         this.size = size;
     }
@@ -110,7 +110,7 @@ public class MultiCraftingTracker {
                         final T aisC = target.copy();
                         aisC.setStackSize(itemToCraft);
 
-                        this.setJob(x, cg.beginCraftingJob(w, g, mySrc, aisC, null));
+                        this.setJob(x, cg.beginUnivCraftingJob(w, g, mySrc, aisC, null));
                     }
                 }
             }

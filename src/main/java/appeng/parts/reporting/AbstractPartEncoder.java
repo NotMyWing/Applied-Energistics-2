@@ -67,13 +67,13 @@ public abstract class AbstractPartEncoder extends AbstractPartTerminal implement
                     this.setCraftingRecipe(details.isCraftable());
                     this.setSubstitution(details.canSubstitute());
 
-                    for (int x = 0; x < this.crafting.getSlots() && x < details.getInputs().length; x++) {
-                        this.crafting.setStackInSlot(x, details.getInputs()[x]);
+                    for (int x = 0; x < this.crafting.getSlots() && x < details.getUnivInputs().length; x++) {
+                        this.crafting.setStackInSlot(x, details.getUnivInputs()[x]);
                     }
 
                     for (int x = 0; x < this.output.getSlots(); x++) {
-                        if (x < details.getOutputs().length) {
-                            this.output.setStackInSlot(x, details.getOutputs()[x]);
+                        if (x < details.getUnivOutputs().length) {
+                            this.output.setStackInSlot(x, details.getUnivOutputs()[x]);
                         } else {
                             this.output.setStackInSlot(x, (IExAEStack<?>) null);
                         }

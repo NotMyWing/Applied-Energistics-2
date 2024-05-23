@@ -24,7 +24,7 @@ import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingGrid;
 import appeng.api.networking.crafting.ICraftingLink;
-import appeng.api.networking.crafting.ICraftingRequester;
+import appeng.api.networking.crafting.IUnivCraftingRequester;
 import appeng.api.networking.energy.IEnergyGrid;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.ticking.TickRateModulation;
@@ -60,7 +60,7 @@ import javax.annotation.Nonnull;
  * @version rv6 - 30/04/2018
  * @since rv6 30/04/2018
  */
-public class PartFluidExportBus extends PartSharedFluidBus implements ICraftingRequester {
+public class PartFluidExportBus extends PartSharedFluidBus implements IUnivCraftingRequester {
     public static final ResourceLocation MODEL_BASE = new ResourceLocation(AppEng.MOD_ID, "part/fluid_export_bus_base");
     @PartModels
     public static final IPartModel MODELS_OFF = new PartModel(MODEL_BASE, new ResourceLocation(AppEng.MOD_ID, "part/fluid_export_bus_off"));
@@ -207,7 +207,7 @@ public class PartFluidExportBus extends PartSharedFluidBus implements ICraftingR
     }
 
     @Override
-    public <T extends IAEStack<T>> T injectCraftedItems(final ICraftingLink link, final T i, final Actionable mode) {
+    public <T extends IAEStack<T>> T injectCraftedUniv(final ICraftingLink link, final T i, final Actionable mode) {
         if (!(i instanceof final IAEFluidStack fluid)) {
             return i;
         }

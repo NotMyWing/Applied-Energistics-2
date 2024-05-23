@@ -232,7 +232,7 @@ public class PartInterface extends PartBasicState implements IGridTickable, ISto
     }
 
     @Override
-    public <T extends IAEStack<T>> T injectCraftedItems(final ICraftingLink link, final T items, final Actionable mode) {
+    public <T extends IAEStack<T>> T injectCraftedUniv(final ICraftingLink link, final T items, final Actionable mode) {
         if (items instanceof IAEItemStack ais) {
             return (T) this.duality.injectCraftedItems(link, ais, mode);
         } else {

@@ -66,10 +66,10 @@ public class CraftingTreeProcess<T extends IAEStack<T>> {
             return;
         }
 
-        final IExAEStack<?>[] list = details.getInputs();
+        final IExAEStack<?>[] list = details.getUnivInputs();
 
         // this is minor different then below, this slot uses the pattern, but kinda fudges it.
-        IExAEStack.onEach(details.getCondensedInputs(), new IUnivStackIterable.Visitor() {
+        IExAEStack.onEach(details.getCondensedUnivInputs(), new IUnivStackIterable.Visitor() {
             @Override
             public <U extends IAEStack<U>> void visit(final U part) {
                 if (part != null) {
@@ -148,12 +148,12 @@ public class CraftingTreeProcess<T extends IAEStack<T>> {
                     }
                 }
                 if (wantedSize > 0) {
-                    if (details.canSubstitute() && cc.getCraftingFor(part, details, x, world).isEmpty()) {
+                    if (details.canSubstitute() && cc.getUnivCraftingFor(part, details, x, world).isEmpty()) {
                         //try to order the crafting of a substitute
                         ICraftingPatternDetails prioritizedPattern = null;
                         IAEItemStack prioritizedIAE = null;
                         for (IAEItemStack subs : details.getSubstituteInputs(x)) {
-                            ImmutableCollection<ICraftingPatternDetails> detailCollection = cc.getCraftingFor(subs, details, x, world);
+                            ImmutableCollection<ICraftingPatternDetails> detailCollection = cc.getUnivCraftingFor(subs, details, x, world);
 
                             for (ICraftingPatternDetails sp : detailCollection) {
                                 if (prioritizedPattern == null) {
@@ -193,8 +193,8 @@ public class CraftingTreeProcess<T extends IAEStack<T>> {
     }
 
     long getTimes(final long remaining, final long stackSize) {
-        for (final IExAEStack<?> part : details.getCondensedOutputs()) {
-            for (final IExAEStack<?> o : details.getCondensedInputs()) {
+        for (final IExAEStack<?> part : details.getCondensedUnivOutputs()) {
+            for (final IExAEStack<?> o : details.getCondensedUnivInputs()) {
                 if (part.equals(o)
                         || (part.unwrap() instanceof final IAEItemStack pis
                         && o.unwrap() instanceof final IAEItemStack ois
@@ -224,7 +224,7 @@ public class CraftingTreeProcess<T extends IAEStack<T>> {
         // assume its possible.
 
         // add crafting results..
-        IExAEStack.onEach(this.details.getCondensedOutputs(), new IUnivStackIterable.Visitor() {
+        IExAEStack.onEach(this.details.getCondensedUnivOutputs(), new IUnivStackIterable.Visitor() {
             @Override
             public <T extends IAEStack<T>> void visit(final T out) {
                 inv.injectItems(out.copy().setStackSize(out.getStackSize() * amountOfTimes), Actionable.MODULATE, src);
@@ -250,7 +250,7 @@ public class CraftingTreeProcess<T extends IAEStack<T>> {
     }
 
     <T extends IAEStack<T>> T getAmountCrafted(T what2) {
-        for (final IExAEStack<?> is : this.details.getCondensedOutputs()) {
+        for (final IExAEStack<?> is : this.details.getCondensedUnivOutputs()) {
             if (is != null && is.equals(what2)) {
                 what2 = what2.copy();
                 what2.setStackSize(is.getStackSize());
@@ -260,7 +260,7 @@ public class CraftingTreeProcess<T extends IAEStack<T>> {
 
         // more fuzzy!
         if (what2 instanceof final IAEItemStack wis) {
-            for (final IExAEStack<?> is : this.details.getCondensedOutputs()) {
+            for (final IExAEStack<?> is : this.details.getCondensedUnivOutputs()) {
                 if (is != null && is.unwrap() instanceof IAEItemStack ais) {
                     if (ais.getItem() == wis.getItem() && (ais.getItem().isDamageable() || ais.getItemDamage() == wis.getItemDamage())) {
                         return (T) ais.copy().setStackSize(ais.getStackSize());
@@ -290,7 +290,7 @@ public class CraftingTreeProcess<T extends IAEStack<T>> {
     }
 
     void getPlan(final IUnivItemList plan) {
-        IExAEStack.onEach(this.details.getOutputs(), new IUnivStackIterable.Visitor() {
+        IExAEStack.onEach(this.details.getUnivOutputs(), new IUnivStackIterable.Visitor() {
             @Override
             public <T extends IAEStack<T>> void visit(final T stack) {
                 plan.addRequestable(stack.copy().setCountRequestable(stack.getStackSize() * CraftingTreeProcess.this.crafts));

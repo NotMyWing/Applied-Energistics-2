@@ -24,36 +24,20 @@
 package appeng.api.networking.crafting;
 
 
-import appeng.api.storage.data.IAEStack;
+import appeng.api.networking.events.MENetworkCraftingPatternChange;
 
 
 /**
- * DO NOT IMPLEMENT.
- *
- * Will be injected when adding an {@link IUnivCraftingWatcherHost} to a grid.
+ * Allows a IGridHost to provide crafting patterns to the network, post a {@link MENetworkCraftingPatternChange} to tell
+ * AE2 to update.
  */
-public interface ICraftingWatcher
+public interface IUnivCraftingProvider extends IUnivCraftingMedium
 {
-	/**
-	 * Add a specific {@link IAEStack} to watch.
-	 *
-	 * Supports multiple values, duplicate ones will not be added.
-	 *
-	 * @param stack
-	 * @return true, if successfully added.
-	 */
-	boolean add( IAEStack<?> stack );
 
 	/**
-	 * Remove a specific {@link IAEStack} from the watcher.
+	 * called when the network is looking for possible crafting jobs.
 	 *
-	 * @param stack
-	 * @return true, if successfully removed.
+	 * @param craftingTracker crafting helper
 	 */
-	boolean remove( IAEStack<?> stack );
-
-	/**
-	 * Removes all watched stacks and resets the watcher to a clean state.
-	 */
-	void reset();
+	void provideCrafting( ICraftingProviderHelper craftingTracker );
 }

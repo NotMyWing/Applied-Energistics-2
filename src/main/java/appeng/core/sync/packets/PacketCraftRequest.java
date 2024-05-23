@@ -102,7 +102,7 @@ public class PacketCraftRequest extends AppEngPacket {
         Future<ICraftingJob> futureJob = null;
         try {
             final ICraftingGrid cg = g.getCache(ICraftingGrid.class);
-            futureJob = cg.beginCraftingJob(cca.getWorld(), cca.getGrid(), cca.getActionSrc(), target.unwrap(), null);
+            futureJob = cg.beginUnivCraftingJob(cca.getWorld(), cca.getGrid(), cca.getActionSrc(), target.unwrap(), null);
 
             final ContainerOpenContext context = cca.getOpenContext();
             if (context != null) {

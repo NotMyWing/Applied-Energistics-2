@@ -236,10 +236,9 @@ public class GridStorageCache implements IStorageGrid {
         this.storageMonitors.get(chan).postChange(true, (Iterable) input, src);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void postCraftablesChanges(IUnivStackIterable input, IActionSource src) {
-        final Map<IStorageChannel<?>, List<? extends IAEStack>> perChan = new IdentityHashMap<>();
+        final Map<IStorageChannel<?>, List<? extends IAEStack<?>>> perChan = new IdentityHashMap<>();
         input.onEach(new IUnivStackIterable.Visitor() {
             @SuppressWarnings("unchecked")
             @Override
@@ -247,9 +246,15 @@ public class GridStorageCache implements IStorageGrid {
                 ((List<T>) perChan.computeIfAbsent(stack.getChannel(), c -> new ArrayList<T>())).add(stack);
             }
         });
-        for (final Map.Entry<IStorageChannel<?>, List<? extends IAEStack>> entry : perChan.entrySet()) {
-            this.storageMonitors.get(entry.getKey()).updateCraftables((Iterable) entry.getValue(), src);
+        for (final Map.Entry<IStorageChannel<?>, List<? extends IAEStack<?>>> entry : perChan.entrySet()) {
+            this.postCraftablesChanges(entry.getKey(), entry.getValue(), src);
         }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public void postCraftablesChanges(final IStorageChannel<?> chan, final Iterable<? extends IAEStack<?>> input, final IActionSource src) {
+        this.storageMonitors.get(chan).updateCraftables((Iterable) input, src);
     }
 
     @Override
