@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -46,21 +45,21 @@ public class InscriberRecipe implements IInscriberRecipe {
     private final ItemStack output;
 
     @Nonnull
-    private final Optional<ItemStack> maybeTop;
+    private final List<ItemStack> maybeTop;
 
     @Nonnull
-    private final Optional<ItemStack> maybeBot;
+    private final List<ItemStack> maybeBot;
 
     @Nonnull
     private final InscriberProcessType type;
 
-    InscriberRecipe(@Nonnull final Collection<ItemStack> inputs, @Nonnull final ItemStack output, @Nullable final ItemStack top, @Nullable final ItemStack bot, @Nonnull final InscriberProcessType type) {
+    InscriberRecipe(@Nonnull final Collection<ItemStack> inputs, @Nonnull final ItemStack output, @Nullable final List<ItemStack> top, @Nullable final List<ItemStack> bot, @Nonnull final InscriberProcessType type) {
         this.inputs = new ArrayList<>(inputs.size());
         this.inputs.addAll(inputs);
 
         this.output = output;
-        this.maybeTop = Optional.ofNullable(top);
-        this.maybeBot = Optional.ofNullable(bot);
+        this.maybeTop = top;
+        this.maybeBot = bot;
 
         this.type = type;
     }
@@ -79,13 +78,13 @@ public class InscriberRecipe implements IInscriberRecipe {
 
     @Nonnull
     @Override
-    public final Optional<ItemStack> getTopOptional() {
+    public final List<ItemStack> getTopInputs() {
         return this.maybeTop;
     }
 
     @Nonnull
     @Override
-    public final Optional<ItemStack> getBottomOptional() {
+    public final List<ItemStack> getBottomInputs() {
         return this.maybeBot;
     }
 
@@ -112,10 +111,10 @@ public class InscriberRecipe implements IInscriberRecipe {
         if (!this.output.equals(that.getOutput())) {
             return false;
         }
-        if (!this.maybeTop.equals(that.getTopOptional())) {
+        if (!this.maybeTop.equals(that.getTopInputs())) {
             return false;
         }
-        if (!this.maybeBot.equals(that.getBottomOptional())) {
+        if (!this.maybeBot.equals(that.getBottomInputs())) {
             return false;
         }
         return this.type == that.getProcessType();
@@ -130,4 +129,6 @@ public class InscriberRecipe implements IInscriberRecipe {
         result = 31 * result + this.type.hashCode();
         return result;
     }
+
+
 }

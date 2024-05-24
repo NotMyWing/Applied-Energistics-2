@@ -65,6 +65,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -281,20 +282,19 @@ public class TileInscriber extends AENetworkPowerTile implements IGridTickable, 
 
         for (final IInscriberRecipe recipe : AEApi.instance().registries().inscriber().getRecipes()) {
 
-            final boolean matchA = (plateA.isEmpty() && !recipe.getTopOptional().isPresent()) || (Platform.itemComparisons()
-                    .isSameItem(plateA,
-                            recipe.getTopOptional().orElse(ItemStack.EMPTY))) && // and...
-                    ((plateB.isEmpty() && !recipe.getBottomOptional().isPresent()) || (Platform.itemComparisons()
-                            .isSameItem(plateB,
-                                    recipe.getBottomOptional().orElse(ItemStack.EMPTY))));
+            // Check if plateA matches any item in the list of top components of the recipe
+            final boolean matchA = plateA.isEmpty() && recipe.getTopInputs().isEmpty() ||
+                    recipe.getTopInputs().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(plateA, topItem)) &&
+                            (plateB.isEmpty() && recipe.getBottomInputs().isEmpty() ||
+                                    recipe.getBottomInputs().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(plateB, bottomItem)));
 
-            final boolean matchB = (plateB.isEmpty() && !recipe.getTopOptional().isPresent()) || (Platform.itemComparisons()
-                    .isSameItem(plateB,
-                            recipe.getTopOptional().orElse(ItemStack.EMPTY))) && // and...
-                    ((plateA.isEmpty() && !recipe.getBottomOptional().isPresent()) || (Platform.itemComparisons()
-                            .isSameItem(plateA,
-                                    recipe.getBottomOptional().orElse(ItemStack.EMPTY))));
+            // Check if plateB matches any item in the list of top components of the recipe
+            final boolean matchB = plateB.isEmpty() && recipe.getTopInputs().isEmpty() ||
+                    recipe.getTopInputs().stream().anyMatch(topItem -> Platform.itemComparisons().isSameItem(plateB, topItem)) &&
+                            (plateA.isEmpty() && recipe.getBottomInputs().isEmpty() ||
+                                    recipe.getBottomInputs().stream().anyMatch(bottomItem -> Platform.itemComparisons().isSameItem(plateA, bottomItem)));
 
+            // If either matchA or matchB is true, iterate through the recipe's inputs
             if (matchA || matchB) {
                 for (final ItemStack option : recipe.getInputs()) {
                     if (Platform.itemComparisons().isSameItem(input, option)) {
@@ -476,11 +476,11 @@ public class TileInscriber extends AENetworkPowerTile implements IGridTickable, 
         builder.withInputs(inputs).withOutput(renamedItem).withProcessType(type);
 
         if (!plateA.isEmpty()) {
-            builder.withTopOptional(plateA);
+            builder.withTopOptional(Collections.singletonList(plateA));
         }
 
         if (!plateB.isEmpty()) {
-            builder.withBottomOptional(plateB);
+            builder.withBottomOptional(Collections.singletonList(plateB));
         }
 
         return builder.build();

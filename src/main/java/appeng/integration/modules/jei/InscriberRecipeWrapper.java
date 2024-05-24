@@ -21,11 +21,11 @@ package appeng.integration.modules.jei;
 
 import appeng.api.features.IInscriberRecipe;
 import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -40,11 +40,10 @@ class InscriberRecipeWrapper implements IRecipeWrapper {
     @Override
     public void getIngredients(IIngredients ingredients) {
         List<List<ItemStack>> inputSlots = new ArrayList<>(3);
-        inputSlots.add(Collections.singletonList(this.recipe.getTopOptional().orElse(ItemStack.EMPTY)));
+        inputSlots.add(this.recipe.getTopInputs());
         inputSlots.add(this.recipe.getInputs());
-        inputSlots.add(Collections.singletonList(this.recipe.getBottomOptional().orElse(ItemStack.EMPTY)));
-        ingredients.setInputLists(ItemStack.class, inputSlots);
-
-        ingredients.setOutput(ItemStack.class, this.recipe.getOutput());
+        inputSlots.add(this.recipe.getBottomInputs());
+        ingredients.setInputLists(VanillaTypes.ITEM, inputSlots);
+        ingredients.setOutput(VanillaTypes.ITEM, this.recipe.getOutput());
     }
 }

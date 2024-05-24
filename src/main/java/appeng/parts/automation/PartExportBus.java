@@ -151,7 +151,7 @@ public class PartExportBus extends PartSharedItemBus implements ICraftingRequest
                     } else {
                         final IAEItemStack o = inv.getStorageList().findPrecise(ais);
                         if (o != null && o.getStackSize() > 0) {
-                            this.pushItemIntoTarget(destination, energy, inv, ais);
+                            this.pushItemIntoTarget(destination, energy, inv, o);
                         }
                     }
 
@@ -281,7 +281,7 @@ public class PartExportBus extends PartSharedItemBus implements ICraftingRequest
             }
         }
 
-        final long canFit = remaining.isEmpty() ? this.itemToSend : this.itemToSend - remaining.getCount();
+        final long canFit = Math.min(this.itemToSend, org.getStackSize() - remaining.getCount());
 
         if (canFit > 0) {
             IAEItemStack ais = org.copy();

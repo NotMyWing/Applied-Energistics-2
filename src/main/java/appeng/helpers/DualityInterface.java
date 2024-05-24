@@ -978,6 +978,8 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                                     continue;
                                 } else {
                                     IMEMonitor<IAEItemStack> inv = sm.getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class));
+
+                                    var allItemsCanBeInserted = true;
                                     for (int x = 0; x < table.getSizeInventory(); x++) {
                                         final ItemStack is = table.getStackInSlot(x);
                                         if (is.isEmpty()) {
@@ -985,9 +987,16 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                                         }
                                         IAEItemStack result = inv.injectItems(AEItemStack.fromItemStack(is), Actionable.SIMULATE, this.mySource);
                                         if (result != null) {
-                                            return false;
+                                            allItemsCanBeInserted = false;
+                                            break;
                                         }
                                     }
+
+                                    if (!allItemsCanBeInserted) {
+                                        continue;
+                                    }
+
+                                    this.visitedFaces.clear();
                                     for (int x = 0; x < table.getSizeInventory(); x++) {
                                         final ItemStack is = table.getStackInSlot(x);
                                         if (!is.isEmpty()) {
@@ -995,6 +1004,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                                         }
                                     }
                                     pushItemsOut(s);
+
                                     return true;
                                 }
                             }
@@ -1044,7 +1054,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                 }
 
                 if (this.acceptsItems(ad, table)) {
-                    visitedFaces.remove(s);
+                    this.visitedFaces.clear();
                     for (int x = 0; x < table.getSizeInventory(); x++) {
                         final ItemStack is = table.getStackInSlot(x);
                         if (!is.isEmpty()) {
