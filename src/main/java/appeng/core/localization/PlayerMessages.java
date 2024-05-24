@@ -51,6 +51,10 @@ public enum PlayerMessages {
         return new TextComponentTranslation(this.getName(), params);
     }
 
+    public ITextComponent get() {
+        return new TextComponentTranslation(this.getName());
+    }
+
     String getName() {
         return "chat.appliedenergistics2." + this;
     }
