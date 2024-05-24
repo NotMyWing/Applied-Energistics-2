@@ -90,6 +90,9 @@ chat.appliedenergistics2.ResetSettings=新的设备配置已被创建并保存�
 chat.appliedenergistics2.AmmoDepleted=弹药告罄。
 chat.appliedenergistics2.isNowLocked=监控器已锁定。
 chat.appliedenergistics2.isNowUnlocked=监控器已解锁。
+chat.appliedenergistics2.InterfaceInOtherDimParam=接口位于维度: %d [ %s ] 无法被高亮
+chat.appliedenergistics2.InterfaceInOtherDim=接口位于另一个维度，无法被高亮
+chat.appliedenergistics2.InterfaceHighlighted=接口被高亮于 X: %s Y: %s Z: %s
 
 // Creative Tabs
 itemGroup.appliedenergistics2=应用能源2
@@ -380,8 +383,6 @@ gui.tooltips.appliedenergistics2.DecreaseByOne=物品数量-1
 gui.tooltips.appliedenergistics2.DecreaseByOneDesc=将尝试将格内物品数量-1 注：将不会维持比例
 gui.tooltips.appliedenergistics2.MaxCount=物品数量最大
 gui.tooltips.appliedenergistics2.MaxCountDesc=将把格内物品数量最大化并维持比例
-gui.tooltips.appliedenergistics2.FreeMolecularSlotShortcut=显示有样板位的合成接口
-gui.tooltips.appliedenergistics2.FreeMolecularSlotShortcutDesc=快捷切换有样板位的分子装配室接口
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces=显示满样板的接口
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc=显示所有接口
 gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc=仅显示有样板位的接口
@@ -389,6 +390,16 @@ gui.tooltips.appliedenergistics2.HighlightInterface=高亮接口
 gui.tooltips.appliedenergistics2.PartialTransfer=将存储的物品移动至合成格中
 gui.tooltips.appliedenergistics2.MissingItem=§c缺少物品
 gui.tooltips.appliedenergistics2.CraftableItem=§9可合成物品
+gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers=显示位于分子装配室的接口
+gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOffDesc=显示所有接口
+gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOnDesc=仅显示位于分子装配室的接口
+gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterface=显示含有无效编码样板的接口
+gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterfaceOffDesc=显示所有接口
+gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterfaceOnDesc=仅显示含有无效编码样板的接口
+gui.tooltips.appliedenergistics2.SearchFieldInputs=配方输入
+gui.tooltips.appliedenergistics2.SearchFieldOutputs=配方输出
+gui.tooltips.appliedenergistics2.SearchFieldNames=接口名称
+
 
 // Units
 gui.appliedenergistics2.units.appliedenergstics=AE
