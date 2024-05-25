@@ -65,7 +65,10 @@ import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.AppEngInternalOversizedInventory;
 import appeng.tile.networking.TileCableBus;
-import appeng.util.*;
+import appeng.util.ConfigManager;
+import appeng.util.IConfigManagerHost;
+import appeng.util.InventoryAdaptor;
+import appeng.util.Platform;
 import appeng.util.inv.*;
 import appeng.util.item.AEItemStack;
 import com.google.common.collect.ImmutableSet;
@@ -98,7 +101,8 @@ import java.util.*;
 
 import static appeng.api.config.LockCraftingMode.LOCK_UNTIL_PULSE;
 import static appeng.api.config.LockCraftingMode.LOCK_UNTIL_RESULT;
-import static appeng.helpers.ItemStackHelper.*;
+import static appeng.helpers.ItemStackHelper.stackFromNBT;
+import static appeng.helpers.ItemStackHelper.stackToNBT;
 
 
 public class DualityInterface implements IGridTickable, IStorageMonitorable, IInventoryDestination, IAEAppEngInventory, IConfigManagerHost, ICraftingProvider, IUpgradeableHost {
@@ -1152,7 +1156,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
     /**
      * Gets if the crafting lock is in effect and why.
      *
-     * @return null if the lock isn't in effect
+     * @return {@link LockCraftingMode#NONE} if the lock isn't in effect
      */
     public LockCraftingMode getCraftingLockedReason() {
         var lockMode = cm.getSetting(Settings.UNLOCK);
