@@ -15,9 +15,7 @@ import appeng.me.GridAccessException;
 import appeng.parts.AEBasePart;
 import appeng.parts.PartModel;
 import appeng.tile.powersink.ForgeEnergyAdapter;
-import appeng.tile.powersink.GTCEEnergyAdapter;
 import appeng.tile.powersink.IExternalPowerSink;
-import appeng.tile.powersink.TeslaEnergyAdapter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
@@ -28,18 +26,10 @@ public class PartEnergyAcceptor extends AEBasePart implements IExternalPowerSink
     @PartModels
     public static final PartModel MODELS = new PartModel(new ResourceLocation(AppEng.MOD_ID, "part/energy_acceptor"));
     private final IEnergyStorage forgeEnergyAdapter;
-    private GTCEEnergyAdapter gtceEnergyAdapter = null;
-    private Object teslaEnergyAdapter;
 
     public PartEnergyAcceptor(ItemStack is) {
         super(is);
         this.forgeEnergyAdapter = new ForgeEnergyAdapter(this);
-        if (Capabilities.TESLA_CONSUMER != null) {
-            this.teslaEnergyAdapter = new TeslaEnergyAdapter(this);
-        }
-        if (Capabilities.GTCE_ENERGY != null) {
-            this.gtceEnergyAdapter = new GTCEEnergyAdapter(this);
-        }
         this.getProxy().setIdlePowerUsage(0.0);
     }
 
@@ -128,10 +118,6 @@ public class PartEnergyAcceptor extends AEBasePart implements IExternalPowerSink
     public <T> T getCapability(Capability<T> capabilityClass) {
         if (capabilityClass == Capabilities.FORGE_ENERGY){
             return (T) this.forgeEnergyAdapter;
-        } else if (capabilityClass == Capabilities.TESLA_CONSUMER) {
-            return (T) this.teslaEnergyAdapter;
-        } else if (capabilityClass == Capabilities.GTCE_ENERGY) {
-            return (T) this.gtceEnergyAdapter;
         }
         return super.getCapability(capabilityClass);
     }
@@ -140,11 +126,9 @@ public class PartEnergyAcceptor extends AEBasePart implements IExternalPowerSink
     public boolean hasCapability(Capability<?> capabilityClass) {
         if (capabilityClass == Capabilities.FORGE_ENERGY){
             return true;
-        } else if (capabilityClass == Capabilities.TESLA_CONSUMER) {
-            return true;
-        } else if (capabilityClass == Capabilities.GTCE_ENERGY) {
-            return true;
         }
         return super.hasCapability(capabilityClass);
     }
+
+
 }
