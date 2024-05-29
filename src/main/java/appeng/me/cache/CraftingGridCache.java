@@ -22,6 +22,7 @@ package appeng.me.cache;
 import appeng.api.AEApi;
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
+import appeng.api.config.Settings;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
@@ -41,6 +42,7 @@ import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.core.AEConfig;
 import appeng.crafting.CraftingJob;
 import appeng.crafting.CraftingLink;
 import appeng.crafting.CraftingLinkNexus;
@@ -50,6 +52,7 @@ import appeng.me.helpers.BaseActionSource;
 import appeng.me.helpers.GenericInterestManager;
 import appeng.tile.crafting.TileCraftingStorageTile;
 import appeng.tile.crafting.TileCraftingTile;
+import appeng.util.ConfigManager;
 import com.google.common.collect.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -92,9 +95,11 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
     int i;
     private boolean updateList = false;
     private boolean updatePatterns = false;
+    private final boolean disablePrioritizePower;
 
     public CraftingGridCache(final IGrid grid) {
         this.grid = grid;
+        this.disablePrioritizePower = AEConfig.instance().isDisablePrioritizePower();
     }
 
     @MENetworkEventSubscribe
@@ -468,7 +473,7 @@ public class CraftingGridCache implements ICraftingGrid, ICraftingProviderHelper
             }
 
             Collections.sort(validCpusClusters, (firstCluster, nextCluster) -> {
-                if (prioritizePower) {
+                if (prioritizePower && !this.disablePrioritizePower) {
                     final int comparison1 = Long.compare(nextCluster.getCoProcessors(), firstCluster.getCoProcessors());
                     if (comparison1 != 0) {
                         return comparison1;

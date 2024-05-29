@@ -81,6 +81,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private boolean useColoredCraftingStatus;
     private boolean disableColoredCableRecipesInJEI = true;
     private int craftingCalculationTimePerTick = 5;
+    private boolean disablePrioritizePower = false;
     private PowerUnits selectedPowerUnit = PowerUnits.AE;
     private boolean showCraftableTooltip = true;
     private boolean showPlacementPreview = true;
@@ -240,6 +241,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
         if (this.isFeatureEnabled(AEFeature.CRAFTING_CPU)) {
             this.craftingCalculationTimePerTick = this.get("craftingCPU", "craftingCalculationTimePerTick", this.craftingCalculationTimePerTick).getInt(this.craftingCalculationTimePerTick);
+            this.disablePrioritizePower = this.get("craftingCPU", "disablePrioritizePower", this.disablePrioritizePower).getBoolean(this.disablePrioritizePower);
         }
 
         this.updatable = true;
@@ -702,5 +704,9 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
     public int getDenseChannelCapacity() {
         return this.denseChannelCapacity;
+    }
+
+    public boolean isDisablePrioritizePower() {
+        return disablePrioritizePower;
     }
 }
