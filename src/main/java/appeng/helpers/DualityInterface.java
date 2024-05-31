@@ -35,6 +35,7 @@ import appeng.api.networking.energy.IEnergySource;
 import appeng.api.networking.events.MENetworkCraftingPatternChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
+import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
@@ -64,6 +65,7 @@ import appeng.parts.misc.PartInterface;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.AppEngInternalOversizedInventory;
+import appeng.tile.inventory.AppEngNetworkInventory;
 import appeng.tile.networking.TileCableBus;
 import appeng.util.*;
 import appeng.util.inv.*;
@@ -115,7 +117,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
     private final IActionSource interfaceRequestSource;
     private final ConfigManager cm = new ConfigManager(this);
     private final AppEngInternalAEInventory config = new AppEngInternalAEInventory(this, NUMBER_OF_CONFIG_SLOTS, 512);
-    private final AppEngInternalInventory storage = new AppEngInternalOversizedInventory(this, NUMBER_OF_STORAGE_SLOTS, 512);
+    private final AppEngInternalInventory storage;
     private final AppEngInternalInventory patterns = new AppEngInternalInventory(this, NUMBER_OF_PATTERN_SLOTS, 1);
     private final MEMonitorPassThrough<IAEItemStack> items = new MEMonitorPassThrough<>(new NullInventory<IAEItemStack>(), AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class));
     private final MEMonitorPassThrough<IAEFluidStack> fluids = new MEMonitorPassThrough<>(new NullInventory<IAEFluidStack>(), AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class));
@@ -153,10 +155,20 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
 
         final MachineSource actionSource = new MachineSource(this.iHost);
         this.mySource = actionSource;
+        this.storage = new AppEngNetworkInventory(this::getStorageGrid, this.mySource, this, NUMBER_OF_STORAGE_SLOTS, 512);
         this.fluids.setChangeSource(actionSource);
         this.items.setChangeSource(actionSource);
 
         this.interfaceRequestSource = new InterfaceRequestSource(this.iHost);
+    }
+
+    @Nullable
+    private IStorageGrid getStorageGrid() {
+        try {
+            return this.gridProxy.getStorage();
+        } catch (GridAccessException e) {
+            return null;
+        }
     }
 
     private static boolean invIsCustomBlocking(BlockingInventoryAdaptor inv) {

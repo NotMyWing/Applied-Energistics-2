@@ -32,6 +32,7 @@ import appeng.api.networking.IGridNode;
 import appeng.api.networking.energy.IEnergySource;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
+import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
@@ -49,6 +50,7 @@ import appeng.capabilities.Capabilities;
 import appeng.core.settings.TickRates;
 import appeng.fluids.util.AEFluidInventory;
 import appeng.fluids.util.AEFluidStack;
+import appeng.fluids.util.AENetworkFluidInventory;
 import appeng.fluids.util.IAEFluidInventory;
 import appeng.fluids.util.IAEFluidTank;
 import appeng.helpers.ICustomNameObject;
@@ -90,6 +92,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -109,7 +112,7 @@ public class DualityFluidInterface implements IGridTickable, IStorageMonitorable
     private final UpgradeInventory upgrades;
     private boolean hasConfig = false;
     private final IStorageMonitorableAccessor accessor = this::getMonitorable;
-    private final AEFluidInventory tanks = new AEFluidInventory(this, NUMBER_OF_TANKS, TANK_CAPACITY);
+    private final AEFluidInventory tanks;
     private final AEFluidInventory config = new AEFluidInventory(this, NUMBER_OF_TANKS);
     private final IAEFluidStack[] requireWork;
     private int isWorking = -1;
@@ -131,6 +134,7 @@ public class DualityFluidInterface implements IGridTickable, IStorageMonitorable
 
         this.mySource = new MachineSource(this.iHost);
         this.interfaceRequestSource = new InterfaceRequestSource(this.iHost);
+        this.tanks = new AENetworkFluidInventory(this::getStorageGrid, this.mySource, this, NUMBER_OF_TANKS, TANK_CAPACITY);
 
         this.fluids.setChangeSource(this.mySource);
         this.items.setChangeSource(this.mySource);
@@ -138,6 +142,15 @@ public class DualityFluidInterface implements IGridTickable, IStorageMonitorable
         this.requireWork = new IAEFluidStack[NUMBER_OF_TANKS];
         for (int i = 0; i < NUMBER_OF_TANKS; ++i) {
             this.requireWork[i] = null;
+        }
+    }
+
+    @Nullable
+    private IStorageGrid getStorageGrid() {
+        try {
+            return this.gridProxy.getStorage();
+        } catch (GridAccessException e) {
+            return null;
         }
     }
 
