@@ -24,6 +24,9 @@ public class AENetworkFluidInventory extends AEFluidInventory {
 
     @Override
     public int fill(final FluidStack fluid, final boolean doFill) {
+        if (fluid == null || fluid.amount <= 0) {
+            return 0;
+        }
         IStorageGrid storage = supplier.get();
         if (storage != null) {
             int originAmt = fluid.amount;
