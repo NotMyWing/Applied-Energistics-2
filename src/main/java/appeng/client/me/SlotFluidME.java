@@ -20,11 +20,13 @@ package appeng.client.me;
 
 
 import appeng.api.storage.data.IAEFluidStack;
+import appeng.container.interfaces.ISpecialSlotIngredient;
 import appeng.fluids.container.slots.IMEFluidSlot;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -34,7 +36,7 @@ import javax.annotation.Nonnull;
  * @version rv6 - 22/05/2018
  * @since rv6 22/05/2018
  */
-public class SlotFluidME extends SlotItemHandler implements IMEFluidSlot {
+public class SlotFluidME extends SlotItemHandler implements IMEFluidSlot, ISpecialSlotIngredient {
 
     private final InternalFluidSlotME slot;
 
@@ -95,4 +97,11 @@ public class SlotFluidME extends SlotItemHandler implements IMEFluidSlot {
     public boolean canTakeStack(final EntityPlayer par1EntityPlayer) {
         return false;
     }
+
+    @Nullable
+    @Override
+    public Object getIngredient() {
+        return this.getAEFluidStack() == null ? null : this.getAEFluidStack().getFluidStack();
+    }
+
 }

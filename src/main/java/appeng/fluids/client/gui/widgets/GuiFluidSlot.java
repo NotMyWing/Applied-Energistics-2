@@ -99,4 +99,9 @@ public class GuiFluidSlot extends GuiCustomSlot implements IJEITargetSlot {
         return this.getFluidStack() == null;
     }
 
+    @Override
+    public Object getIngredient() {
+        return this.getFluidStack() == null ? null : this.getFluidStack().getFluidStack();
+    }
+
 }
