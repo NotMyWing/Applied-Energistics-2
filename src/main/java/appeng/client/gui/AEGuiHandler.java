@@ -72,6 +72,10 @@ public class AEGuiHandler implements IAdvancedGuiHandler<AEBaseGui>, IGhostIngre
             }
         }
 
+        if (result != null) {
+            return result;
+        }
+
         Slot slot = guiContainer.getSlotUnderMouse();
         if (slot instanceof ISpecialSlotIngredient ss) {
             return ss.getIngredient();
