@@ -10,6 +10,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.item.AEItemStack;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.wrapper.RangedWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
@@ -43,6 +44,24 @@ public class AppEngNetworkInventory extends AppEngInternalOversizedInventory {
         } else {
             return super.insertItem(slot, stack, simulate);
         }
+    }
+
+    @Nonnull
+    private ItemStack insertToBuffer(int slot, @Nonnull ItemStack stack, boolean simulate) {
+        return super.insertItem(slot, stack, simulate);
+    }
+
+    public RangedWrapper getBufferWrapper(int selectSlot) {
+        return new RangedWrapper(this, selectSlot, selectSlot + 1) {
+            @Override
+            @Nonnull
+            public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+                if (slot == 0) {
+                    return AppEngNetworkInventory.this.insertToBuffer(selectSlot, stack, simulate);
+                }
+                return stack;
+            }
+        };
     }
 
 }

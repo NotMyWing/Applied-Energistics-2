@@ -64,6 +64,7 @@ import appeng.parts.automation.UpgradeInventory;
 import appeng.parts.misc.PartInterface;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.tile.inventory.AppEngInternalOversizedInventory;
 import appeng.tile.inventory.AppEngNetworkInventory;
 import appeng.tile.networking.TileCableBus;
 import appeng.util.ConfigManager;
@@ -97,6 +98,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.RangedWrapper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -881,7 +883,7 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
     }
 
     private InventoryAdaptor getAdaptor(final int slot) {
-        return new AdaptorItemHandler(new RangedWrapper(this.storage, slot, slot + 1));
+        return new AdaptorItemHandler(((AppEngNetworkInventory) this.storage).getBufferWrapper(slot));
     }
 
     private boolean handleCrafting(final int x, final InventoryAdaptor d, final IAEItemStack itemStack) {
