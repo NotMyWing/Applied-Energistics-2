@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -58,8 +59,8 @@ public class InscriberRecipe implements IInscriberRecipe {
         this.inputs.addAll(inputs);
 
         this.output = output;
-        this.maybeTop = top;
-        this.maybeBot = bot;
+        this.maybeTop = top == null || top.isEmpty() ? Collections.emptyList() : top;
+        this.maybeBot = bot == null || bot.isEmpty() ? Collections.emptyList() : bot;
 
         this.type = type;
     }
@@ -129,6 +130,4 @@ public class InscriberRecipe implements IInscriberRecipe {
         result = 31 * result + this.type.hashCode();
         return result;
     }
-
-
 }
