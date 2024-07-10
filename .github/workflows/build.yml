@@ -1,6 +1,6 @@
 name: Build
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -12,8 +12,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt' # You can choose other OpenJDK distributions.
+      - name: Update Build Script (Before Build)
+        run: ./gradlew updateBuildScript
       - name: Build with Gradle
-        run: ./gradlew build # Ensure your gradlew script is executable
+        run: ./gradlew build
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
