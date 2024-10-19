@@ -20,7 +20,7 @@ public final class Tooltips {
         SEP = symbols.getDecimalSeparator();
     }
 
-    public static final Style UNIT_TEXT = new  Style().setColor(TextFormatting.GOLD).setItalic(false);
+    public static final Style UNIT_TEXT = new  Style().setColor(TextFormatting.YELLOW).setItalic(false);
     public static final Style NORMAL_TOOLTIP_TEXT = new Style().setColor(TextFormatting.GRAY).setItalic(false);
     public static final Style NUMBER_TEXT = new Style().setColor(TextFormatting.LIGHT_PURPLE).setItalic(false);
 
