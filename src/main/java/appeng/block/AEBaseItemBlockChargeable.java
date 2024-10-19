@@ -21,11 +21,10 @@ package appeng.block;
 
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
-import appeng.api.config.PowerUnits;
 import appeng.api.definitions.IBlockDefinition;
 import appeng.api.implementations.items.IAEItemPowerStorage;
 import appeng.core.Api;
-import appeng.core.localization.GuiText;
+import appeng.core.localization.Tooltips;
 import appeng.util.Platform;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
@@ -35,7 +34,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 
@@ -57,10 +55,7 @@ public class AEBaseItemBlockChargeable extends AEBaseItemBlock implements IAEIte
                 internalCurrentPower = tag.getDouble("internalCurrentPower");
             }
 
-            final double percent = internalCurrentPower / internalMaxPower;
-
-            lines.add(GuiText.StoredEnergy.getLocal() + ':' + MessageFormat.format(" {0,number,#} ", internalCurrentPower) + Platform
-                    .gui_localize(PowerUnits.AE.unlocalizedName) + " - " + MessageFormat.format(" {0,number,#.##%} ", percent));
+            lines.add(Tooltips.energyStorageComponent(internalCurrentPower, internalMaxPower).getFormattedText());
         }
     }
 
