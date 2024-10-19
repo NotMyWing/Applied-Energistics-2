@@ -13,6 +13,7 @@ import appeng.api.storage.data.IItemList;
 import appeng.api.util.IClientHelper;
 import appeng.core.AEConfig;
 import appeng.core.localization.GuiText;
+import appeng.core.localization.Tooltips;
 import appeng.fluids.items.FluidDummyItem;
 import appeng.fluids.util.AEFluidStack;
 import appeng.util.ReadableNumberConverter;
@@ -44,10 +45,9 @@ public class ApiClientHelper implements IClientHelper {
         final ICellInventory<?> cellInventory = handler.getCellInv();
 
         if (cellInventory != null) {
-            lines.add(cellInventory.getUsedBytes() + " " + GuiText.Of.getLocal() + ' ' + cellInventory.getTotalBytes() + ' ' + GuiText.BytesUsed.getLocal());
+            lines.add(Tooltips.bytesUsed(cellInventory.getUsedBytes(),cellInventory.getTotalBytes()).getFormattedText());
 
-            lines.add(cellInventory.getStoredItemTypes() + " " + GuiText.Of.getLocal() + ' ' + cellInventory.getTotalItemTypes() + ' ' + GuiText.Types
-                    .getLocal());
+            lines.add(Tooltips.typesUsed(cellInventory.getStoredItemTypes(),cellInventory.getTotalItemTypes()).getFormattedText());
         }
 
         IItemList<?> itemList = cellInventory.getChannel().createList();

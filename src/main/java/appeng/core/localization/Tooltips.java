@@ -6,6 +6,7 @@ import net.minecraft.util.text.*;
 
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 /**
  * Static utilities for constructing tooltips in various places.
@@ -57,6 +58,31 @@ public final class Tooltips {
     public static ITextComponent ofNumber(double number, double max) {
         MaxedAmount amount = getMaxedAmount(number, max);
         return ofNumber(amount);
+    }
+
+    public static ITextComponent of(GuiText guiText, Object... args) {
+        return of(guiText, NORMAL_TOOLTIP_TEXT, args);
+    }
+
+    public static ITextComponent of(GuiText guiText, Style style, Object... args) {
+
+        if (args.length > 0 && args[0] instanceof Integer) {
+            return guiText.getLocalizedWithArgs(Arrays.stream(args).map((o) -> ofUnformattedNumber((Integer) o)).toArray()).createCopy()
+                    .setStyle(style);
+        } else if (args.length > 0 && args[0] instanceof Long) {
+            return guiText.getLocalizedWithArgs(Arrays.stream(args).map((o) -> ofUnformattedNumber((Long) o)).toArray()).createCopy()
+                    .setStyle(style);
+        }
+        return guiText.getLocalizedWithArgs(args).createCopy().setStyle(style);
+
+    }
+
+    public static ITextComponent ofUnformattedNumber(long number) {
+        return new TextComponentString(String.valueOf(number)).setStyle(NUMBER_TEXT);
+    }
+
+    public static ITextComponent ofUnformattedNumberWithRatioColor(long number, double ratio, boolean oneIsGreen) {
+        return new TextComponentString(String.valueOf(number)).setStyle(colorFromRatio(ratio, oneIsGreen));
     }
 
     private static ITextComponent ofNumber(MaxedAmount number) {
@@ -150,5 +176,28 @@ public final class Tooltips {
                 Tooltips.of(" ("),
                 Tooltips.ofPercent(energy / max),
                 Tooltips.of(")"));
+    }
+
+    public static ITextComponent bytesUsed(long bytes, long max) {
+        return of(
+                Tooltips.of(
+                        ofUnformattedNumberWithRatioColor(bytes, (double) bytes / max, false),
+                        of(" "),
+                        of(GuiText.Of),
+                        of(" "),
+                        ofUnformattedNumber(max),
+                        of(" "),
+                        of(GuiText.BytesUsed)));
+    }
+
+    public static ITextComponent typesUsed(long types, long max) {
+        return Tooltips.of(
+                ofUnformattedNumberWithRatioColor(types, (double) types / max, false),
+                of(" "),
+                of(GuiText.Of),
+                of(" "),
+                ofUnformattedNumber(max),
+                of(" "),
+                of(GuiText.Types));
     }
 }
