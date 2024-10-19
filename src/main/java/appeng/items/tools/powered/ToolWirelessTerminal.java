@@ -20,13 +20,7 @@ package appeng.items.tools.powered;
 
 
 import appeng.api.AEApi;
-import appeng.api.config.Actionable;
-import appeng.api.config.FuzzyMode;
-import appeng.api.config.Settings;
-import appeng.api.config.SortDir;
-import appeng.api.config.SortOrder;
-import appeng.api.config.Upgrades;
-import appeng.api.config.ViewItems;
+import appeng.api.config.*;
 import appeng.api.features.IWirelessTermHandler;
 import appeng.api.util.IConfigManager;
 import appeng.core.AEConfig;
@@ -51,7 +45,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Optional;
@@ -95,9 +89,9 @@ public class ToolWirelessTerminal extends AEBasePoweredItem implements IWireless
                 final String encKey = tag.getString("encryptionKey");
 
                 if (encKey == null || encKey.isEmpty()) {
-                    lines.add(GuiText.Unlinked.getLocal());
+                    lines.add(TextFormatting.RED + GuiText.Unlinked.getLocal());
                 } else {
-                    lines.add(GuiText.Linked.getLocal());
+                    lines.add(TextFormatting.GREEN + GuiText.Linked.getLocal());
                 }
             }
         } else {
