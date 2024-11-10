@@ -69,8 +69,9 @@ public final class PartWailaDataProvider implements IWailaDataProvider {
         final IPartWailaDataProvider powerState = new PowerStateWailaDataProvider();
         final IPartWailaDataProvider p2pState = new P2PStateWailaDataProvider();
         final IPartWailaDataProvider partStack = new PartStackWailaDataProvider();
+        final IPartWailaDataProvider annihilationPlane = new AnnihilationPlaneDataProvider();
 
-        this.providers = Lists.newArrayList(channel, storageMonitor, powerState, partStack, p2pState);
+        this.providers = Lists.newArrayList(channel, storageMonitor, powerState, partStack, p2pState, annihilationPlane);
     }
 
     @Override

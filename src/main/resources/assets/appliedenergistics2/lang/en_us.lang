@@ -260,6 +260,8 @@ gui.appliedenergistics2.Sticky=Sticky
 gui.appliedenergistics2.FluidTerminal=Fluid Terminal
 gui.appliedenergistics2.CanBeEnchanted=Can be enchanted
 gui.appliedenergistics2.IncreasedEnergyUseFromEnchants=Enchants increase energy use
+gui.appliedenergistics2.EnchantedWith=Enchanted with:
+gui.appliedenergistics2.IdentityDeprecated=Deprecated. Take it in your hand, Convert with SHIFT + RIGHT-CLICK
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=Store Items

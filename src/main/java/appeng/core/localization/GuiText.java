@@ -210,7 +210,9 @@ public enum GuiText {
     CraftingToastCancelled,
 
     CanBeEnchanted,
-    IncreasedEnergyUseFromEnchants;
+    IncreasedEnergyUseFromEnchants,
+    IdentityDeprecated,
+    EnchantedWith;
 
     private final String root;
 

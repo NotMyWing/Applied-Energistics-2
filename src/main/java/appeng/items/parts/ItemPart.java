@@ -42,6 +42,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -137,8 +138,17 @@ public final class ItemPart extends AEBaseItem implements IPartItem, IItemGroup 
 
     @Override
     public EnumActionResult onItemUse(final EntityPlayer player, final World w, final BlockPos pos, final EnumHand hand, final EnumFacing side, final float hitX, final float hitY, final float hitZ) {
-        if (this.getTypeByStack(player.getHeldItem(hand)) == PartType.INVALID_TYPE) {
+        ItemStack heldItem = player.getHeldItem(hand);
+        if (this.getTypeByStack(heldItem) == PartType.INVALID_TYPE) {
             return EnumActionResult.FAIL;
+        }
+
+        if (getTypeByStack(heldItem) == PartType.IDENTITY_ANNIHILATION_PLANE && player.isSneaking()) {
+            ItemStack newPlane = new ItemStack(this, heldItem.getCount(), PartType.ANNIHILATION_PLANE.getBaseDamage());
+            newPlane.addEnchantment(Enchantments.SILK_TOUCH,1);
+
+            player.setHeldItem(hand, newPlane);
+            return EnumActionResult.SUCCESS;
         }
 
         return AEApi.instance().partHelper().placeBus(player.getHeldItem(hand), pos, side, player, hand, w);
@@ -192,6 +202,10 @@ public final class ItemPart extends AEBaseItem implements IPartItem, IItemGroup 
             else {
                 lines.add(GuiText.IncreasedEnergyUseFromEnchants.getLocal());
             }
+        }
+
+        if (getTypeByStack(stack) == PartType.IDENTITY_ANNIHILATION_PLANE) {
+            lines.add(TextFormatting.RED + GuiText.IdentityDeprecated.getLocal());
         }
     }
 
