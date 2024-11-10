@@ -34,8 +34,8 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -197,7 +197,7 @@ public final class ItemPart extends AEBaseItem implements IPartItem, IItemGroup 
 
     @Override
     public int getItemEnchantability() {
-        return 5;
+        return 10;
     }
 
     @Override
@@ -207,12 +207,12 @@ public final class ItemPart extends AEBaseItem implements IPartItem, IItemGroup 
 
     @Override
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
-        return enchantment.type == EnumEnchantmentType.DIGGER;
+        return enchantment == Enchantments.UNBREAKING || enchantment == Enchantments.FORTUNE || enchantment == Enchantments.SILK_TOUCH || enchantment == Enchantments.EFFICIENCY;
     }
 
     @Override
     public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
-        return stack.getItem() == this && getTypeByStack(stack) == PartType.ANNIHILATION_PLANE;
+        return getTypeByStack(stack) == PartType.ANNIHILATION_PLANE;
     }
 
     @Nonnull
