@@ -299,8 +299,8 @@ public class PartInterface extends PartBasicState implements IGridTickable, ISto
     }
 
     @Override
-    public NBTTagCompound downloadSettings(SettingsFrom from) {
-        NBTTagCompound output = super.downloadSettings(from);
+    public NBTTagCompound downloadSettings(SettingsFrom from, NBTTagCompound compound) {
+        NBTTagCompound output = super.downloadSettings(from, compound);
         if (from == SettingsFrom.MEMORY_CARD) {
             final IItemHandler inv = this.getInventoryByName("patterns");
             if (inv instanceof AppEngInternalInventory) {

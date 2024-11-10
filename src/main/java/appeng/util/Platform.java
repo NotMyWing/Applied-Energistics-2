@@ -430,12 +430,18 @@ public class Platform {
         }
     }
 
+
+
     public static ItemStack[] getBlockDrops(final World w, final BlockPos pos) {
+        return getBlockDrops(w, pos,0);
+    }
+
+    public static ItemStack[] getBlockDrops(final World w, final BlockPos pos, int fortune) {
         List<ItemStack> out = new ArrayList<>();
         final IBlockState state = w.getBlockState(pos);
 
         if (state != null) {
-            out = state.getBlock().getDrops(w, pos, state, 0);
+            out = state.getBlock().getDrops(w, pos, state, fortune);
         }
 
         if (out == null) {

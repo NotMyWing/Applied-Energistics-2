@@ -359,8 +359,19 @@ public abstract class AEBasePart implements IPart, IGridProxyable, IActionHost, 
      * @param from source of settings
      * @return compound of source
      */
+    @Deprecated
     protected NBTTagCompound downloadSettings(final SettingsFrom from) {
-        final NBTTagCompound output = new NBTTagCompound();
+        NBTTagCompound compound = downloadSettings(from, new NBTTagCompound());
+        return compound.isEmpty() ? null : compound;
+    }
+
+    /**
+     * Exports settings for attaching it to a memory card or item stack.
+     *
+     * @param from   The purpose to export settings for.
+     * @param output The tag to write the settings to.
+     */
+    protected NBTTagCompound downloadSettings(final SettingsFrom from, final NBTTagCompound output) {
 
         final IConfigManager cm = this.getConfigManager();
         if (cm != null) {
@@ -392,7 +403,7 @@ public abstract class AEBasePart implements IPart, IGridProxyable, IActionHost, 
             }
         }
 
-        return output.isEmpty() ? null : output;
+        return output;
     }
 
     public boolean useStandardMemoryCard() {
@@ -419,8 +430,8 @@ public abstract class AEBasePart implements IPart, IGridProxyable, IActionHost, 
             final String name = is.getTranslationKey();
 
             if (player.isSneaking()) {
-                final NBTTagCompound data = this.downloadSettings(SettingsFrom.MEMORY_CARD);
-                if (data != null) {
+                final NBTTagCompound data = this.downloadSettings(SettingsFrom.MEMORY_CARD, new NBTTagCompound());
+                if (!data.isEmpty()) {
                     memoryCard.setMemoryCardContents(memCardIS, name, data);
                     memoryCard.notifyUser(player, MemoryCardMessages.SETTINGS_SAVED);
                 }
