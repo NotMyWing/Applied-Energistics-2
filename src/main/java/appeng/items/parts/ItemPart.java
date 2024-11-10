@@ -30,8 +30,10 @@ import appeng.core.localization.GuiText;
 import appeng.items.AEBaseItem;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -177,6 +179,19 @@ public final class ItemPart extends AEBaseItem implements IPartItem, IItemGroup 
 
         for (final Entry<Integer, PartTypeWithVariant> part : types) {
             itemStacks.add(new ItemStack(this, 1, part.getKey()));
+        }
+    }
+
+    @Override
+    protected void addCheckedInformation(ItemStack stack, World world, List<String> lines, ITooltipFlag advancedTooltips) {
+        if (getTypeByStack(stack) == PartType.ANNIHILATION_PLANE) {
+            var enchantments = EnchantmentHelper.getEnchantments(stack);
+            if (enchantments.isEmpty()) {
+                lines.add(GuiText.CanBeEnchanted.getLocal());
+            }
+            else {
+                lines.add(GuiText.IncreasedEnergyUseFromEnchants.getLocal());
+            }
         }
     }
 

@@ -79,6 +79,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class PartAnnihilationPlane extends PartBasicState implements IGridTickable, IWorldCallable<TickRateModulation> {
@@ -469,13 +470,31 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
      * Checks if this plane can handle the block at the specific coordinates.
      */
     protected float calculateEnergyUsage(final WorldServer w, final BlockPos pos, final List<ItemStack> items) {
+        boolean useEnergy = true;
         final IBlockState state = w.getBlockState(pos);
         final float hardness = state.getBlockHardness(w, pos);
+        Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(getItemStack());
 
         float requiredEnergy = 1 + hardness;
         for (final ItemStack is : items) {
             requiredEnergy += is.getCount();
         }
+
+        var efficiencyFactor = 1f;
+        var efficiencyLevel = 0;
+        if (enchantments.containsKey(Enchantments.EFFICIENCY)) {
+            // Reduce total energy usage incurred by other enchantments by 15% per Efficiency level.
+            efficiencyLevel = enchantments.get(Enchantments.EFFICIENCY);
+            efficiencyFactor *= Math.pow(0.85, efficiencyLevel);
+        }
+        if (enchantments.containsKey(Enchantments.UNBREAKING)) {
+            // Give plane only a (100 / (level + 1))% chance to use energy.
+            // This is similar to vanilla Unbreaking behaviour for tools.
+            int randomNumber = ThreadLocalRandom.current().nextInt(enchantments.get(Enchantments.UNBREAKING) + 1);
+            useEnergy = randomNumber == 0;
+        }
+        var levelSum = enchantments.values().stream().reduce(0, Integer::sum) - efficiencyLevel;
+        requiredEnergy *= 8 * levelSum * efficiencyFactor;
 
         return requiredEnergy;
     }

@@ -258,6 +258,8 @@ gui.appliedenergistics2.CraftingToastDone=Crafting Done!
 gui.appliedenergistics2.CraftingToastCancelled=Crafting Cancelled!
 gui.appliedenergistics2.Sticky=Sticky
 gui.appliedenergistics2.FluidTerminal=Fluid Terminal
+gui.appliedenergistics2.CanBeEnchanted=Can be enchanted
+gui.appliedenergistics2.IncreasedEnergyUseFromEnchants=Enchants increase energy use
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=Store Items
