@@ -31,6 +31,8 @@ import appeng.items.AEBaseItem;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
@@ -176,6 +178,26 @@ public final class ItemPart extends AEBaseItem implements IPartItem, IItemGroup 
         for (final Entry<Integer, PartTypeWithVariant> part : types) {
             itemStacks.add(new ItemStack(this, 1, part.getKey()));
         }
+    }
+
+    @Override
+    public int getItemEnchantability() {
+        return 5;
+    }
+
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return getTypeByStack(stack) == PartType.ANNIHILATION_PLANE;
+    }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        return enchantment.type == EnumEnchantmentType.DIGGER;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return stack.getItem() == this && getTypeByStack(stack) == PartType.ANNIHILATION_PLANE;
     }
 
     @Nonnull

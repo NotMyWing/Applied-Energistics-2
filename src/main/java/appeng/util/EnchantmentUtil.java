@@ -14,31 +14,31 @@ public final class EnchantmentUtil {
     private EnchantmentUtil() {
     }
 
-    public static Map<Enchantment, Integer> deserializeEnchantments(NBTTagList tagList) {
+    private static Map<Enchantment, Integer> deserializeEnchantments(NBTTagList tagList) {
         Map<Enchantment, Integer> map = Maps.newLinkedHashMap();
 
         for(int i = 0; i < tagList.tagCount(); ++i) {
             NBTTagCompound compoundtag = tagList.getCompoundTagAt(i);
             Enchantment enchantmentByID = Enchantment.getEnchantmentByID(getEnchantmentId(compoundtag));
             if (enchantmentByID != null) {
-                map.put(enchantmentByID, compoundtag.getInteger("lvl"));
+                map.put(enchantmentByID, getEnchantmentLevel(compoundtag));
             }
         }
 
         return map;
     }
 
-    public static int getEnchantmentId(NBTTagCompound tagCompound) {
+    private static int getEnchantmentId(NBTTagCompound tagCompound) {
         return tagCompound.getInteger("id");
     }
 
-    public static int getEnchantmentLevel(NBTTagCompound tagCompound) {
+    private static int getEnchantmentLevel(NBTTagCompound tagCompound) {
         return Math.max(0, Math.min(255, tagCompound.getInteger("lvl")));
     }
 
-    public static NBTTagCompound storeEnchantment(int id, int level) {
+    private static NBTTagCompound storeEnchantment(int id, int level) {
         NBTTagCompound compoundtag = new NBTTagCompound();
-        compoundtag.setInteger("id",id);
+        compoundtag.setShort("id",(short) id);
         compoundtag.setShort("lvl", ((short) level));
         return compoundtag;
     }
@@ -49,8 +49,8 @@ public final class EnchantmentUtil {
      */
     @Nullable
     public static Map<Enchantment, Integer> getEnchantments(NBTTagCompound data) {
-        if (data.hasKey("ench",9)) {
-            var list = data.getTagList("ench",10);
+        if (data.hasKey("Enchantments")) {
+            var list = data.getTagList("Enchantments",9);
             var enchants = deserializeEnchantments(list);
             if (!enchants.isEmpty()) {
                 return enchants;

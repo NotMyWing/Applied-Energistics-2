@@ -57,10 +57,14 @@ import com.google.common.collect.Lists;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Enchantments;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -69,8 +73,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -92,8 +98,8 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
      * Enchantments found on the plane when it was placed will be used to enchant the fake tool used for picking up
      * blocks.
      */
-    @Nullable
-    private Map<Enchantment, Integer> enchantments;
+//    @Nullable
+//    private Map<Enchantment, Integer> enchantments;
 
     public PartAnnihilationPlane(final ItemStack is) {
         super(is);
@@ -437,9 +443,26 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
     }
 
     protected List<ItemStack> obtainBlockDrops(final WorldServer w, final BlockPos pos) {
-        //TODO Support Fortune
-        final ItemStack[] out = Platform.getBlockDrops(w, pos);
-        return Lists.newArrayList(out);
+        final FakePlayer fakePlayer = FakePlayerFactory.getMinecraft(w);
+        final IBlockState state = w.getBlockState(pos);
+
+        if (state.getBlock().canSilkHarvest(w, pos, state, fakePlayer) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH,getItemStack()) > 0) {
+            final List<ItemStack> out = new ArrayList<>(1);
+            final Item item = Item.getItemFromBlock(state.getBlock());
+
+            if (item != Items.AIR) {
+                int meta = 0;
+                if (item.getHasSubtypes()) {
+                    meta = state.getBlock().getMetaFromState(state);
+                }
+                final ItemStack itemstack = new ItemStack(item, 1, meta);
+                out.add(itemstack);
+            }
+            return out;
+        } else {
+            final ItemStack[] out = Platform.getBlockDrops(w, pos, EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE,getItemStack()));
+            return Lists.newArrayList(out);
+        }
     }
 
     /**
@@ -540,12 +563,30 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
     }
 
     private void readEnchantments(NBTTagCompound data) {
-        enchantments = EnchantmentUtil.getEnchantments(data);
+        Map<Enchantment, Integer> map = EnchantmentUtil.getEnchantments(data);
+        if (map != null) {
+            EnchantmentHelper.setEnchantments(map,getItemStack());
+        }
+
     }
 
     private void writeEnchantments(NBTTagCompound data) {
-        if (enchantments != null) {
-            EnchantmentUtil.setEnchantments(data, enchantments);
+        EnchantmentUtil.setEnchantments(data, EnchantmentHelper.getEnchantments(this.getItemStack()));
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        Map<Enchantment, Integer> map = EnchantmentUtil.getEnchantments(data);
+        if (map != null) {
+            EnchantmentHelper.setEnchantments(map,getItemStack());
         }
+
+    }
+
+
+
+    @Override
+    public void writeToNBT(NBTTagCompound data) {
+        EnchantmentUtil.setEnchantments(data,EnchantmentHelper.getEnchantments(getItemStack()));
     }
 }
