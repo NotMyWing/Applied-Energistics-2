@@ -480,21 +480,23 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
             requiredEnergy += is.getCount();
         }
 
-        var efficiencyFactor = 1f;
-        var efficiencyLevel = 0;
-        if (enchantments.containsKey(Enchantments.EFFICIENCY)) {
-            // Reduce total energy usage incurred by other enchantments by 15% per Efficiency level.
-            efficiencyLevel = enchantments.get(Enchantments.EFFICIENCY);
-            efficiencyFactor *= Math.pow(0.85, efficiencyLevel);
+        if (!enchantments.isEmpty()) {
+            var efficiencyFactor = 1f;
+            var efficiencyLevel = 0;
+            if (enchantments.containsKey(Enchantments.EFFICIENCY)) {
+                // Reduce total energy usage incurred by other enchantments by 15% per Efficiency level.
+                efficiencyLevel = enchantments.get(Enchantments.EFFICIENCY);
+                efficiencyFactor *= Math.pow(0.85, efficiencyLevel);
+            }
+            if (enchantments.containsKey(Enchantments.UNBREAKING)) {
+                // Give plane only a (100 / (level + 1))% chance to use energy.
+                // This is similar to vanilla Unbreaking behaviour for tools.
+                int randomNumber = ThreadLocalRandom.current().nextInt(enchantments.get(Enchantments.UNBREAKING) + 1);
+                useEnergy = randomNumber == 0;
+            }
+            var levelSum = enchantments.values().stream().reduce(0, Integer::sum) - efficiencyLevel;
+            requiredEnergy *= 8 * levelSum * efficiencyFactor;
         }
-        if (enchantments.containsKey(Enchantments.UNBREAKING)) {
-            // Give plane only a (100 / (level + 1))% chance to use energy.
-            // This is similar to vanilla Unbreaking behaviour for tools.
-            int randomNumber = ThreadLocalRandom.current().nextInt(enchantments.get(Enchantments.UNBREAKING) + 1);
-            useEnergy = randomNumber == 0;
-        }
-        var levelSum = enchantments.values().stream().reduce(0, Integer::sum) - efficiencyLevel;
-        requiredEnergy *= 8 * levelSum * efficiencyFactor;
 
         return useEnergy ? requiredEnergy : 0;
     }
