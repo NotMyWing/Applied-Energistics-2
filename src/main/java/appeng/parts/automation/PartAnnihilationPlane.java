@@ -496,7 +496,7 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         var levelSum = enchantments.values().stream().reduce(0, Integer::sum) - efficiencyLevel;
         requiredEnergy *= 8 * levelSum * efficiencyFactor;
 
-        return requiredEnergy;
+        return useEnergy ? requiredEnergy : 0;
     }
 
     /**
