@@ -48,25 +48,31 @@ import appeng.items.parts.PartModels;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.MachineSource;
 import appeng.parts.PartBasicState;
+import appeng.util.EnchantmentUtil;
 import appeng.util.IWorldCallable;
 import appeng.util.Platform;
+import appeng.util.SettingsFrom;
 import appeng.util.item.AEItemStack;
 import com.google.common.collect.Lists;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class PartAnnihilationPlane extends PartBasicState implements IGridTickable, IWorldCallable<TickRateModulation> {
@@ -82,6 +88,13 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
     private boolean isAccepting = true;
     private boolean breaking = false;
 
+    /**
+     * Enchantments found on the plane when it was placed will be used to enchant the fake tool used for picking up
+     * blocks.
+     */
+    @Nullable
+    private Map<Enchantment, Integer> enchantments;
+
     public PartAnnihilationPlane(final ItemStack is) {
         super(is);
     }
@@ -91,6 +104,8 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         this.breaking = false;
         return this.breakBlock(true);
     }
+
+
 
     @Override
     public void getBoxes(final IPartCollisionHelper bch) {
@@ -422,6 +437,7 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
     }
 
     protected List<ItemStack> obtainBlockDrops(final WorldServer w, final BlockPos pos) {
+        //TODO Support Fortune
         final ItemStack[] out = Platform.getBlockDrops(w, pos);
         return Lists.newArrayList(out);
     }
@@ -447,10 +463,10 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
      * It also sets isAccepting to false, if the item can not be stored.
      *
      * @param itemStacks an array of {@link ItemStack} to test
-     * @return true, if the network can store at least a single item of all drops or no drops are reported
+     * @return true, if the network can store all drops or no drops are reported
      */
     private boolean canStoreItemStacks(final List<ItemStack> itemStacks) {
-        boolean canStore = itemStacks.isEmpty();
+        boolean canStore = true;
 
         try {
             final IStorageGrid storage = this.getProxy().getStorage();
@@ -459,8 +475,8 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
                 final IAEItemStack itemToTest = AEItemStack.fromItemStack(itemStack);
                 final IAEItemStack overflow = storage.getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class))
                         .injectItems(itemToTest, Actionable.SIMULATE, this.mySrc);
-                if (overflow == null || itemToTest.getStackSize() > overflow.getStackSize()) {
-                    canStore = true;
+                if (overflow != null) {
+                    canStore = false;
                 }
             }
         } catch (final GridAccessException e) {
@@ -472,15 +488,20 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
     }
 
     private void breakBlockAndStoreItems(final WorldServer w, final BlockPos pos) {
-        w.destroyBlock(pos, true);
+        final List<ItemStack> items = this.obtainBlockDrops(w, pos);
 
-        final AxisAlignedBB box = new AxisAlignedBB(pos).grow(0.2);
-        for (final Object ei : w.getEntitiesWithinAABB(EntityItem.class, box)) {
-            if (ei instanceof EntityItem) {
-                final EntityItem entityItem = (EntityItem) ei;
-                this.storeEntityItem(entityItem);
+        try {
+            final IStorageGrid storage = this.getProxy().getStorage();
+            for (ItemStack itemStack : items) {
+                final IAEItemStack aeItemStack = AEItemStack.fromItemStack(itemStack);
+                storage.getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class))
+                        .injectItems(aeItemStack, Actionable.MODULATE, this.mySrc);
             }
+        } catch (GridAccessException e) {
+
         }
+
+        w.destroyBlock(pos, false);
     }
 
     private void refresh() {
@@ -498,4 +519,33 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         return MODELS.getModel(this.getConnections(), this.isPowered(), this.isActive());
     }
 
+    @Override
+    protected NBTTagCompound downloadSettings(SettingsFrom from, NBTTagCompound output) {
+        super.downloadSettings(from, output);
+        // Save enchants only when the actual plane is dismantled
+        if (from == SettingsFrom.DISMANTLE_ITEM) {
+            writeEnchantments(output);
+        }
+
+        return output;
+    }
+
+    @Override
+    public void uploadSettings(SettingsFrom from, NBTTagCompound output, EntityPlayer player) {
+        super.uploadSettings(from, output, player);
+        // Import enchants only when the plan is placed, not from memory cards
+        if (from == SettingsFrom.DISMANTLE_ITEM) {
+            readEnchantments(output);
+        }
+    }
+
+    private void readEnchantments(NBTTagCompound data) {
+        enchantments = EnchantmentUtil.getEnchantments(data);
+    }
+
+    private void writeEnchantments(NBTTagCompound data) {
+        if (enchantments != null) {
+            EnchantmentUtil.setEnchantments(data, enchantments);
+        }
+    }
 }

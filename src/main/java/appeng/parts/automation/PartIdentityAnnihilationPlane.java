@@ -19,16 +19,12 @@
 package appeng.parts.automation;
 
 
-import appeng.api.parts.IPart;
-import appeng.api.parts.IPartHost;
 import appeng.api.parts.IPartModel;
-import appeng.api.util.AEPartLocation;
 import appeng.items.parts.PartModels;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
@@ -51,15 +47,6 @@ public class PartIdentityAnnihilationPlane extends PartAnnihilationPlane {
 
     public PartIdentityAnnihilationPlane(final ItemStack is) {
         super(is);
-    }
-
-    @Override
-    protected boolean isAnnihilationPlane(final TileEntity blockTileEntity, final AEPartLocation side) {
-        if (blockTileEntity instanceof IPartHost) {
-            final IPart p = ((IPartHost) blockTileEntity).getPart(side);
-            return p != null && p.getClass() == this.getClass();
-        }
-        return false;
     }
 
     @Override
