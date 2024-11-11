@@ -602,16 +602,9 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         writeEnchantments(data);
     }
 
-    public Map<Enchantment, Integer> getEnchantments() {
-        return enchantments;
-    }
-
     @Override
     public void addToWorld() {
         super.addToWorld();
-        Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(getItemStack());
-        if (!map.isEmpty()) {
-            enchantments.putAll(map);
-        }
+        enchantments = EnchantmentHelper.getEnchantments(getItemStack());
     }
 }
