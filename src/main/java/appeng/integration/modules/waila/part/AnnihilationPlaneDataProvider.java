@@ -4,11 +4,18 @@ import appeng.api.parts.IPart;
 import appeng.core.localization.GuiText;
 import appeng.parts.automation.PartAnnihilationPlane;
 import appeng.parts.automation.PartIdentityAnnihilationPlane;
+import appeng.util.EnchantmentUtil;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Map;
 
 public class AnnihilationPlaneDataProvider extends BasePartWailaDataProvider {
     @Override
@@ -16,7 +23,8 @@ public class AnnihilationPlaneDataProvider extends BasePartWailaDataProvider {
         if (part instanceof PartIdentityAnnihilationPlane) {
             currentToolTip.add(GuiText.IdentityDeprecated.getLocal());
         } else if (part instanceof PartAnnihilationPlane plane) {
-            var enchantments = EnchantmentHelper.getEnchantments(plane.getItemStack());
+            NBTTagCompound nbtData = accessor.getNBTData();
+            Map<Enchantment, Integer> enchantments = EnchantmentUtil.getEnchantments(nbtData);
             if (!enchantments.isEmpty()) {
                 currentToolTip.add(GuiText.EnchantedWith.getLocal());
                 for (var enchantment : enchantments.keySet()) {
@@ -26,5 +34,14 @@ public class AnnihilationPlaneDataProvider extends BasePartWailaDataProvider {
         }
 
         return currentToolTip;
+    }
+
+    @Override
+    public NBTTagCompound getNBTData(EntityPlayerMP player, IPart part, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
+        if (part instanceof PartAnnihilationPlane plane) {
+            plane.writeEnchantments(tag);
+        }
+
+        return tag;
     }
 }

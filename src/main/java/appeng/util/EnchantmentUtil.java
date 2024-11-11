@@ -6,8 +6,8 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public final class EnchantmentUtil {
@@ -44,19 +44,16 @@ public final class EnchantmentUtil {
     }
     /**
      * Read enchants written using {@link #setEnchantments} or added to an itemstack's tag using normal enchanting.
-     *
-     * @return null if no enchants are present
      */
-    @Nullable
     public static Map<Enchantment, Integer> getEnchantments(NBTTagCompound data) {
-        if (data.hasKey("Enchantments")) {
-            var list = data.getTagList("Enchantments",9);
+        if (data.hasKey("Enchantments",9)) {
+            var list = data.getTagList("Enchantments",10);
             var enchants = deserializeEnchantments(list);
             if (!enchants.isEmpty()) {
                 return enchants;
             }
         }
-        return null;
+        return new HashMap<>();
     }
 
     /**

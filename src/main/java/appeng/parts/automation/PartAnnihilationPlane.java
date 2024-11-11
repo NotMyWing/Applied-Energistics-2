@@ -77,6 +77,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -99,8 +100,7 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
      * Enchantments found on the plane when it was placed will be used to enchant the fake tool used for picking up
      * blocks.
      */
-//    @Nullable
-//    private Map<Enchantment, Integer> enchantments;
+    private Map<Enchantment, Integer> enchantments = new HashMap<>();
 
     public PartAnnihilationPlane(final ItemStack is) {
         super(is);
@@ -111,7 +111,6 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         this.breaking = false;
         return this.breakBlock(true);
     }
-
 
 
     @Override
@@ -447,7 +446,7 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         final FakePlayer fakePlayer = FakePlayerFactory.getMinecraft(w);
         final IBlockState state = w.getBlockState(pos);
 
-        if (state.getBlock().canSilkHarvest(w, pos, state, fakePlayer) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH,getItemStack()) > 0) {
+        if (state.getBlock().canSilkHarvest(w, pos, state, fakePlayer) && enchantments.get(Enchantments.SILK_TOUCH) > 0) {
             final List<ItemStack> out = new ArrayList<>(1);
             final Item item = Item.getItemFromBlock(state.getBlock());
 
@@ -461,7 +460,7 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
             }
             return out;
         } else {
-            final ItemStack[] out = Platform.getBlockDrops(w, pos, EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE,getItemStack()));
+            final ItemStack[] out = Platform.getBlockDrops(w, pos, enchantments.get(Enchantments.FORTUNE));
             return Lists.newArrayList(out);
         }
     }
@@ -473,7 +472,6 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         boolean useEnergy = true;
         final IBlockState state = w.getBlockState(pos);
         final float hardness = state.getBlockHardness(w, pos);
-        Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(getItemStack());
 
         float requiredEnergy = 1 + hardness;
         for (final ItemStack is : items) {
@@ -583,31 +581,37 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         }
     }
 
-    private void readEnchantments(NBTTagCompound data) {
-        Map<Enchantment, Integer> map = EnchantmentUtil.getEnchantments(data);
-        if (map != null) {
-            EnchantmentHelper.setEnchantments(map,getItemStack());
-        }
-
+    public void readEnchantments(NBTTagCompound data) {
+        enchantments = EnchantmentUtil.getEnchantments(data);
+        EnchantmentHelper.setEnchantments(enchantments,getItemStack());
     }
 
-    private void writeEnchantments(NBTTagCompound data) {
-        EnchantmentUtil.setEnchantments(data, EnchantmentHelper.getEnchantments(this.getItemStack()));
+    public void writeEnchantments(NBTTagCompound data) {
+        EnchantmentUtil.setEnchantments(data, enchantments);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
-        Map<Enchantment, Integer> map = EnchantmentUtil.getEnchantments(data);
-        if (map != null) {
-            EnchantmentHelper.setEnchantments(map,getItemStack());
-        }
-
+        super.readFromNBT(data);
+        readEnchantments(data);
     }
-
-
 
     @Override
     public void writeToNBT(NBTTagCompound data) {
-        EnchantmentUtil.setEnchantments(data,EnchantmentHelper.getEnchantments(getItemStack()));
+        super.writeToNBT(data);
+        writeEnchantments(data);
+    }
+
+    public Map<Enchantment, Integer> getEnchantments() {
+        return enchantments;
+    }
+
+    @Override
+    public void addToWorld() {
+        super.addToWorld();
+        Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(getItemStack());
+        if (!map.isEmpty()) {
+            enchantments.putAll(map);
+        }
     }
 }
