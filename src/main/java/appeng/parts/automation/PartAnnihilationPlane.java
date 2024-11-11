@@ -446,7 +446,7 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
         final FakePlayer fakePlayer = FakePlayerFactory.getMinecraft(w);
         final IBlockState state = w.getBlockState(pos);
 
-        if (state.getBlock().canSilkHarvest(w, pos, state, fakePlayer) && enchantments.get(Enchantments.SILK_TOUCH) > 0) {
+        if (state.getBlock().canSilkHarvest(w, pos, state, fakePlayer) && enchantments.containsKey(Enchantments.SILK_TOUCH)) {
             final List<ItemStack> out = new ArrayList<>(1);
             final Item item = Item.getItemFromBlock(state.getBlock());
 
