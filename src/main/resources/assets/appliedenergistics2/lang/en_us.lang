@@ -260,8 +260,7 @@ gui.appliedenergistics2.Sticky=Sticky
 gui.appliedenergistics2.FluidTerminal=Fluid Terminal
 gui.appliedenergistics2.CanBeEnchanted=Can be enchanted
 gui.appliedenergistics2.IncreasedEnergyUseFromEnchants=Enchants increase energy use
-gui.appliedenergistics2.EnchantedWith=Enchanted with:
-gui.appliedenergistics2.IdentityDeprecated=Deprecated. Take it in your hand, Convert with SHIFT + RIGHT-CLICK
+gui.appliedenergistics2.Deprecated=Deprecated
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=Store Items
@@ -445,6 +444,8 @@ waila.appliedenergistics2.p2p_input_many_outputs=Linked (Input Side) - §4%d§r 
 waila.appliedenergistics2.p2p_output_one_input=Linked (Output Side) - 1 Input
 waila.appliedenergistics2.p2p_output_many_inputs=Linked (Output Side) - §2%d§r Inputs
 waila.appliedenergistics2.P2POutput=Linked (Output Side)
+waila.appliedenergistics2.EnchantedWith=Enchanted with:
+waila.appliedenergistics2.IdentityDeprecated=Deprecated. Convert with SHIFT + RIGHT-CLICK
 
 // TheOneProbe
 theoneprobe.appliedenergistics2.crafting=Crafting: §2%1$s§r

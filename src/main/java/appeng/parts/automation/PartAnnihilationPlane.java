@@ -583,7 +583,7 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
 
     public void readEnchantments(NBTTagCompound data) {
         enchantments = EnchantmentUtil.getEnchantments(data);
-        EnchantmentHelper.setEnchantments(enchantments,getItemStack());
+        EnchantmentHelper.setEnchantments(enchantments, getItemStack());
     }
 
     public void writeEnchantments(NBTTagCompound data) {

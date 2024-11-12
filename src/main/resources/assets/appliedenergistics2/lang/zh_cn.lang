@@ -260,8 +260,7 @@ gui.appliedenergistics2.Sticky=粘滞
 gui.appliedenergistics2.FluidTerminal=流体终端
 gui.appliedenergistics2.CanBeEnchanted=可被附魔
 gui.appliedenergistics2.IncreasedEnergyUseFromEnchants=附魔会增加能耗
-gui.appliedenergistics2.EnchantedWith=已附魔：
-gui.appliedenergistics2.IdentityDeprecated=已弃用。 拿在手上使用SHIFT + 右键来转换
+gui.appliedenergistics2.Deprecated=已弃用
 
 // GUI Tooltips
 gui.tooltips.appliedenergistics2.Stash=存储物品
@@ -446,6 +445,8 @@ waila.appliedenergistics2.p2p_input_many_outputs=已连接（输入端）- §4%d
 waila.appliedenergistics2.p2p_output_one_input=已连接（输出端）- 1输入
 waila.appliedenergistics2.p2p_output_many_inputs=已连接（输出端）- §2%d§r输入
 waila.appliedenergistics2.P2POutput=已连接（输出端）
+waila.appliedenergistics2.EnchantedWith=已附魔：
+waila.appliedenergistics2.IdentityDeprecated=已弃用。 使用SHIFT + 右键来转换
 
 // TheOneProbe
 theoneprobe.appliedenergistics2.crafting=合成中：§2%1$s§r

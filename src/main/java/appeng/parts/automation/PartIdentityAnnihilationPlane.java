@@ -19,13 +19,20 @@
 package appeng.parts.automation;
 
 
+import appeng.api.AEApi;
+import appeng.api.parts.IPartHost;
 import appeng.api.parts.IPartModel;
 import appeng.items.parts.PartModels;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
@@ -77,6 +84,20 @@ public class PartIdentityAnnihilationPlane extends PartAnnihilationPlane {
         } else {
             return super.obtainBlockDrops(w, pos);
         }
+    }
+
+    @Override
+    public boolean onPartShiftActivate(EntityPlayer player, EnumHand hand, Vec3d pos) {
+        TileEntity tile = getTile();
+        if (tile instanceof IPartHost host) {
+            host.removePart(getSide(), false);
+            ItemStack itemStack = AEApi.instance().definitions().parts().annihilationPlane().maybeStack(1).orElse(ItemStack.EMPTY);
+            itemStack.addEnchantment(Enchantments.SILK_TOUCH, 1);
+            host.addPart(itemStack, getSide(), player, hand);
+            return true;
+        }
+
+        return false;
     }
 
     @Override

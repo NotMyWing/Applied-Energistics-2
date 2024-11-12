@@ -211,8 +211,7 @@ public enum GuiText {
 
     CanBeEnchanted,
     IncreasedEnergyUseFromEnchants,
-    IdentityDeprecated,
-    EnchantedWith;
+    Deprecated;
 
     private final String root;
 
