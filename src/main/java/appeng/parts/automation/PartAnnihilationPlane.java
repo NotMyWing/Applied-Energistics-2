@@ -77,7 +77,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -100,7 +100,7 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
      * Enchantments found on the plane when it was placed will be used to enchant the fake tool used for picking up
      * blocks.
      */
-    private Map<Enchantment, Integer> enchantments = new HashMap<>();
+    private Map<Enchantment, Integer> enchantments = new LinkedHashMap<>();
 
     public PartAnnihilationPlane(final ItemStack is) {
         super(is);
@@ -460,8 +460,13 @@ public class PartAnnihilationPlane extends PartBasicState implements IGridTickab
             }
             return out;
         } else {
-            final ItemStack[] out = Platform.getBlockDrops(w, pos, enchantments.get(Enchantments.FORTUNE));
-            return Lists.newArrayList(out);
+            if (enchantments.containsKey(Enchantments.FORTUNE)) {
+                final ItemStack[] out = Platform.getBlockDrops(w, pos, enchantments.get(Enchantments.FORTUNE));
+                return Lists.newArrayList(out);
+            } else {
+                ItemStack[] blockDrops = Platform.getBlockDrops(w, pos);
+                return Lists.newArrayList(blockDrops);
+            }
         }
     }
 
