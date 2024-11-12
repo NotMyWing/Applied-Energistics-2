@@ -444,7 +444,7 @@ public class Platform {
             out = state.getBlock().getDrops(w, pos, state, fortune);
         }
 
-        if (out == null) {
+        if (out == null || out.isEmpty()) {
             return new ItemStack[0];
         }
         return out.toArray(new ItemStack[out.size()]);
