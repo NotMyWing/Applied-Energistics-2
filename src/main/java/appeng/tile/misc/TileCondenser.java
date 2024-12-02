@@ -46,11 +46,9 @@ import appeng.util.inv.InvOperation;
 import appeng.util.inv.WrapperChainedItemHandler;
 import appeng.util.inv.WrapperFilteredItemHandler;
 import appeng.util.inv.filter.AEItemFilters;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -130,15 +128,15 @@ public class TileCondenser extends AEBaseInvTile implements IConfigManagerHost, 
     }
     
     public void addPower(IAEStack<?> stack, double transferFactor) {
-        addPower(key(stack.asItemStackRepresentation().getItem()), stack.getStackSize(), transferFactor);
+        addPower(AEConfig.key(stack.asItemStackRepresentation().getItem()), stack.getStackSize(), transferFactor);
     }
     
     public void addPower(IAEItemStack stack, double transferFactor) {
-        addPower(key(stack.getItem()), stack.getStackSize(), transferFactor);
+        addPower(AEConfig.key(stack.getItem()), stack.getStackSize(), transferFactor);
     }
     
     public void addPower(ItemStack stack, double transferFactor) {
-        this.addPower(key(stack.getItem()), stack.getCount(), transferFactor);
+        this.addPower(AEConfig.key(stack.getItem()), stack.getCount(), transferFactor);
     }
     
     public void addPower(@Nullable FluidStack stack, double transferFactor) {
@@ -146,23 +144,13 @@ public class TileCondenser extends AEBaseInvTile implements IConfigManagerHost, 
             this.addPower(0);
             return;
         }
-        this.addPower(key(stack.getFluid()), stack.amount, transferFactor);
+        this.addPower(AEConfig.key(stack.getFluid()), stack.amount, transferFactor);
     }
     
     public void addPower(String key, double size, double transferFactor) {
         if (AEConfig.instance().isCondensable(key)) {
             this.addPower(size / transferFactor);
         }
-    }
-    
-    private @Nullable String key(Item item) {
-        ResourceLocation resourceLocation = item.getRegistryName();
-        if (resourceLocation == null) return null;
-        else return resourceLocation.getNamespace()+":"+resourceLocation.getPath();
-    }
-    
-    private String key(Fluid fluid) {
-        return fluid.getName();
     }
 
     private boolean canAddOutput(final ItemStack output) {

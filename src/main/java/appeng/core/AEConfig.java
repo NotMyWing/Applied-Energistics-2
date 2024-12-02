@@ -29,9 +29,12 @@ import appeng.util.ConfigManager;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
 import com.google.common.collect.Sets;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -39,6 +42,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 
@@ -77,7 +81,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     
     // Condenser
     private static final String[] nonCondensableKeysDefault = {"ae2fc:fluid_drop"};
-    private Set<String> nonCondensableKeys = new HashSet<>(Arrays.asList(nonCondensableKeysDefault));
+    private Set<String> nonCondensableKeys = setOf(nonCondensableKeysDefault);
     
     // Misc
     private boolean removeCrashingItemsOnLoad = false;
@@ -91,6 +95,12 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private boolean showCraftableTooltip = true;
     private boolean showPlacementPreview = true;
     private boolean showCellContentsPreview = true;
+    
+    // Stack ordering size fixer
+    private static final String[] stackSizeFixerRatiosDefault = {
+        "ae2fc:fluid_drop=1000"
+    };
+    private Map<String, Double> stackSizeFixerRatios = mapOf(stackSizeFixerRatiosDefault, Double::parseDouble);
 
     // Spatial IO/Dimension
     private int storageProviderID = -1;
@@ -149,7 +159,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
         CondenserOutput.MATTER_BALLS.requiredPower = this.get("Condenser", "MatterBalls", 256).getInt(256);
         CondenserOutput.SINGULARITY.requiredPower = this.get("Condenser", "Singularity", 256000).getInt(256000);
-        this.nonCondensableKeys = new HashSet<>(Arrays.asList(this.get("Condenser", "NonCondensable", nonCondensableKeysDefault).getStringList()));
+        this.nonCondensableKeys = setOf(this.get("Condenser", "NonCondensable", nonCondensableKeysDefault).getStringList());
 
         this.removeCrashingItemsOnLoad = this.get("general", "removeCrashingItemsOnLoad", false, "Will auto-remove items that crash when being loaded from storage. This will destroy those items instead of crashing the game!").getBoolean();
         this.normalChannelCapacity = Math.min(this.get("general", "normalChannelCapacity", this.normalChannelCapacity, "Max channel number may not exceed 256").getInt(this.normalChannelCapacity), 256);
@@ -187,6 +197,8 @@ public final class AEConfig extends Configuration implements IConfigurableObject
         this.wirelessBoosterExp = this.get("wireless", "wirelessBoosterExp", this.wirelessBoosterExp).getDouble(this.wirelessBoosterExp);
         this.wirelessTerminalDrainMultiplier = this.get("wireless", "wirelessTerminalDrainMultiplier", this.wirelessTerminalDrainMultiplier).getDouble(this.wirelessTerminalDrainMultiplier);
 
+        this.stackSizeFixerRatios = mapOf(this.get("stackSizeFixer", "ratios", stackSizeFixerRatiosDefault).getStringList(), Double::parseDouble);
+        
         this.formationPlaneEntityLimit = this.get("automation", "formationPlaneEntityLimit", this.formationPlaneEntityLimit).getInt(this.formationPlaneEntityLimit);
 
         this.wirelessTerminalBattery = this.get("battery", "wirelessTerminal", this.wirelessTerminalBattery).getInt(this.wirelessTerminalBattery);
@@ -250,6 +262,19 @@ public final class AEConfig extends Configuration implements IConfigurableObject
         }
 
         this.updatable = true;
+    }
+    
+    private static Set<String> setOf(String[] configData) {
+        return new HashSet<>(Arrays.asList(configData));
+    }
+    
+    private static <T> Map<String, T> mapOf(String[] configData, Function<String, T> converter) {
+        Map<String, T> map = new HashMap<>();
+        for (String configDatum : configData) {
+            String[] parts = configDatum.split("=");
+            map.put(parts[0], converter.apply(parts[1]));
+        }
+        return map;
     }
 
     public static void init(final File configFile) {
@@ -714,6 +739,20 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     public boolean isCondensable(@Nullable String key) {
         if (key == null) return false;
         return !this.nonCondensableKeys.contains(key);
+    }
+    
+    public Map<String, Double> stackSizeFixerRatios() {
+        return this.stackSizeFixerRatios;
+    }
+    
+    public static @Nullable String key(Item item) {
+        ResourceLocation resourceLocation = item.getRegistryName();
+        if (resourceLocation == null) return null;
+        else return resourceLocation.getNamespace()+":"+resourceLocation.getPath();
+    }
+    
+    public static String key(Fluid fluid) {
+        return fluid.getName();
     }
     
 }
