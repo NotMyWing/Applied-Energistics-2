@@ -36,6 +36,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Stream;
@@ -73,6 +74,11 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     private final double wirelessHighWirelessCount = 64;
     private String[] nonBlockingItems = {"[gregtech|actuallyadditions]", "gregtech:circuit.integrated", "gregtech:shape.mold.plate", "gregtech:shape.mold.gear", "gregtech:shape.mold.credit", "gregtech:shape.mold.bottle", "gregtech:shape.mold.ingot", "gregtech:shape.mold.ball", "gregtech:shape.mold.block", "gregtech:shape.mold.nugget", "gregtech:shape.mold.cylinder", "gregtech:shape.mold.anvil", "gregtech:shape.mold.name", "gregtech:shape.mold.gear.small", "gregtech:shape.mold.rotor", "gregtech:shape.extruder.plate", "gregtech:shape.extruder.rod", "gregtech:shape.extruder.bolt", "gregtech:shape.extruder.ring", "gregtech:shape.extruder.cell", "gregtech:shape.extruder.ingot", "gregtech:shape.extruder.wire", "gregtech:shape.extruder.pipe.tiny", "gregtech:shape.extruder.pipe.small", "gregtech:shape.extruder.pipe.medium", "gregtech:shape.extruder.pipe.normal", "gregtech:shape.extruder.pipe.large", "gregtech:shape.extruder.pipe.huge", "gregtech:shape.extruder.block", "gregtech:shape.extruder.sword", "gregtech:shape.extruder.pickaxe", "gregtech:shape.extruder.shovel", "gregtech:shape.extruder.axe", "gregtech:shape.extruder.hoe", "gregtech:shape.extruder.hammer", "gregtech:shape.extruder.file", "gregtech:shape.extruder.saw", "gregtech:shape.extruder.gear", "gregtech:shape.extruder.bottle", "gregtech:shape.extruder.foil", "gregtech:shape.extruder.gear_small", "gregtech:shape.extruder.rod_long", "gregtech:shape.extruder.rotor", "gregtech:glass_lens.white", "gregtech:glass_lens.orange", "gregtech:glass_lens.magenta", "gregtech:glass_lens.light_blue", "gregtech:glass_lens.yellow", "gregtech:glass_lens.lime", "gregtech:glass_lens.pink", "gregtech:glass_lens.gray", "gregtech:glass_lens.light_gray", "gregtech:glass_lens.cyan", "gregtech:glass_lens.purple", "gregtech:glass_lens.blue", "gregtech:glass_lens.brown", "gregtech:glass_lens.green", "gregtech:glass_lens.red", "gregtech:glass_lens.black", "contenttweaker:smallgearextrudershape", "contenttweaker:creativeportabletankmold", "ore:lensAlmandine", "ore:lensBlueTopaz", "ore:lensDiamond", "ore:lensEmerald", "ore:lensGreenSapphire", "ore:lensRutile", "ore:lensRuby", "ore:lensSapphire", "ore:lensTopaz", "ore:lensJasper", "ore:lensGlass", "ore:lensOlivine", "ore:lensOpal", "ore:lensAmethyst", "ore:lensLapis", "ore:lensEnderPearl", "ore:lensEnderEye", "ore:lensGarnetRed", "ore:lensGarnetYellow", "ore:lensVinteum", "ore:lensNetherStar",};
     private boolean updatable = false;
+    
+    // Condenser
+    private static final String[] nonCondensableKeysDefault = {"ae2fc:fluid_drop"};
+    private Set<String> nonCondensableKeys = new HashSet<>(Arrays.asList(nonCondensableKeysDefault));
+    
     // Misc
     private boolean removeCrashingItemsOnLoad = false;
     private int formationPlaneEntityLimit = 128;
@@ -143,6 +149,7 @@ public final class AEConfig extends Configuration implements IConfigurableObject
 
         CondenserOutput.MATTER_BALLS.requiredPower = this.get("Condenser", "MatterBalls", 256).getInt(256);
         CondenserOutput.SINGULARITY.requiredPower = this.get("Condenser", "Singularity", 256000).getInt(256000);
+        this.nonCondensableKeys = new HashSet<>(Arrays.asList(this.get("Condenser", "NonCondensable", nonCondensableKeysDefault).getStringList()));
 
         this.removeCrashingItemsOnLoad = this.get("general", "removeCrashingItemsOnLoad", false, "Will auto-remove items that crash when being loaded from storage. This will destroy those items instead of crashing the game!").getBoolean();
         this.normalChannelCapacity = Math.min(this.get("general", "normalChannelCapacity", this.normalChannelCapacity, "Max channel number may not exceed 256").getInt(this.normalChannelCapacity), 256);
@@ -703,4 +710,10 @@ public final class AEConfig extends Configuration implements IConfigurableObject
     public int getDenseChannelCapacity() {
         return this.denseChannelCapacity;
     }
+    
+    public boolean isCondensable(@Nullable String key) {
+        if (key == null) return false;
+        return !this.nonCondensableKeys.contains(key);
+    }
+    
 }

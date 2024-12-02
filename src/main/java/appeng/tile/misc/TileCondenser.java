@@ -32,10 +32,12 @@ import appeng.api.storage.IStorageMonitorableAccessor;
 import appeng.api.storage.channels.IFluidStorageChannel;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.IConfigManager;
 import appeng.api.util.IConfigurableObject;
 import appeng.capabilities.Capabilities;
+import appeng.core.AEConfig;
 import appeng.tile.AEBaseInvTile;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.ConfigManager;
@@ -44,9 +46,11 @@ import appeng.util.inv.InvOperation;
 import appeng.util.inv.WrapperChainedItemHandler;
 import appeng.util.inv.WrapperFilteredItemHandler;
 import appeng.util.inv.filter.AEItemFilters;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -123,6 +127,42 @@ public class TileCondenser extends AEBaseInvTile implements IConfigManagerHost, 
                 break;
             }
         }
+    }
+    
+    public void addPower(IAEStack<?> stack, double transferFactor) {
+        addPower(key(stack.asItemStackRepresentation().getItem()), stack.getStackSize(), transferFactor);
+    }
+    
+    public void addPower(IAEItemStack stack, double transferFactor) {
+        addPower(key(stack.getItem()), stack.getStackSize(), transferFactor);
+    }
+    
+    public void addPower(ItemStack stack, double transferFactor) {
+        this.addPower(key(stack.getItem()), stack.getCount(), transferFactor);
+    }
+    
+    public void addPower(@Nullable FluidStack stack, double transferFactor) {
+        if (stack == null) {
+            this.addPower(0);
+            return;
+        }
+        this.addPower(key(stack.getFluid()), stack.amount, transferFactor);
+    }
+    
+    public void addPower(String key, double size, double transferFactor) {
+        if (AEConfig.instance().isCondensable(key)) {
+            this.addPower(size / transferFactor);
+        }
+    }
+    
+    private @Nullable String key(Item item) {
+        ResourceLocation resourceLocation = item.getRegistryName();
+        if (resourceLocation == null) return null;
+        else return resourceLocation.getNamespace()+":"+resourceLocation.getPath();
+    }
+    
+    private String key(Fluid fluid) {
+        return fluid.getName();
     }
 
     private boolean canAddOutput(final ItemStack output) {
@@ -248,7 +288,7 @@ public class TileCondenser extends AEBaseInvTile implements IConfigManagerHost, 
                 return stack;
             }
             if (!simulate && !stack.isEmpty()) {
-                TileCondenser.this.addPower(stack.getCount());
+                TileCondenser.this.addPower(stack, 1);
             }
             return ItemStack.EMPTY;
         }
@@ -281,7 +321,7 @@ public class TileCondenser extends AEBaseInvTile implements IConfigManagerHost, 
         public int fill(FluidStack resource, boolean doFill) {
             if (doFill) {
                 final IStorageChannel<IAEFluidStack> chan = AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class);
-                TileCondenser.this.addPower((resource == null ? 0.0 : (double) resource.amount) / chan.transferFactor());
+                TileCondenser.this.addPower(resource, chan.transferFactor());
             }
 
             return resource == null ? 0 : resource.amount;
