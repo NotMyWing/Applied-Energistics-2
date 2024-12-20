@@ -1455,7 +1455,21 @@ public class DualityInterface implements IGridTickable, IStorageMonitorable, IIn
                 }
 
                 if (what.getItem() != Items.AIR) {
-                    return what.getItem().getItemStackDisplayName(what);
+                    /* getTranslationKey() and getUnlocalizedNameInefficiently() have different return values in some mod 
+                     *
+                     * For small item output of a formed machine in mod Modular Machinery Community Edition.
+                     * getTranslationKey() returns "tile.modularmachinery.blockinputbus"
+                     * getUnlocalizedNameInefficiently() return "tile.modularmachinery.blockinputbus.small"
+                     * Because modular machinery community edition overides getUnlocalizedNameInefficiently()
+                     * 
+                     * For the Thermal Expansion
+                     * getTranslationKey() returns complete key ending with ".name".
+                     * getUnlocalizedNameInefficiently() returns localized name
+                     * Because CoFH Core overrides method getTranslationKey()
+                     * 
+                     * Waiting MMCE overrides getTranslationKey
+                     */
+                    return what.getItem().getTranslationKey(what);
                 }
 
                 final Item item = Item.getItemFromBlock(directedBlock);
